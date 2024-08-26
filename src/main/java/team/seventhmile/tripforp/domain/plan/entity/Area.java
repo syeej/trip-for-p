@@ -1,5 +1,7 @@
 package team.seventhmile.tripforp.domain.plan.entity;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 
 @Getter
@@ -24,9 +26,20 @@ public enum Area {
 
     private final String name;
 
+    private static final Map<String, Area> NAME_TO_ENUM_MAP = new HashMap<>();
+
     Area(String name) {
         this.name = name;
     }
 
+    static {
+        for (Area area : Area.values()) {
+            NAME_TO_ENUM_MAP.put(area.getName(), area);
+        }
+    }
 
+    // 한글 이름을 통해 Enum을 반환하는 메서드
+    public static Area fromName(String name) {
+        return NAME_TO_ENUM_MAP.get(name);
+    }
 }
