@@ -1,6 +1,5 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
-import org.apache.catalina.User;
 import org.springframework.web.bind.annotation.*;
 import team.seventhmile.tripforp.domain.plan.entity.PlanLike;
 import team.seventhmile.tripforp.domain.plan.service.PlanLikeService;

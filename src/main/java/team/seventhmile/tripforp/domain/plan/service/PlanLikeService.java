@@ -1,6 +1,5 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.entity.PlanLike;
