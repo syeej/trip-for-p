@@ -1,7 +1,6 @@
-package team.seventhmile.tripforp.domain.review.entity;
+package team.seventhmile.tripforp.domain.review_post.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
