@@ -1,6 +1,8 @@
 package team.seventhmile.tripforp.domain.review_post.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "review_posts")
 public class ReviewPost {
 
@@ -44,5 +48,17 @@ public class ReviewPost {
     // TODO private List<Comments> comments;
 
     // TODO private File file;
+
+    public void update(Plan plan,
+                       String title,
+                       String content,
+                       Integer views,
+                       LocalDateTime updatedAt) {
+        this.plan = plan;
+        this.title = title;
+        this.content = content;
+        this.views = views;
+        this.updatedAt = updatedAt;
+    }
 
 }
