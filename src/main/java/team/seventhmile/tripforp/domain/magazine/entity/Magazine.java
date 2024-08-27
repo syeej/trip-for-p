@@ -1,6 +1,7 @@
-package team.seventhmile.tripforp.magazine;
+package team.seventhmile.tripforp.domain.magazine.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,14 +13,15 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 
-@jakarta.persistence.Entity
+@Entity
 @Table(name = "magazines")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Entity {
+public class Magazine {
 
 	// 게시글 id
 	@Id
@@ -48,13 +50,13 @@ public class Entity {
 
 
 	// 수정 로직 (더티 체킹 방식)
-	public <T extends Entity> void update(Dto dto) {
+	public <T extends Magazine> void update(MagazineDto magazineDto) {
 		// Not Null 예외 처리
-		validateField(dto.getTitle(), "Title");
-		validateField(dto.getContent(), "Content");
+		validateField(magazineDto.getTitle(), "Title");
+		validateField(magazineDto.getContent(), "Content");
 
-		this.title = dto.getTitle();
-		this.content = dto.getContent();
+		this.title = magazineDto.getTitle();
+		this.content = magazineDto.getContent();
 	}
 
 
