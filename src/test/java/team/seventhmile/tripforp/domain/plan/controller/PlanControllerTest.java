@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
-import team.seventhmile.tripforp.domain.plan.service.PlanGetService;
+import team.seventhmile.tripforp.domain.plan.service.PlanService;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,14 +18,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = PlanGetController.class)
-public class PlanGetControllerTest {
+@WebMvcTest(controllers = PlanController.class)
+public class PlanControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private PlanGetService planService;
+    private PlanService planService;
 
     @Test
     void getPlansByArea_returnsPlanWithItems() throws Exception {

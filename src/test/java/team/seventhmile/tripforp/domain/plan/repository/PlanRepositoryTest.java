@@ -46,7 +46,7 @@ public class PlanRepositoryTest {
         Plan plan1 = Plan.builder()
             .startDate(LocalDate.now())
             .endDate(LocalDate.now().plusDays(2))
-            .area(Area.BUSAN)
+            .area("부산광역시")
             .title("부산 여행")
             .build();
         planRepository.save(plan1);
@@ -54,7 +54,7 @@ public class PlanRepositoryTest {
         Plan plan2 = Plan.builder()
             .startDate(LocalDate.now())
             .endDate(LocalDate.now().plusDays(2))
-            .area(Area.SEOUL)
+            .area("서울특별시")
             .title("서울 여행")
             .build();
         planRepository.save(plan2);
