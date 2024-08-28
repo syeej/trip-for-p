@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const createInstance = function () {
-    const instance = axios.create({})
-    return instance;
-};
+const instance = axios.create();
+
+const processAlanAPI = function (request) {
+    return instance.get(`/api/alan?content=${request.content}&client_id=${request.clientId}`);
+}
+
+export {processAlanAPI}
