@@ -8,20 +8,20 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "plan_item")
+@Table(name = "plan_items")
 public class PlanItem{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "plan_id", nullable = false)
-//    private Plan plan;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "place_id", nullable = false)
-//    private Place place;
+    @ManyToOne
+    @JoinColumn(name = "plan_id", nullable = false)
+    private Plan plan;
+
+    @ManyToOne
+    @JoinColumn(name = "place_id", nullable = false)
+    private Place place;
 
     @Column(nullable = false)
     private int sequence;
