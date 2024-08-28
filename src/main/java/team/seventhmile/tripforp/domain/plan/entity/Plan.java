@@ -1,22 +1,16 @@
 package team.seventhmile.tripforp.domain.plan.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.List;
+
+import lombok.*;
 
 @Entity
+@AllArgsConstructor
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "plans")
 public class Plan {
@@ -42,6 +36,9 @@ public class Plan {
     private Area area;
 
     //todo PlanItem List
+
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
+    private List<PlanItem> planItems;  // PlanItems associated with this Plan
 
     @Column(nullable = false)
     private int views;
