@@ -96,9 +96,10 @@ onMounted(() => {
 
 <template>
     <div>
+
+        <div ref="mapContainer" style="width:500px;height:500px;"></div>
         <input v-model="keyword" placeholder="장소를 입력하세요" />
         <button id="search-button">검색</button>
-        <div ref="mapContainer" style="width:100%;height:400px;"></div>
         <p v-if="selectedPlace">선택된 장소: {{ selectedPlace }}</p>
     </div>
 </template>
