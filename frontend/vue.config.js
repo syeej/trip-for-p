@@ -6,6 +6,10 @@ module.exports = defineConfig({
             '/api/v1': {
                 target: 'https://kdt-api-function.azurewebsites.net',
                 changeOrigin: true,
+            },
+            '/api': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
             }
         }
     }

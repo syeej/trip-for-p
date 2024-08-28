@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
+import {ref} from 'vue';
+import {processAlanAPI} from "@/api";
 
 // 상태 변수 선언
 const question = ref('');
@@ -14,17 +14,18 @@ const sendMessage = async () => {
     messages.value.push({ sender: 'You', content: question.value });
 
     try {
-        const response = await axios.get(`/api/v1/question`, {
-            params: {
-                content: question.value,
-                client_id: 'c95c87c1-7647-486e-9e55-a4c5e9bdb742',
-            },
-        });
+        const alanRequest = {
+            content: question.value,
+            clientId: 'c95c87c1-7647-486e-9e55-a4c5e9bdb742'
+        }
+        const response = await processAlanAPI(alanRequest);
+        console.log(response.data)
 
         // 응답을 메시지로 추가
-        messages.value.push({ sender: 'Bot', content: response.data.content });
+        messages.value.push({ sender: 'Bot', content: response.data });
     } catch (error) {
         messages.value.push({ sender: 'Bot', content: 'Error: Unable to get a response from the server.' });
+        console.log(error);
     }
 
     // 입력 필드 초기화
