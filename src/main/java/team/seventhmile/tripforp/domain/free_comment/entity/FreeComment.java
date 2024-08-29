@@ -1,4 +1,4 @@
-package team.seventhmile.tripforp.domain.free_comment;
+package team.seventhmile.tripforp.domain.free_comment.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

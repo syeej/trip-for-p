@@ -1,4 +1,4 @@
-package team.seventhmile.tripforp.domain.free_comment;
+package team.seventhmile.tripforp.domain.free_comment.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
