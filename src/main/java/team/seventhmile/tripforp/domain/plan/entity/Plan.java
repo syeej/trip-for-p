@@ -12,6 +12,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Table(name = "plans")
 public class Plan {
 
@@ -40,6 +41,8 @@ public class Plan {
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
     private List<PlanItem> planItems;  // PlanItems associated with this Plan
 
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
+    private List<PlanLike> planLikes;  // PlanItems associated with this Plan
     @Column(nullable = false)
     private int views;
 
