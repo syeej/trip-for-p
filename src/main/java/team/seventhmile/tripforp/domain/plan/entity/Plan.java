@@ -9,13 +9,14 @@ import java.util.List;
 import lombok.*;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.user.entity.User;
+import team.seventhmile.tripforp.global.common.BaseEntity;
 
 @Entity
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "plans")
-public class Plan {
+public class Plan extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
