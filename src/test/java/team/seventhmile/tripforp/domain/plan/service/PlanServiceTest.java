@@ -53,8 +53,8 @@ public class PlanServiceTest {
             .endDate(LocalDate.now().plusDays(1))
             .title("Trip to North")
             .area("서울특별시")
-            .planItems(planItems)
             .build();
+        plan.addPlanItems(planItems);
 
 
         when(planRepository.findByArea(Area.SEOUL)).thenReturn(List.of(plan));
