@@ -28,12 +28,4 @@ public class PlanLike {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "plan_id", nullable = false)
   private Plan plan; // 좋아요된 여행 코스에 대한 외래 키
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt; // 좋아요가 생성된 시간
-
-  @PrePersist
-  public void prePersist() {
-    this.createdAt = LocalDateTime.now();
-  }
 }
