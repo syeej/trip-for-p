@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.seventhmile.tripforp.domain.plan.entity.Plan;
+import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.domain.review_post.repository.ReviewPostRepository;
@@ -15,12 +17,16 @@ import team.seventhmile.tripforp.domain.review_post.repository.ReviewPostReposit
 public class ReviewPostService {
 
     private final ReviewPostRepository reviewPostRepository;
+    private final PlanRepository planRepository;
     private final JPAQueryFactory jpaQueryFactory;
 
     @Autowired
-    public ReviewPostService(ReviewPostRepository reviewPostRepository, JPAQueryFactory jpaQueryFactory) {
+    public ReviewPostService(ReviewPostRepository reviewPostRepository,
+                             JPAQueryFactory jpaQueryFactory,
+                             PlanRepository planRepository) {
         this.reviewPostRepository = reviewPostRepository;
         this.jpaQueryFactory = jpaQueryFactory;
+        this.planRepository = planRepository;
     }
 
     // 리뷰 게시글 생성
@@ -36,12 +42,18 @@ public class ReviewPostService {
 
     // 리뷰 게시글 수정
     @Transactional
-    public ReviewPostDto updateReviewPost(Long id, ReviewPostDto reviewPostDto) {
+    public ReviewPostDto updateReviewPost(Long id,
+                                          ReviewPostDto reviewPostDto) {
 
         ReviewPost reviewPost = reviewPostRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
 
+        // 상황에 따라 Service에 의존할지, Repository에 의존할지 결정
+        Plan plan = planRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("데이터가 없습니다."));
+
         reviewPost.update(
+                plan,
                 reviewPostDto.getTitle(),
                 reviewPostDto.getContent(),
                 reviewPostDto.getViews(),
