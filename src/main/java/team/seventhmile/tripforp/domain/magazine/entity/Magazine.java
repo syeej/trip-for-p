@@ -26,6 +26,7 @@ public class Magazine {
 	// 게시글 id
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column (name = "magazine_post_id")
 	private Long id;
 
 	// 회원 id
