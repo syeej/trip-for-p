@@ -8,4 +8,6 @@ public interface ReviewPostRepositoryCustom {
 
     Page<ReviewPost> getReviewPosts(Pageable pageable);
 
+    Page<ReviewPost> getReviewPostKeywordContaining(String keyword, Pageable pageable);
+
 }

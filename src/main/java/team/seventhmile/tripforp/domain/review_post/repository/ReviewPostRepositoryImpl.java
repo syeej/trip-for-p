@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.review_post.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,4 +34,25 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
         return PageableExecutionUtils.getPage(reviewPosts, pageable, count::fetchOne);
 
     }
+
+    @Override
+    public Page<ReviewPost> getReviewPostKeywordContaining(String keyword, Pageable pageable) {
+        BooleanExpression searchKeyword = qReviewPost.title.containsIgnoreCase(keyword)
+                .or(qReviewPost.content.containsIgnoreCase(keyword));
+
+        List<ReviewPost> reviewPosts = queryFactory.selectFrom(qReviewPost)
+                .where(searchKeyword)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        JPAQuery<Long> count = queryFactory
+                .select(qReviewPost.count())
+                .from(qReviewPost)
+                .where(searchKeyword);
+
+        return PageableExecutionUtils.getPage(reviewPosts, pageable, count::fetchOne);
+    }
+
+
 }
