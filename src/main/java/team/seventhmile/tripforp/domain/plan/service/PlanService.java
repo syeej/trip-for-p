@@ -59,6 +59,14 @@ public class PlanService {
         return new UpdatePlanResponse(id);
     }
 
+    @Transactional
+    public void deletePlan(Long id) {
+        Plan plan = planRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
+
+        planRepository.delete(plan);
+    }
+
     public List<PlanGetDto> getPlansByArea(Area area) {
         List<Plan> plans = planRepository.findByArea(area);
         return plans.stream().map(plan -> {
