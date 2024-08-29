@@ -65,8 +65,7 @@ public class Plan extends BaseEntity {
         this.startDate = request.getStartDate();
         this.endDate = request.getEndDate();
         this.title = request.getTitle();
-        this.area = request.getArea();
-        this.planItems = request.getPlanItems();
+        this.area = Area.fromName(request.getArea());
     }
 
     public void addPlanItem(PlanItem planItem) {

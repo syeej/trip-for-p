@@ -16,11 +16,11 @@ public class CreatePlanRequest {
     private LocalDate endDate;
     private String title;
     private String area;
-    private List<PlanItemDto> planItems;
+    private List<CreatePlanItemRequest> planItems;
 
     @Builder
     public CreatePlanRequest(LocalDate startDate, LocalDate endDate, String title, String area,
-        List<PlanItemDto> planItems) {
+        List<CreatePlanItemRequest> planItems) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;
