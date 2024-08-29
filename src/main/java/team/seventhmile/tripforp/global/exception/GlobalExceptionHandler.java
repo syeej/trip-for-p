@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.global.exception;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
@@ -44,6 +45,18 @@ public class GlobalExceptionHandler {
             .path(request.getDescription(false))
             .build();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    //데이터베이스 무결성 제약 조건 위반
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleSQLIntegrityConstraintViolationException(
+        SQLIntegrityConstraintViolationException ex, WebRequest request) {
+        ErrorResponse response = ErrorResponse.builder()
+            .status(HttpStatus.CONFLICT.value())
+            .message(ex.getMessage())
+            .path(request.getDescription(false))
+            .build();
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
 }

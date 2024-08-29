@@ -65,8 +65,7 @@ public class Plan extends BaseEntity {
         this.startDate = request.getStartDate();
         this.endDate = request.getEndDate();
         this.title = request.getTitle();
-        this.area = request.getArea();
-        this.planItems = request.getPlanItems();
+        this.area = Area.fromName(request.getArea());
     }
 
     public void addPlanItem(PlanItem planItem) {
@@ -77,6 +76,18 @@ public class Plan extends BaseEntity {
     public void removePlanItem(PlanItem planItem) {
         this.planItems.remove(planItem);
         planItem.setPlan(null);
+    }
+
+    public void addPlanItems(List<PlanItem> planItems) {
+        for (PlanItem planItem : planItems) {
+            addPlanItem(planItem);
+        }
+    }
+
+    public void removePlanItems(List<PlanItem> planItems) {
+        for (PlanItem planItem : planItems) {
+            removePlanItem(planItem);
+        }
     }
 
     public void increaseViews() {

@@ -1,6 +1,5 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
-import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,17 +7,17 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
-import team.seventhmile.tripforp.domain.plan.entity.Place;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
-import team.seventhmile.tripforp.domain.plan.entity.PlanItem;
-import team.seventhmile.tripforp.domain.plan.repository.PlaceRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanGetRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,10 +25,11 @@ import java.util.stream.Collectors;
 public class PlanService {
 
     private final PlanGetRepository planRepository;
-    private final PlaceRepository placeRepository;
+    private final PlaceService placeService;
+    private final PlanItemService planItemService;
 
     @Transactional
-    public CreatePlanResponse create(CreatePlanRequest request) {
+    public CreatePlanResponse createPlan(CreatePlanRequest request) {
 
         Plan plan = Plan.builder()
             .startDate(request.getStartDate())
@@ -38,34 +38,33 @@ public class PlanService {
             .area(request.getArea())
             .build();
 
-        for (PlanItemDto planItemData : request.getPlanItems()) {
+        for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
             //장소 가져오기, 없을 경우 장소 등록
-            Place place = placeRepository.findByAddressNameAndPlaceName(
-                    planItemData.getPlace().getAddressName(),
-                    planItemData.getPlace().getPlaceName())
-                .orElseGet(() -> {
-                    Place newPlace = Place.builder()
-                        .addressName(planItemData.getPlace().getAddressName())
-                        .categoryName(planItemData.getPlace().getCategoryName())
-                        .placeName(planItemData.getPlace().getPlaceName())
-                        .placeUrl(planItemData.getPlace().getPlaceUrl())
-                        .build();
-                    return placeRepository.save(newPlace);
-                });
-            PlanItem planItem = PlanItem.builder()
-                .place(place)
-                .sequence(planItemData.getSequence())
-                .tripDate(planItemData.getTripDate())
-                .memo(planItemData.getMemo())
-                .build();
-            plan.addPlanItem(planItem);
+            planItemService.createPlanItem(plan, planItemRequest);
+        }
+        return new CreatePlanResponse(planRepository.save(plan).getId());
+    }
+
+    @Transactional
+    public UpdatePlanResponse updatePlan(Long id, UpdatePlanRequest request) {
+        Plan plan = planRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
+
+        plan.updatePlan(request);
+
+        for (UpdatePlanItemRequest planItemRequest : request.getPlanItems()) {
+            planItemService.updateOrCreatePlanItem(plan, planItemRequest);
         }
 
-        planRepository.save(plan);
+        return new UpdatePlanResponse(id);
+    }
 
-        return CreatePlanResponse.builder()
-            .id(plan.getId())
-            .build();
+    @Transactional
+    public void deletePlan(Long id) {
+        Plan plan = planRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
+
+        planRepository.delete(plan);
     }
 
     public List<PlanGetDto> getPlansByArea(Area area) {
