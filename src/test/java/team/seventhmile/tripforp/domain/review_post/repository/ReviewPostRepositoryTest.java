@@ -13,14 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.TestPropertySource;
-import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.review_post.entity.QReviewPost;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.global.config.QuerydslConfig;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,8 +62,8 @@ public class ReviewPostRepositoryTest {
                 "리뷰 게시글 제목",
                 "리뷰 게시글 내용",
                 100,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(1));
+                LocalDate.now(),
+                LocalDate.now().plusDays(1));
 
         // null로 된 부분 해결을 위한 코드
         reviewPosts = reviewPostRepository.save(reviewPosts);
@@ -85,8 +83,8 @@ public class ReviewPostRepositoryTest {
                     "리뷰 게시글 제목 " + i,
                     "리뷰 게시글 내용 " + i,
                     100 + i,
-                    LocalDateTime.now().minusDays(i),
-                    LocalDateTime.now());
+                    LocalDate.now().minusDays(i),
+                    LocalDate.now());
             reviewPostList.add(reviewPost);
         }
 
@@ -115,7 +113,7 @@ public class ReviewPostRepositoryTest {
     @DisplayName("리뷰 게시글 생성")
     void createReviewPost() {
         // given
-        ReviewPost createdReviewPost = new ReviewPost(null, plan, "새 리뷰 제목", "새 리뷰 내용", 0, LocalDateTime.now(), LocalDateTime.now());
+        ReviewPost createdReviewPost = new ReviewPost(null, plan, "새 리뷰 제목", "새 리뷰 내용", 0, LocalDate.now(), LocalDate.now());
 
         // when
         ReviewPost savedReviewPost = reviewPostRepository.save(createdReviewPost);
@@ -130,7 +128,7 @@ public class ReviewPostRepositoryTest {
     @DisplayName("리뷰 게시글 조회")
     void readReviewPost() {
         // given
-        ReviewPost reviewPost = new ReviewPost(null, plan, "조회할 리뷰 제목", "조회할 리뷰 내용", 10, LocalDateTime.now(), LocalDateTime.now());
+        ReviewPost reviewPost = new ReviewPost(null, plan, "조회할 리뷰 제목", "조회할 리뷰 내용", 10, LocalDate.now(), LocalDate.now());
         reviewPostRepository.save(reviewPost);
 
         // when
@@ -146,11 +144,11 @@ public class ReviewPostRepositoryTest {
     @DisplayName("리뷰 게시글 수정")
     void updateReviewPost() {
         // given
-        ReviewPost reviewPost = new ReviewPost(null, plan, "수정할 리뷰 제목", "수정할 리뷰 내용", 20, LocalDateTime.now(), LocalDateTime.now());
+        ReviewPost reviewPost = new ReviewPost(null, plan, "수정할 리뷰 제목", "수정할 리뷰 내용", 20, LocalDate.now(), LocalDate.now());
         reviewPostRepository.save(reviewPost);
 
         // when
-        reviewPost.update(plan, "수정된 리뷰 제목", "수정된 리뷰 내용", 100, LocalDateTime.now());
+        reviewPost.update(plan, "수정된 리뷰 제목", "수정된 리뷰 내용", 100, LocalDate.now());
         ReviewPost updatedReviewPost = reviewPostRepository.save(reviewPost);
 
         // then
@@ -162,7 +160,7 @@ public class ReviewPostRepositoryTest {
     @DisplayName("리뷰 게시글 삭제")
     void deleteReviewPost() {
         // given
-        ReviewPost reviewPost = new ReviewPost(null, plan, "삭제할 리뷰 제목", "삭제할 리뷰 내용", 30, LocalDateTime.now(), LocalDateTime.now());
+        ReviewPost reviewPost = new ReviewPost(null, plan, "삭제할 리뷰 제목", "삭제할 리뷰 내용", 30, LocalDate.now(), LocalDate.now());
         reviewPostRepository.save(reviewPost);
 
         // when
@@ -177,8 +175,8 @@ public class ReviewPostRepositoryTest {
     @DisplayName("모든 리뷰 게시글 조회")
     void readAllReviewPosts() {
         // given
-        ReviewPost reviewPost1 = new ReviewPost(null, plan, "리뷰 1", "내용 1", 40, LocalDateTime.now(), LocalDateTime.now());
-        ReviewPost reviewPost2 = new ReviewPost(null, plan, "리뷰 2", "내용 2", 50, LocalDateTime.now(), LocalDateTime.now());
+        ReviewPost reviewPost1 = new ReviewPost(null, plan, "리뷰 1", "내용 1", 40, LocalDate.now(), LocalDate.now());
+        ReviewPost reviewPost2 = new ReviewPost(null, plan, "리뷰 2", "내용 2", 50, LocalDate.now(), LocalDate.now());
         reviewPostRepository.saveAll(Arrays.asList(reviewPost1, reviewPost2));
 
         // when
