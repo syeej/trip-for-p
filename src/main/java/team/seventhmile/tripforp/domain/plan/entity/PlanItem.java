@@ -31,5 +31,13 @@ public class PlanItem{
 
     @Column
     private String memo;
-
+    // @Builder를 사용한 커스텀 생성자
+    @Builder
+    public PlanItem(Plan plan, Place place, int sequence, LocalDate tripDate, String memo) {
+        this.plan = plan;
+        this.place = place;
+        this.sequence = sequence;
+        this.tripDate = tripDate;
+        this.memo = memo;
+    }
 }
