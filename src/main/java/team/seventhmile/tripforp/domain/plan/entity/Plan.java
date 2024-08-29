@@ -3,14 +3,16 @@ package team.seventhmile.tripforp.domain.plan.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
+import team.seventhmile.tripforp.domain.user.entity.User;
 
 @Entity
 @AllArgsConstructor
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "plans")
 public class Plan {
@@ -20,7 +22,9 @@ public class Plan {
     @Column(name = "plan_id")
     private Long id;
 
-    //todo 회원 ID
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -35,10 +39,8 @@ public class Plan {
     @Enumerated(EnumType.STRING)
     private Area area;
 
-    //todo PlanItem List
-
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
-    private List<PlanItem> planItems;  // PlanItems associated with this Plan
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlanItem> planItems = new ArrayList<>();  // PlanItems associated with this Plan
 
     @Column(nullable = false)
     private int views;
@@ -47,11 +49,36 @@ public class Plan {
      * 생성 메서드
      */
     @Builder
-    public Plan(LocalDate startDate, LocalDate endDate, String title, Area area) {
+    public Plan(LocalDate startDate, LocalDate endDate, String title, String area) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;
-        this.area = area;
+        this.area = Area.fromName(area);
         this.views = 0;
+    }
+
+    /**
+     * 수정 메서드
+     */
+    public void updatePlan(UpdatePlanRequest request) {
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+        this.title = request.getTitle();
+        this.area = request.getArea();
+        this.planItems = request.getPlanItems();
+    }
+
+    public void addPlanItem(PlanItem planItem) {
+        this.planItems.add(planItem);
+        planItem.setPlan(this);
+    }
+
+    public void removePlanItem(PlanItem planItem) {
+        this.planItems.remove(planItem);
+        planItem.setPlan(null);
+    }
+
+    public void increaseViews() {
+        this.views += 1;
     }
 }

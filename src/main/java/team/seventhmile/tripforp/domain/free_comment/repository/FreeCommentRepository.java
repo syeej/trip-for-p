@@ -1,0 +1,16 @@
+package team.seventhmile.tripforp.domain.free_comment.repository;
+
+import java.util.List;
+import java.util.Optional;
+import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
+import team.seventhmile.tripforp.domain.user.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
+
+public interface FreeCommentRepository extends JpaRepository<FreeComment, Long> {
+	// 특정 FreePost 엔티티와 연관된 모든 FreeComment 엔티티들을 db에서 조회
+	List<FreeComment> findByFreePost(FreePost freePost);
+
+	// 특정 ID와 작성자를 기준으로 FreeComment 엔터티를 조회 (특정 사용자가 작성한 특정 댓글을 조회)
+	Optional<FreeComment> findByIdAndAuthor(Long id, User author);
+}

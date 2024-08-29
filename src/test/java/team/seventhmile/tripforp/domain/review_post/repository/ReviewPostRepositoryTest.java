@@ -53,7 +53,7 @@ public class ReviewPostRepositoryTest {
         plan = Plan.builder()
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(2))
-                .area(Area.BUSAN)
+                .area("부산광역시")
                 .title("부산 여행")
                 .build();
         testEntityManager.persist(plan);
