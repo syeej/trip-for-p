@@ -79,6 +79,18 @@ public class Plan extends BaseEntity {
         planItem.setPlan(null);
     }
 
+    public void addPlanItems(List<PlanItem> planItems) {
+        for (PlanItem planItem : planItems) {
+            addPlanItem(planItem);
+        }
+    }
+
+    public void removePlanItems(List<PlanItem> planItems) {
+        for (PlanItem planItem : planItems) {
+            removePlanItem(planItem);
+        }
+    }
+
     public void increaseViews() {
         this.views += 1;
     }
