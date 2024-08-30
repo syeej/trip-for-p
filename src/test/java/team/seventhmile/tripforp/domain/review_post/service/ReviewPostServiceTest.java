@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
@@ -45,7 +44,7 @@ public class ReviewPostServiceTest {
         plan = Plan.builder()
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(2))
-                .area(Area.BUSAN)
+                .area("부산")
                 .title("부산 여행")
                 .build();
 
