@@ -42,7 +42,7 @@ public class PlanGetRepositoryTest {
             .startDate(LocalDate.now())
             .endDate(LocalDate.now().plusDays(1))
             .title("Trip to North")
-            .area("서울특별시")
+            .area(Area.valueOf("서울특별시"))
             .planItems(planItems)
             .build();
 

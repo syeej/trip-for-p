@@ -12,4 +12,5 @@ public class PlanGetDto {
     private String title;
     private int views;
     private List<PlanListItemDto> planItems;
+
 }

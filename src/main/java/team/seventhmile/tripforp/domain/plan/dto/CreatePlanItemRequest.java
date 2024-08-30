@@ -10,13 +10,13 @@ import team.seventhmile.tripforp.domain.plan.entity.Place;
 @Getter
 public class CreatePlanItemRequest {
 
-    private Place place;
+    private CreatePlaceRequest place;
     private int sequence;
     private LocalDate tripDate;
     private String memo;
 
     @Builder
-    public CreatePlanItemRequest(Place place, int sequence, LocalDate tripDate, String memo) {
+    public CreatePlanItemRequest(CreatePlaceRequest place, int sequence, LocalDate tripDate, String memo) {
         this.place = place;
         this.sequence = sequence;
         this.tripDate = tripDate;
