@@ -15,6 +15,7 @@ import team.seventhmile.tripforp.global.common.BaseEntity;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Table(name = "plans")
 public class Plan extends BaseEntity {
 
@@ -43,6 +44,8 @@ public class Plan extends BaseEntity {
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlanItem> planItems = new ArrayList<>();  // PlanItems associated with this Plan
 
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
+    private List<PlanLike> planLikes;  // PlanItems associated with this Plan
     @Column(nullable = false)
     private int views;
 

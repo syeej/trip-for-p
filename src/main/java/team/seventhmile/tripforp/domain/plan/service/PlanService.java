@@ -35,7 +35,7 @@ public class PlanService {
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .title(request.getTitle())
-            .area(request.getArea())
+            .area(Area.valueOf(request.getArea()))
             .build();
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
