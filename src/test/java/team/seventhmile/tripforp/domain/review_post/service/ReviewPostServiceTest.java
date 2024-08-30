@@ -45,7 +45,7 @@ public class ReviewPostServiceTest {
         plan = Plan.builder()
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(2))
-                .area(Area.BUSAN)
+                .area("부산")
                 .title("부산 여행")
                 .build();
 
