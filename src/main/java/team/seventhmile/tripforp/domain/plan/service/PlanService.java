@@ -8,6 +8,7 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
@@ -85,8 +86,8 @@ public class PlanService {
             .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
 
         // PlanItems를 PlanItemDto로 변환
-        List<PlanItemDto> planItemDtos = plan.getPlanItems().stream()
-            .map(PlanItemDto::new)
+        List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
+            .map(PlanGetItemDto::new)
             .collect(Collectors.toList());
 
         // PlanLikes를 PlanLikeDto로 변환
