@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
+import team.seventhmile.tripforp.global.common.BaseEntity;
 
 @Entity
 @Table(name = "magazines")
@@ -21,7 +22,7 @@ import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Magazine {
+public class Magazine extends BaseEntity {
 
 	// 게시글 id
 	@Id
@@ -38,16 +39,6 @@ public class Magazine {
 	// 내용
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
-
-	// 게시글 생성일
-	@CreatedDate
-	@Column(nullable = false, updatable = false)
-	private LocalDateTime createdAt;
-
-	// 게시글 수정일
-	@LastModifiedDate
-	@Column
-	private LocalDateTime updatedAt;
 
 
 	// 수정 로직 (더티 체킹 방식)

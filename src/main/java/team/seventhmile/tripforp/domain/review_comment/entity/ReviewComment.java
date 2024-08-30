@@ -1,4 +1,4 @@
-package team.seventhmile.tripforp.domain.free_comment.entity;
+package team.seventhmile.tripforp.domain.review_comment.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,14 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.annotation.LastModifiedDate;
-import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
+import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
 
@@ -26,8 +24,8 @@ import team.seventhmile.tripforp.global.common.BaseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Table(name = "free_post_comments")
-public class FreeComment extends BaseEntity {
+@Table(name = "review_post_comments")
+public class ReviewComment extends BaseEntity {
 
 	// 댓글 id (pk)
 	@Id
@@ -35,10 +33,10 @@ public class FreeComment extends BaseEntity {
 	@Column
 	private Long id;
 
-	// 자유 게시글 id (fk)
+	// 리뷰 게시글 id (fk)
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "free_post_id", nullable = false)
-	private FreePost freePost;
+	@JoinColumn(name = "review_post_id", nullable = false)
+	private ReviewPost reviewPost;
 
 	// 회원 id (fk)
 	@ManyToOne
