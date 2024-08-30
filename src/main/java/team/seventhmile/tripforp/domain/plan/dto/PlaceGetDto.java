@@ -18,4 +18,5 @@ public class PlaceGetDto {
     private String tel;
     private String firstImage;
     private String firstImage2;
+
 }

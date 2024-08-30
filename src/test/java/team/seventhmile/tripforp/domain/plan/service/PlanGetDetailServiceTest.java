@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
 import team.seventhmile.tripforp.domain.plan.entity.*;
 import team.seventhmile.tripforp.domain.plan.repository.PlanGetDetailRepository;
@@ -83,8 +84,8 @@ class PlanGetDetailServiceTest {
         assertEquals(1, result.getPlanItems().size());
         assertEquals(1, result.getPlanLikes().size());
 
-        PlanItemDto itemDto = result.getPlanItems().get(0);
-        assertEquals("Test Place", itemDto.getPlace().getPlaceName());
+        PlanGetItemDto itemDto = result.getPlanItems().get(0);
+        assertEquals("Test Place", itemDto.getPlace().getTitle());
 
         // PlanLikeDto 검증 추가
         assertEquals(1L, result.getPlanLikes().get(0).getUser().getId());
