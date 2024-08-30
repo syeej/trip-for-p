@@ -6,17 +6,21 @@ import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanLikeDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
-import team.seventhmile.tripforp.domain.plan.repository.PlanGetRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
@@ -24,8 +28,7 @@ import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 @RequiredArgsConstructor
 public class PlanService {
 
-    private final PlanGetRepository planRepository;
-    private final PlaceService placeService;
+    private final PlanRepository planRepository;
     private final PlanItemService planItemService;
 
     @Transactional
@@ -35,7 +38,7 @@ public class PlanService {
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .title(request.getTitle())
-            .area(Area.valueOf(request.getArea()))
+            .area(request.getArea())
             .build();
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
@@ -67,7 +70,8 @@ public class PlanService {
         planRepository.delete(plan);
     }
 
-    public List<PlanGetDto> getPlansByArea(Area area) {
+    public List<PlanGetDto> getPlansByArea(String areaName) {
+        Area area = Area.fromName(areaName);
         List<Plan> plans = planRepository.findByArea(area);
         return plans.stream().map(plan -> {
             List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()
@@ -76,5 +80,33 @@ public class PlanService {
                 .collect(Collectors.toList());
             return new PlanGetDto(plan.getTitle(), plan.getViews(), planItemDtos);
         }).collect(Collectors.toList());
+    }
+
+    public PlanGetDetailDto getPlanById(Long planId) {
+        Plan plan = planRepository.findById(planId)
+            .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
+
+        // PlanItems를 PlanItemDto로 변환
+        List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
+            .map(PlanGetItemDto::new)
+            .collect(Collectors.toList());
+
+        // PlanLikes를 PlanLikeDto로 변환
+        List<PlanLikeDto> planLikeDtos = plan.getPlanLikes().stream()
+            .map(like -> new PlanLikeDto(
+                like.getId(),
+                like.getUser(),like.getPlan()))
+            .collect(Collectors.toList());
+
+        return new PlanGetDetailDto(
+            plan.getId(),
+            plan.getTitle(),
+            plan.getStartDate(),
+            plan.getEndDate(),
+            plan.getArea(),
+            plan.getViews(),
+            planItemDtos,
+            planLikeDtos
+        );
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.free_comment.repository.FreeCommentRepository;
@@ -11,6 +12,7 @@ import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.user.entity.User;  // 올바른 User import
 
 @Service
+@Transactional(readOnly = true)
 public class FreeCommentService {
 
 	private final FreeCommentRepository freeCommentRepository;
@@ -29,6 +31,7 @@ public class FreeCommentService {
 	}
 
 	// 자유 게시판 댓글 작성
+	@Transactional
 	public FreeCommentDto createComment(FreePost freePost, FreeCommentDto freeCommentDto,
 		User user) {
 		FreeComment freeComment = mapToEntity(freeCommentDto);
@@ -39,6 +42,7 @@ public class FreeCommentService {
 	}
 
 	// 자유 게시판 댓글 수정
+	@Transactional
 	public FreeCommentDto updateComment(Long id, FreeCommentDto updatedCommentDto, User user) {
 		FreeComment existingComment = freeCommentRepository.findByIdAndAuthor(id, user)
 			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
@@ -49,6 +53,7 @@ public class FreeCommentService {
 	}
 
 	// 자유 게시판 댓글 삭제
+	@Transactional
 	public void deleteComment(Long id, User user) {
 		FreeComment freeComment = freeCommentRepository.findByIdAndAuthor(id, user)
 			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));

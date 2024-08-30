@@ -5,10 +5,7 @@ import lombok.*;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
-@Setter
-@Builder
 @Table(name = "places")
 public class Place {
 
@@ -16,17 +13,10 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "place_id")
     private Long id;
-
     private String addressName;
     private String categoryName;
     private String placeName;
     private String placeUrl;
-
-    @Column(name = "mapx", nullable = false)
-    private Double mapX;
-
-    @Column(name = "mapy", nullable = false)
-    private Double mapY;
 
     @Builder
     public Place(String addressName, String categoryName, String placeName, String placeUrl) {
@@ -35,8 +25,6 @@ public class Place {
         this.placeName = placeName;
         this.placeUrl = placeUrl;
     }
-
-
 }
 
 
