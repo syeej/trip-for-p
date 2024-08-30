@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Comments;
-import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
+import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
-import team.seventhmile.tripforp.domain.user.entity.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +28,7 @@ public class FreePostDto {
 
     private LocalDate updatedAt;
 
-    private List<FreeComment> comments;
+    private List<FreeCommentDto> comments;
 
     // DTO -> Entity
     public FreePost toEntity() {

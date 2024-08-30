@@ -11,20 +11,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.free_post.dto.FreePostDto;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.free_post.repository.FreePostRepository;
-import team.seventhmile.tripforp.domain.plan.entity.Area;
-import team.seventhmile.tripforp.domain.plan.entity.Plan;
-import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
-import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
-import team.seventhmile.tripforp.domain.review_post.repository.ReviewPostRepository;
-import team.seventhmile.tripforp.domain.review_post.service.ReviewPostService;
 import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +40,7 @@ public class FreePostServiceTest {
     private User user;
     private FreePostDto freePostDto;
     private List<FreeComment> comments;
+    private List<FreeCommentDto> commentsDto;
     private List<FreePost> freePostList = new ArrayList<>();
 
     @BeforeEach
@@ -61,6 +56,9 @@ public class FreePostServiceTest {
 
         comments = new ArrayList<>();
         comments.add(new FreeComment());
+
+        commentsDto = new ArrayList<>();
+        commentsDto.add(new FreeCommentDto());
 
         freePost = FreePost.builder()
                 .id(1L)
@@ -122,7 +120,7 @@ public class FreePostServiceTest {
                 .userId(user.getId())
                 .content("수정된 자유 게시글 내용")
                 .views(100)
-                .comments(comments)
+                .comments(commentsDto)
                 .build();
 
         when(freePostRepository.findById(1L)).thenReturn(Optional.of(freePost));

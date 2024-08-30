@@ -17,7 +17,6 @@ import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.config.QuerydslConfig;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -162,8 +161,8 @@ public class FreePostRepositoryTest {
     }
 
     @Test
-    @DisplayName("모든 리뷰 게시글 조회")
-    void readAllReviewPosts() {
+    @DisplayName("모든 자유 게시글 조회")
+    void getFreePosts() {
         // given
         FreePost freePost1 = new FreePost(null, user, "자유 게시글 내용 1", 40, comments);
         FreePost freePost2 = new FreePost(null, user, "자유 게시글 내용 2", 40, comments);
