@@ -108,5 +108,12 @@ public class ReviewPostService {
 
     }
 
+    // ReviewPost 엔티티 조회
+    @Transactional(readOnly = true)
+    public ReviewPost getReviewPostEntity(Long id) {
+        return reviewPostRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+    }
+
 
 }
