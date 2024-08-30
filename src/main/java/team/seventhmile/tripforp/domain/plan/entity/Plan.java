@@ -15,7 +15,6 @@ import team.seventhmile.tripforp.global.common.BaseEntity;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 @Table(name = "plans")
 public class Plan extends BaseEntity {
 
