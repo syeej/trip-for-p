@@ -20,19 +20,8 @@ public class PlanGetDetailService {
                 .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
 
         // PlanItems를 PlanItemDto로 변환
-        List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
-                .map(item -> new PlanGetItemDto(
-                        item.getId(),
-                        new PlaceGetDto(
-                                item.getPlace().getId(),
-                                item.getPlace().getTitle(),
-                                item.getPlace().getAddress(),
-                                item.getPlace().getMapX(),
-                                item.getPlace().getMapY()
-                        ),
-                        item.getTripDate(),
-                        item.getMemo(),
-                        item.getSequence()))
+        List<PlanItemDto> planItemDtos = plan.getPlanItems().stream()
+                .map(PlanItemDto::new)
                 .collect(Collectors.toList());
 
         // PlanLikes를 PlanLikeDto로 변환
