@@ -11,11 +11,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.domain.review_post.repository.ReviewPostRepository;
+import team.seventhmile.tripforp.domain.user.entity.Role;
+import team.seventhmile.tripforp.domain.user.entity.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,9 +42,24 @@ public class ReviewPostServiceTest {
     private ReviewPost reviewPost;
     private ReviewPostDto reviewPostDto;
     private List<ReviewPost> reviewPostList = new ArrayList<>();
+    private User user;
+    private List<FreeComment> comments;
 
     @BeforeEach
     void setUp() {
+
+        user = new User(
+                1L,
+                "email",
+                "1234",
+                "nickname",
+                false,
+                Role.USER
+        );
+
+        comments = new ArrayList<>();
+        comments.add(new FreeComment());
+
         plan = Plan.builder()
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(2))
@@ -51,12 +69,12 @@ public class ReviewPostServiceTest {
 
         reviewPost = ReviewPost.builder()
                 .id(1L)
+                .user(user)
                 .plan(plan)
                 .title("리뷰 게시글 제목")
                 .content("리뷰 게시글 제목")
                 .views(100)
-                .createdAt(LocalDate.now())
-                .updatedAt(LocalDate.now().plusDays(2))
+                .comments(comments)
                 .build();
 
         reviewPostDto = ReviewPostDto.builder()
@@ -74,11 +92,11 @@ public class ReviewPostServiceTest {
             ReviewPost reviewPost = new ReviewPost(
                     null,
                     plan,
+                    user,
                     "리뷰 게시글 제목 " + i,
                     "리뷰 게시글 내용 " + i,
                     100 + i,
-                    LocalDate.now().minusDays(i),
-                    LocalDate.now());
+                    comments);
             reviewPostList.add(reviewPost);
         }
 
@@ -110,8 +128,6 @@ public class ReviewPostServiceTest {
                 .title("게시글 제목")
                 .content("게시글 내용")
                 .views(100)
-                .createdAt(reviewPost.getCreatedAt())
-                .updatedAt(LocalDate.now())
                 .build();
 
         ReviewPostDto updatedDto = ReviewPostDto.builder()
@@ -120,8 +136,6 @@ public class ReviewPostServiceTest {
                 .title("수정된 게시글 제목")
                 .content("수정된 게시글 내용")
                 .views(100)
-                .createdAt(reviewPost.getCreatedAt())
-                .updatedAt(LocalDate.now())
                 .build();
 
         when(reviewPostRepository.findById(1L)).thenReturn(Optional.of(reviewPost));
