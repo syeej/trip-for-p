@@ -40,7 +40,7 @@ class PlanGetDetailControllerTest {
 
     @Test
     void getPlan_Success() throws Exception {
-        PlaceGetDto placeDto = new PlaceGetDto(1L, "Test Place", "Test Address", 37.123, 127.456, "123-456", null, null);
+        PlaceGetDto placeDto = new PlaceGetDto(1L, "Test Place", "Test Address", 37.123, 127.456);
         PlanGetItemDto planItemDto = new PlanGetItemDto(1L, placeDto, LocalDate.now(), "Test Memo", 1);
         PlanGetDetailDto planResponseDto = new PlanGetDetailDto(1L, "Test Plan", LocalDate.now(), LocalDate.now().plusDays(2), Area.SEOUL, 100, Collections.singletonList(planItemDto), Collections.emptyList());
 
@@ -53,5 +53,4 @@ class PlanGetDetailControllerTest {
                 .andExpect(jsonPath("$.title").value("Test Plan"))
                 .andExpect(jsonPath("$.planItems[0].place.title").value("Test Place"));
     }
-
 }
