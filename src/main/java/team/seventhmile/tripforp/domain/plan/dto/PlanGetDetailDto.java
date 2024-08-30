@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
+import team.seventhmile.tripforp.domain.user.entity.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PlanGetDetailDto {
+    private User user;
     private Long id;
     private String title;
     private LocalDate startDate;

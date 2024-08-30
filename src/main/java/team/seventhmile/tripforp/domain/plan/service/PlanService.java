@@ -72,13 +72,23 @@ public class PlanService {
 
     public List<PlanGetDto> getPlansByArea(String areaName) {
         Area area = Area.fromName(areaName);
+
         List<Plan> plans = planRepository.findByArea(area);
+
         return plans.stream().map(plan -> {
+
             List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()
-                .map(planItem -> new PlanListItemDto(planItem.getSequence(),
-                    planItem.getPlace().getPlaceName()))
-                .collect(Collectors.toList());
-            return new PlanGetDto(plan.getTitle(), plan.getViews(), planItemDtos);
+                    .map(planItem -> new PlanListItemDto(
+                            planItem.getSequence(),
+                            planItem.getPlace().getPlaceName()))
+                    .collect(Collectors.toList());
+
+            return new PlanGetDto(
+                    plan.getUser(),
+                    plan.getTitle(),
+                    plan.getViews(),
+                    planItemDtos
+            );
         }).collect(Collectors.toList());
     }
 
@@ -99,6 +109,7 @@ public class PlanService {
             .collect(Collectors.toList());
 
         return new PlanGetDetailDto(
+                plan.getUser(),
             plan.getId(),
             plan.getTitle(),
             plan.getStartDate(),
