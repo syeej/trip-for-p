@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,24 +19,43 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-public class PlanGetServiceTest {
+public class PlanServiceTest {
     @Mock
     private PlanGetRepository planRepository;
 
     @InjectMocks
-    private PlanGetService planService;
+    private PlanService planService;
 
-    public PlanGetServiceTest() {
+    public PlanServiceTest() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void getPlansByArea_returnsMappedPlanResponseDtos() {
         // given
-        Place place = new Place(1L, "Address 1", null, 1L, "A", "B", "C", 100, 101, 1.1, 1.2, 1, "010-0000-0000", "Mountain Park", "COPY", null, null, 0);
-        PlanItem planItem = new PlanItem(1L, null, place, 1, LocalDate.now(), null);
-        Plan plan = new Plan(LocalDate.now(), LocalDate.now().plusDays(1), "Trip to North", Area.SEOUL);
-        plan.setPlanItems(List.of(planItem));
+        Place place = Place.builder()
+            .addressName("충남 태안군 남면 신온리 168-14")
+            .categoryName("여행")
+            .placeName("비바온풀빌라펜션")
+            .placeUrl("http://place.map.kakao.com/1452543531")
+            .build();
+        PlanItem planItem = PlanItem.builder()
+            .place(place)
+            .sequence(1)
+            .tripDate(LocalDate.now())
+            .memo("서울 여행")
+            .build();
+
+        List < PlanItem > planItems = new ArrayList<>();
+        planItems.add(planItem);
+        Plan plan = Plan.builder()
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(1))
+            .title("Trip to North")
+            .area(Area.valueOf("서울특별시"))
+            .planItems(planItems)
+            .build();
+
 
         when(planRepository.findByArea(Area.SEOUL)).thenReturn(List.of(plan));
 

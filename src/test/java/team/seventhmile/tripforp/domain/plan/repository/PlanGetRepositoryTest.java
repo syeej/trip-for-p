@@ -1,11 +1,13 @@
 package team.seventhmile.tripforp.domain.plan.repository;
 
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.entity.PlanItem;
 import team.seventhmile.tripforp.domain.plan.entity.Place;
@@ -24,18 +26,29 @@ public class PlanGetRepositoryTest {
     @Test
     void findByArea_returnsPlansWithCorrectArea() {
         // given
-        Plan plan = new Plan(LocalDate.now(), LocalDate.now().plusDays(1), "Trip to North", Area.SEOUL);
-        plan.setViews(100);
+        Place place = Place.builder()
+            .placeName("Mountain Park")
+            .build();
 
-        Place place = new Place();
-        place.setTitle("Mountain Park");
+        List<PlanItem> planItems = new ArrayList<>();
 
-        PlanItem planItem = new PlanItem();
-        planItem.setSequence(1);
-        planItem.setPlace(place);
-        planItem.setPlan(plan);
+        PlanItem planItem = PlanItem.builder()
+            .place(place)
+            .sequence(1)
+            .build();
+        planItems.add(planItem);
 
-        plan.setPlanItems(List.of(planItem));
+        Plan plan = Plan.builder()
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(1))
+            .title("Trip to North")
+            .area(Area.valueOf("서울특별시"))
+            .planItems(planItems)
+            .build();
+
+        for (int i = 0; i < 50; i++) {
+            plan.increaseViews();
+        }
 
         planRepository.save(plan);
 
@@ -49,6 +62,6 @@ public class PlanGetRepositoryTest {
         assertEquals(100, foundPlan.getViews());
         assertEquals(1, foundPlan.getPlanItems().size());
         assertEquals(1, foundPlan.getPlanItems().get(0).getSequence());
-        assertEquals("Mountain Park", foundPlan.getPlanItems().get(0).getPlace().getTitle());
+        assertEquals("Mountain Park", foundPlan.getPlanItems().get(0).getPlace().getPlaceName());
     }
 }

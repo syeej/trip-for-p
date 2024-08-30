@@ -1,20 +1,23 @@
 package team.seventhmile.tripforp.domain.plan.dto;
 
-import lombok.AllArgsConstructor;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import team.seventhmile.tripforp.domain.plan.entity.PlanItem;
 
-import java.time.LocalDate;
-
-@Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class PlanItemDto {
-    private Long id;
-    private PlaceGetDto place;
+
+    private PlaceDto place;
     private LocalDate tripDate;
-    private String memo;
     private int sequence;
+    private String memo;
+
+    public PlanItemDto(PlanItem planItem) {
+        this.place = new PlaceDto(planItem.getPlace());
+        this.tripDate = planItem.getTripDate();
+        this.sequence = planItem.getSequence();
+        this.memo = planItem.getMemo();
+    }
 }

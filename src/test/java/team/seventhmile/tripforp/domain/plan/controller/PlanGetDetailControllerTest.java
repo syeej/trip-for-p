@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import team.seventhmile.tripforp.domain.plan.dto.PlaceGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.service.PlanGetDetailService;
 
@@ -41,7 +41,7 @@ class PlanGetDetailControllerTest {
     @Test
     void getPlan_Success() throws Exception {
         PlaceGetDto placeDto = new PlaceGetDto(1L, "Test Place", "Test Address", 37.123, 127.456, "123-456", null, null);
-        PlanItemDto planItemDto = new PlanItemDto(1L, placeDto, LocalDate.now(), "Test Memo", 1);
+        PlanGetItemDto planItemDto = new PlanGetItemDto(1L, placeDto, LocalDate.now(), "Test Memo", 1);
         PlanGetDetailDto planResponseDto = new PlanGetDetailDto(1L, "Test Plan", LocalDate.now(), LocalDate.now().plusDays(2), Area.SEOUL, 100, Collections.singletonList(planItemDto), Collections.emptyList());
 
         when(planService.getPlanById(1L)).thenReturn(planResponseDto);

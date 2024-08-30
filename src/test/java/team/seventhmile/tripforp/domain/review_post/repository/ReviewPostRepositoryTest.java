@@ -53,7 +53,7 @@ public class ReviewPostRepositoryTest {
         plan = Plan.builder()
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(2))
-                .area(Area.BUSAN)
+                .area(Area.valueOf("부산광역시"))
                 .title("부산 여행")
                 .build();
         testEntityManager.persist(plan);
@@ -177,8 +177,8 @@ public class ReviewPostRepositoryTest {
     @DisplayName("모든 리뷰 게시글 조회")
     void readAllReviewPosts() {
         // given
-        ReviewPost reviewPost1 = new ReviewPost(null, plan, "리뷰 1", "내용 1", 40, LocalDateTime.now(), LocalDateTime.now());
-        ReviewPost reviewPost2 = new ReviewPost(null, plan, "리뷰 2", "내용 2", 50, LocalDateTime.now(), LocalDateTime.now());
+        ReviewPost reviewPost1 = new ReviewPost(null, plan, "리뷰 1", "내용 1", 40, LocalDate.now(), LocalDate.now());
+        ReviewPost reviewPost2 = new ReviewPost(null, plan, "리뷰 2", "내용 2", 50, LocalDate.now(), LocalDate.now());
         reviewPostRepository.saveAll(Arrays.asList(reviewPost1, reviewPost2));
 
         // when

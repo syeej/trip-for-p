@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -40,10 +40,10 @@ public class ReviewPost {
     private Integer views;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDate updatedAt;
 
     // TODO private List<Comments> comments;
 
@@ -53,7 +53,7 @@ public class ReviewPost {
                        String title,
                        String content,
                        Integer views,
-                       LocalDateTime updatedAt) {
+                       LocalDate updatedAt) {
         this.plan = plan;
         this.title = title;
         this.content = content;

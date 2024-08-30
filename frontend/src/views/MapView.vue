@@ -1,12 +1,13 @@
 <script setup>
 /* global kakao */
 import {onMounted} from "vue";
+import SearchPlaceView from "@/views/SearchPlaceView.vue";
 
 const location = "태안";
 const locations = [
-    { name: location + " 다원 맛집"},
+    { name: location + " 파도리해식동굴"},
     { name: location + " 딴뚝통나무집"},
-    { name: location + " 시골밥상"},
+    { name: location + " 비바온풀빌라펜션"},
 ];
 
 const initMap = () => {
@@ -135,11 +136,15 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
+    <div class="map-wrapper">
         <div id="map" style="width: 500px; height: 500px;"></div>
+        <SearchPlaceView/>
     </div>
+
 </template>
 
 <style scoped>
-
+.map-wrapper {
+    display: flex;
+}
 </style>

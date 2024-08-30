@@ -51,8 +51,7 @@ class PlanGetDetailServiceTest {
 
         // Place 객체 생성
         Place place = Place.builder()
-                .title("Test Place")
-                .addr1("Test Address 1")
+                .placeName("Test Place")
                 .mapX(37.123)
                 .mapY(127.456)
                 .build();
@@ -85,7 +84,7 @@ class PlanGetDetailServiceTest {
         assertEquals(1, result.getPlanLikes().size());
 
         PlanItemDto itemDto = result.getPlanItems().get(0);
-        assertEquals("Test Place", itemDto.getPlace().getTitle());
+        assertEquals("Test Place", itemDto.getPlace().getPlaceName());
 
         // PlanLikeDto 검증 추가
         assertEquals(1L, result.getPlanLikes().get(0).getUser().getId());

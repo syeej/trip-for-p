@@ -8,13 +8,33 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "places")
 public class Place {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "place_id")
-    private Long placeId;
+    private Long id;
+
+    private String addressName;
+    private String categoryName;
+    private String placeName;
+    private String placeUrl;
+
+    @Column(name = "mapx", nullable = false)
+    private Double mapX;
+
+    @Column(name = "mapy", nullable = false)
+    private Double mapY;
+
+    @Builder
+    public Place(String addressName, String categoryName, String placeName, String placeUrl) {
+        this.addressName = addressName;
+        this.categoryName = categoryName;
+        this.placeName = placeName;
+        this.placeUrl = placeUrl;
+    }
 
     @Column(name = "addr1", nullable = false, length = 255)
     private String addr1;
@@ -66,28 +86,6 @@ public class Place {
 
     @Column(name = "selected_count", nullable = false)
     private Integer selectedCount;
-
-    // @Builder를 사용한 커스텀 생성자
-    @Builder
-    public Place(String addr1, String addr2, Long areaCode, String cat1, String cat2, String cat3, Integer contentId, Integer contentTypeId, Double mapX, Double mapY, Integer sigunguCode, String tel, String title, String cpyrhtDivCd, String firstImage, String firstImage2, Integer selectedCount) {
-        this.addr1 = addr1;
-        this.addr2 = addr2;
-        this.areaCode = areaCode;
-        this.cat1 = cat1;
-        this.cat2 = cat2;
-        this.cat3 = cat3;
-        this.contentId = contentId;
-        this.contentTypeId = contentTypeId;
-        this.mapX = mapX;
-        this.mapY = mapY;
-        this.sigunguCode = sigunguCode;
-        this.tel = tel;
-        this.title = title;
-        this.cpyrhtDivCd = cpyrhtDivCd;
-        this.firstImage = firstImage;
-        this.firstImage2 = firstImage2;
-        this.selectedCount = selectedCount;
-    }
 }
 
 
