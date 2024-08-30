@@ -8,8 +8,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Builder
-@Table(name = "plan_items")
-public class PlanItem{
+@Table(name = "plan_items",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"plan_id", "sequence", "trip_date"}))
+public class PlanItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
