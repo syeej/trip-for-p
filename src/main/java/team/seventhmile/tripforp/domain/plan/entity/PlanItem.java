@@ -1,15 +1,16 @@
 package team.seventhmile.tripforp.domain.plan.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
+import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Getter
-@Builder
 @Table(name = "plan_items",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"plan_id", "sequence", "trip_date"}))
+    uniqueConstraints = @UniqueConstraint(columnNames = {"plan_id", "sequence", "trip_date"}))
 public class PlanItem {
 
     @Id
@@ -40,6 +41,15 @@ public class PlanItem {
         this.sequence = sequence;
         this.tripDate = tripDate;
         this.memo = memo;
+    }
+
+    public Long updatePlanItem(Place place, UpdatePlanItemRequest request) {
+        this.place = place;
+        this.sequence = request.getSequence();
+        this.tripDate = request.getTripDate();
+        this.memo = request.getMemo();
+
+        return id;
     }
 
     public void setPlan(Plan plan) {

@@ -24,12 +24,12 @@ public class UpdatePlanRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private String title;
-    private Area area;
-    private List<PlanItem> planItems;
+    private String area;
+    private List<UpdatePlanItemRequest> planItems;
 
     @Builder
-    public UpdatePlanRequest(LocalDate startDate, LocalDate endDate, String title, Area area,
-        List<PlanItem> planItems) {
+    public UpdatePlanRequest(LocalDate startDate, LocalDate endDate, String title, String area,
+        List<UpdatePlanItemRequest> planItems) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;
