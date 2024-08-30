@@ -1,24 +1,37 @@
 package team.seventhmile.tripforp.domain.free_post.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comments;
+import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
+import team.seventhmile.tripforp.domain.plan.entity.Plan;
+import team.seventhmile.tripforp.domain.user.entity.User;
+import team.seventhmile.tripforp.global.common.BaseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "free_posts")
-public class FreePost {
+@Builder
+public class FreePost extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "free_post_id")
     private Long id;
 
-    // TODO private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String content;
@@ -27,13 +40,15 @@ public class FreePost {
     @ColumnDefault("0")
     private Integer views;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @Column
+    @OneToMany
+    private List<FreeComment> comments;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    // TODO private List<Comments> comments;
+    public void update(String content,
+                       Integer views) {
+        this.content = content;
+        this.views = views;
+    }
 
 }
 
