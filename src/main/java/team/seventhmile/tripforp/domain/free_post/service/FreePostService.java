@@ -42,8 +42,7 @@ public class FreePostService {
 
         freePost.update(
                 freePostDto.getContent(),
-                freePostDto.getViews(),
-                freePostDto.getUpdatedAt()
+                freePostDto.getViews()
         );
 
         freePostRepository.save(freePost);

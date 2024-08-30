@@ -56,8 +56,7 @@ public class ReviewPostService {
                 plan,
                 reviewPostDto.getTitle(),
                 reviewPostDto.getContent(),
-                reviewPostDto.getViews(),
-                reviewPostDto.getUpdatedAt()
+                reviewPostDto.getViews()
         );
 
         reviewPostRepository.save(reviewPost);
