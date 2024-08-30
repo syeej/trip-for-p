@@ -8,6 +8,8 @@ import team.seventhmile.tripforp.domain.plan.entity.PlanLike;
 import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.user.entity.User;
 
+import java.util.List;
+
 @Service
 public class PlanLikeService {
 
@@ -36,5 +38,10 @@ public class PlanLikeService {
     @Transactional
     public void unlikePlan(Long likeId){
         planLikeRepository.deleteById(likeId);
+    }
+
+    // 좋아요 기준 상위5개 여행코스 반환 메서드
+    public List<Plan> getTop5PlansByLikes(){
+        return planLikeRepository.findTop5PlansByLikes();
     }
 }
