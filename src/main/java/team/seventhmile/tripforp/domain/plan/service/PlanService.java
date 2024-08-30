@@ -70,7 +70,8 @@ public class PlanService {
         planRepository.delete(plan);
     }
 
-    public List<PlanGetDto> getPlansByArea(Area area) {
+    public List<PlanGetDto> getPlansByArea(String areaName) {
+        Area area = Area.fromName(areaName);
         List<Plan> plans = planRepository.findByArea(area);
         return plans.stream().map(plan -> {
             List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()

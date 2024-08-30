@@ -40,7 +40,7 @@ public class PlanControllerTest {
                 "Trip to North", 100,
                 List.of(new PlanListItemDto(1, "Mountain Park"))
         );
-        when(planService.getPlansByArea(Area.SEOUL)).thenReturn(Collections.singletonList(planResponseDto));
+        when(planService.getPlansByArea("서울특별시")).thenReturn(Collections.singletonList(planResponseDto));
 
         // when, then
         mockMvc.perform(get("/api/plans")

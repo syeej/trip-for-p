@@ -52,7 +52,7 @@ public class PlanController {
     }
 
     @GetMapping
-    public List<PlanGetDto> getPlansByArea(@RequestParam("area") Area area) {
+    public List<PlanGetDto> getPlansByArea(@RequestParam("area") String area) {
         return planService.getPlansByArea(area);
     }
 
