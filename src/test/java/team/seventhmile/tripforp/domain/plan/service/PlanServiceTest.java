@@ -113,7 +113,7 @@ public class PlanServiceTest {
         when(planRepository.findByArea(Area.SEOUL)).thenReturn(List.of(plan));
 
         // when
-        List<PlanGetDto> result = planService.getPlansByArea(Area.SEOUL);
+        List<PlanGetDto> result = planService.getPlansByArea("서울특별시");
 
         // then
         assertEquals(1, result.size());
