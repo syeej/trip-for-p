@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class ReviewPostDto {
 
     private Long planId;
 
-    // TODO private Long userId;
+    private Long userId;
 
     private String title;
 
@@ -30,7 +32,8 @@ public class ReviewPostDto {
 
     private LocalDate updatedAt;
 
-    // TODO private List<Long> commentsId;
+    // 이 부분 만약 변경 사항이 있을 시 타입 명만 수정해주면 됩니다.
+    private List<FreeComment> comments;
 
     // TODO private File file;
 
@@ -39,11 +42,10 @@ public class ReviewPostDto {
         return ReviewPost.builder()
                 .id(this.id)
                 //.plan(this.planId)
+                //.user(this.userId)
                 .title(this.title)
                 .content(this.content)
                 .views(this.views)
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
                 .build();
     }
 
@@ -51,12 +53,11 @@ public class ReviewPostDto {
     public static ReviewPostDto fromEntity(ReviewPost reviewPost) {
         return ReviewPostDto.builder()
                 .id(reviewPost.getId())
-                .planId(1L) // 임시
+                .planId(reviewPost.getPlan().getId())
+                .userId(reviewPost.getUser().getId())
                 .title(reviewPost.getTitle())
                 .content(reviewPost.getContent())
                 .views(reviewPost.getViews())
-                .createdAt(reviewPost.getCreatedAt())
-                .updatedAt(reviewPost.getUpdatedAt())
                 .build();
     }
 
