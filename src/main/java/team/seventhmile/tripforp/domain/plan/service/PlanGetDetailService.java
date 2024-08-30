@@ -2,10 +2,7 @@ package team.seventhmile.tripforp.domain.plan.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import team.seventhmile.tripforp.domain.plan.dto.PlaceGetDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanLikeDto;
+import team.seventhmile.tripforp.domain.plan.dto.*;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.repository.PlanGetDetailRepository;
 
@@ -23,18 +20,15 @@ public class PlanGetDetailService {
                 .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
 
         // PlanItems를 PlanItemDto로 변환
-        List<PlanItemDto> planItemDtos = plan.getPlanItems().stream()
-                .map(item -> new PlanItemDto(
+        List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
+                .map(item -> new PlanGetItemDto(
                         item.getId(),
                         new PlaceGetDto(
-                                item.getPlace().getPlaceId(),
+                                item.getPlace().getId(),
                                 item.getPlace().getTitle(),
-                                item.getPlace().getAddr1() + " " + item.getPlace().getAddr2(),
+                                item.getPlace().getAddress(),
                                 item.getPlace().getMapX(),
-                                item.getPlace().getMapY(),
-                                item.getPlace().getTel(),
-                                item.getPlace().getFirstImage(),
-                                item.getPlace().getFirstImage2()
+                                item.getPlace().getMapY()
                         ),
                         item.getTripDate(),
                         item.getMemo(),

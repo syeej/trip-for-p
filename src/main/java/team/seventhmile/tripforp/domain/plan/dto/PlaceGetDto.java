@@ -15,8 +15,4 @@ public class PlaceGetDto {
     private String address;
     private Double mapX;
     private Double mapY;
-    private String tel;
-    private String firstImage;
-    private String firstImage2;
-
 }
