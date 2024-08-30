@@ -53,5 +53,4 @@ class PlanGetDetailControllerTest {
                 .andExpect(jsonPath("$.title").value("Test Plan"))
                 .andExpect(jsonPath("$.planItems[0].place.title").value("Test Place"));
     }
-
 }
