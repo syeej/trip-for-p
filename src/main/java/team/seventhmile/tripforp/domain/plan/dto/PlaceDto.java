@@ -1,10 +1,12 @@
 package team.seventhmile.tripforp.domain.plan.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.seventhmile.tripforp.domain.plan.entity.Place;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 public class PlaceDto {
 

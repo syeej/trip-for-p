@@ -2,6 +2,7 @@ package team.seventhmile.tripforp.domain.magazine.dto;
 
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,15 +25,15 @@ public class MagazineDto {
 	@Size(max = 999999, message = "내용은 999999자를 초과할 수 없습니다.")
 	private String content;
 
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
+	private ZonedDateTime createdAt;
+	private ZonedDateTime updatedAt;
 
 	// dto -> entity 변환
 	public static Magazine convertToEntity(MagazineDto magazineDto) {
 		return Magazine.builder()
 			.title(magazineDto.getTitle())
 			.content(magazineDto.getContent())
-			.createdAt(magazineDto.getCreatedAt() != null ? magazineDto.getCreatedAt() : LocalDateTime.now())
+			.createdAt(magazineDto.getCreatedAt() != null ? magazineDto.getCreatedAt() : ZonedDateTime.now())
 			.updatedAt(magazineDto.getUpdatedAt())
 			.build();
 	}
