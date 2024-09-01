@@ -67,7 +67,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "${{ secrets.DOCKER_COMPOSE }}" > docker-compose.yml
             export DOCKERHUB_USERNAME=${{ secrets.DOCKER_USERNAME }}
