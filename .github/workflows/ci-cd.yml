@@ -70,7 +70,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "${{ secrets.DOCKER_COMPOSE }}" > docker-compose.yml
-            export DOCKERHUB_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
             export TAG=${{ github.sha }}
             export RDS_DB_URL='${{ secrets.RDS_DB_URL }}'
             export RDS_DB_USERNAME='${{ secrets.RDS_DB_USERNAME }}'
