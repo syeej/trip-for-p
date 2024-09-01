@@ -3,7 +3,7 @@ FROM openjdk:17-jdk-slim AS build
 WORKDIR /app
 COPY . .
 RUN chmod +x ./gradlew
-RUN ./gradlew build -x test
+RUN ./gradlew build
 
 # BE Run
 FROM openjdk:17-jdk-slim
