@@ -75,7 +75,7 @@ jobs:
             set -e
             mkdir -p ~/app 
             cd ~/app
-            echo "DOCKER_USERNAME"=${DOCKER_USERNAME}" > .env
+            echo "DOCKER_USERNAME=${DOCKER_USERNAME}" > .env
             sudo chown -R ubuntu:ubuntu ~/app
             echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME}"
             
