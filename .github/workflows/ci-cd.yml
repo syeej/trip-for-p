@@ -71,13 +71,15 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DOCKER_USERNAME,TAG
           script: |
             set -e
             mkdir -p ~/app 
             cd ~/app
             echo "DOCKER_USERNAME=${DOCKER_USERNAME}" > .env
+            echo "TAG=${TAG}" >> .env
             sudo chown -R ubuntu:ubuntu ~/app
-            echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME}"
+            echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME} ${TAG}"
             
             echo "==== Debugging: Content of .env file ===="
             cat .env
