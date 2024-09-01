@@ -4,17 +4,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 import team.seventhmile.tripforp.domain.magazine.entity.Magazine;
 import team.seventhmile.tripforp.domain.magazine.repository.MagazineRepository;
+import team.seventhmile.tripforp.domain.user.entity.Role;
+import team.seventhmile.tripforp.domain.user.entity.User;
+import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 
-@org.springframework.stereotype.Service
+@Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MagazineService {
 
 	private final MagazineRepository magazineRepository;
+	private final UserRepository userRepository;
 
 	// 매거진 글 목록 조회
 	public Optional<List<MagazineDto>> getAllMagazineList() {
@@ -31,40 +36,58 @@ public class MagazineService {
 	}
 
 	// 매거진 글 작성하기
-	// (AuthCheck 권한확인 아직 미기재)
 	@Transactional
-	public void createMagazinePost(MagazineDto magazineDto) {
+	public void createMagazinePost(MagazineDto magazineDto, Long userId) {
+		// 현재 로그인된 사용자를 가져오는 로직
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+		if (user.getRole() != Role.ADMIN) {
+			throw new IllegalArgumentException("Only ADMIN has the permission");
+		}
+
 		// Not Null 예외 처리
 		Magazine.validateField(magazineDto.getTitle(), "Title");
 		Magazine.validateField(magazineDto.getContent(), "Content");
 
-		// 현재 로그인된 사용자를 가져오는 로직 미기재
-
 		// 저장 로직
-		magazineRepository.save(MagazineDto.convertToEntity(magazineDto));
+		Magazine magazine = MagazineDto.convertToEntity(magazineDto, user);
+		magazineRepository.save(magazine);
 	}
 
 	// 매거진 글 수정하기
-	// (AuthCheck 권한확인 아직 미기재)
 	@Transactional
-	public void updateMagazinePost(Long id, MagazineDto magazineDto) {
-		// Not Null 예외 처리
+	public void updateMagazinePost(Long id, MagazineDto magazineDto, Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+		if (user.getRole() != Role.ADMIN) {
+			throw new IllegalArgumentException("Only ADMIN has the permission");
+		}
+
+		// 예외 처리
 		Magazine.validateField(magazineDto.getTitle(), "Title");
 		Magazine.validateField(magazineDto.getContent(), "Content");
 
 		Magazine magazine = magazineRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("id: " + id + " not found"));
+			.orElseThrow(() -> new IllegalArgumentException("Magazine not found"));
 
 		// 수정 로직
 		magazine.update(magazineDto);
 	}
 
 	// 매거진 글 삭제하기 (하드 딜리트)
-	// (AuthCheck 권한확인 아직 미기재)
 	@Transactional
-	public void deleteMagazinePost(Long id) {
+	public void deleteMagazinePost(Long id, Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+		if (user.getRole() != Role.ADMIN) {
+			throw new IllegalArgumentException("Only ADMIN has the permission");
+		}
+
 		Magazine magazine = magazineRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("id: " + id + " not found"));
+			.orElseThrow(() -> new IllegalArgumentException("Magazine not found"));
 
 		// db 에서 삭제
 		magazineRepository.delete(magazine);
