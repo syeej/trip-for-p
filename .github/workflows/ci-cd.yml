@@ -46,7 +46,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tripforp-server:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/tripforp-server:${{ github.sha }}
 
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v2
@@ -54,7 +54,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tripforp-client:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/tripforp-client:${{ github.sha }}
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -70,7 +70,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             echo "${{ secrets.DOCKER_COMPOSE }}" > docker-compose.yml
-            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKER_USERNAME }}
             export TAG=${{ github.sha }}
             export RDS_DB_URL='${{ secrets.RDS_DB_URL }}'
             export RDS_DB_USERNAME='${{ secrets.RDS_DB_USERNAME }}'
