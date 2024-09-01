@@ -64,21 +64,37 @@ jobs:
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cat << EOF > docker-compose.yml
-            ${{ secrets.DOCKER_COMPOSE }}
-            EOF
-            cat docker-compose.yml 
-            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            export TAG=${{ github.sha }}
-            export RDS_DB_URL='${{ secrets.RDS_DB_URL }}'
-            export RDS_DB_USERNAME='${{ secrets.RDS_DB_USERNAME }}'
-            export RDS_DB_PASSWORD='${{ secrets.RDS_DB_PASSWORD }}'
-          
+            set -e
+            mkdir -p ~/app 
+            cd ~/app
+            echo "DOCKER_USERNAME"=${DOCKER_USERNAME}" > .env
+            sudo chown -R ubuntu:ubuntu ~/app
+            echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME}"
+            
+            echo "==== Debugging: Content of .env file ===="
+            cat .env
+            echo "========================================="
+
+            echo "==== Debugging: Content of docker-compose.yml ===="
+            cat docker-compose.yml
+            echo "=================================================="
+
+            echo "==== Debugging: Environment Variables ===="
+            env | grep DOCKER
+            echo "=========================================="
+            
+            echo "docker-compose down start"
+            docker-compose --env-file .env down
+            echo "docker-compose down end"
+            
             docker-compose down
             docker-compose pull
             docker-compose up -d
