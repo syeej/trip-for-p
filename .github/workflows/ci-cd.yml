@@ -78,7 +78,7 @@ jobs:
             cd ~/app
             echo "DOCKER_USERNAME=${DOCKER_USERNAME}" > .env
             echo "TAG=${TAG}" >> .env
-            echo "${DOCKER_COMPOSE}" > docker-compose.yml
+            echo "${{ secrets.DOCKER_COMPOSE }}" > docker-compose.yml
             sudo chown -R ubuntu:ubuntu ~/app
             echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME} ${TAG}"
             
