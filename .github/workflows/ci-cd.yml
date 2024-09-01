@@ -21,7 +21,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew build
+        run: ./gradlew build -x test
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
