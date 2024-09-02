@@ -6,23 +6,23 @@ import lombok.Getter;
 
 @Getter
 public enum Area {
-    SEOUL("서울특별시"),
-    BUSAN("부산광역시"),
-    DAEGU("대구광역시"),
-    INCHEON("인천광역시"),
-    GWANGJU("광주광역시"),
-    DAEJEON("대전광역시"),
-    ULSAN("울산광역시"),
-    SEJONG("세종특별자치시"),
-    GYEONGGI("경기도"),
-    GANGWON("강원도"),
-    CHUNGCHEONGBUK("충청북도"),
-    CHUNGCHEONGNAM("충청남도"),
-    JEOLLABUK("전라북도"),
-    JEOLLANAM("전라남도"),
-    GYEONGSANGBUK("경상북도"),
-    GYEONGSANGNAM("경상남도"),
-    JEJU("제주도");
+    SEOUL("서울"),
+    BUSAN("부산"),
+    DAEGU("대구"),
+    INCHEON("인천"),
+    GWANGJU("광주"),
+    DAEJEON("대전"),
+    ULSAN("울산"),
+    SEJONG("세종"),
+    GYEONGGI("경기"),
+    GANGWON("강원"),
+    CHUNGBUK("충북"),
+    CHUNGNAM("충남"),
+    JEOLNBUK("전북"),
+    JEONNAM("전남"),
+    GYEONGBUK("경북"),
+    GYEONGNAM("경남"),
+    JEJU("제주");
 
     private final String name;
 

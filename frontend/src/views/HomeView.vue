@@ -3,9 +3,8 @@
 </script>
 
 <template>
-    <div>
-        헤더
-    </div>
+    <div>메인 페이지</div>
+
 </template>
 
 <style scoped>
