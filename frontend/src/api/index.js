@@ -1,6 +1,14 @@
 import axios from "axios";
+import {setInterceptors} from "@/api/interceptor";
 
 const instance = axios.create();
+
+const createAuthInstance = function () {
+    const instance = axios.create();
+    return setInterceptors(instance);
+};
+
+const authInstance = createAuthInstance();
 
 const processAlanAPI = function (request) {
     return instance.get(
@@ -8,7 +16,7 @@ const processAlanAPI = function (request) {
 }
 
 const createPlanAPI = function (request) {
-    return instance.post(`/api/plans`, request);
+    return authInstance.post(`/api/plans`, request);
 }
 
 const createUserAPI = function (request) {
