@@ -82,8 +82,8 @@ jobs:
             sudo chown -R ubuntu:ubuntu ~/app
             echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME} ${TAG}"
             
-            echo "docker-compose down 시작"
-            docker-compose --env-file .env down
+            echo "docker-compose down 시작(--env-file .env down 제외)"
+            docker-compose down
             echo "docker-compose down 종료"
             
             docker-compose pull
