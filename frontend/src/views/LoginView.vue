@@ -117,7 +117,7 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
 }
-.signup-form button {
+.login-form button {
     cursor: pointer;
 }
 
