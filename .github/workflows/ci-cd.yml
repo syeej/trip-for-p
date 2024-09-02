@@ -82,22 +82,11 @@ jobs:
             sudo chown -R ubuntu:ubuntu ~/app
             echo "DOCKER_IMAGE DOCKER_USERNAME value: ${DOCKER_USERNAME} ${TAG}"
             
-            echo "==== Debugging: Content of .env file ===="
-            cat .env
-            echo "========================================="
-
-            echo "==== Debugging: Content of docker-compose.yml ===="
-            cat docker-compose.yml
-            echo "=================================================="
-
-            echo "==== Debugging: Environment Variables ===="
-            env | grep DOCKER
-            echo "=========================================="
-            
-            echo "docker-compose down start"
+            echo "docker-compose down 시작"
             docker-compose --env-file .env down
-            echo "docker-compose down end"
+            echo "docker-compose down 종료"
             
-            docker-compose down
             docker-compose pull
             docker-compose up -d
+            
+            docker image prune -af
