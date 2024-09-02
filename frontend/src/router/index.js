@@ -7,10 +7,22 @@ import LoginView from "@/views/LoginView.vue";
 import SignupView from "@/views/SignupView.vue";
 import PlanDetailView from "@/views/PlanDetailView.vue";
 import FreePostListView from "@/views/FreePostListView.vue";
+import HomeView from "@/views/HomeView.vue";
+import MypageView from "@/views/MypageView.vue";
 
 const routes = [
     {
         path: '/',
+        name: 'Home',
+        component: HomeView
+    },
+    {
+        path: '/mypage',
+        name: 'MyPage',
+        component: MypageView
+    },
+    {
+        path: '/map',
         name: 'Map',
         component: MapView
     },
