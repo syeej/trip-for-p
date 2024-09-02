@@ -15,4 +15,14 @@ const createUserAPI = function (request) {
     return instance.post(`/api/users/registration`, request);
 }
 
-export {processAlanAPI, createPlanAPI, createUserAPI}
+const loginAPI = function (formData) {
+    return instance.post(`/api/users/signin`, formData,
+        {
+            headers: {
+                "Content-Type": 'multipart/form-data'
+            }
+        })
+};
+
+
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI}
