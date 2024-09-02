@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
+import team.seventhmile.tripforp.domain.plan.dto.UserGetDto;
 import team.seventhmile.tripforp.global.common.BaseEntity;
 
 @Entity
@@ -41,4 +42,20 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
+	protected User(String nickname, String email) {
+		this.nickname = nickname;
+		this.email = email;
+	}
+	// UserDto를 User 엔티티로 변환하는 메서드
+	public static User fromDto(UserGetDto dto) {
+		return User.builder()
+				.nickname(dto.getNickname())
+				.email(dto.getEmail())
+				.build();
+	}
+
+	// User 엔티티를 UserDto로 변환하는 메서드
+	public UserGetDto toDto() {
+		return new UserGetDto(this.nickname, this.email);
+	}
 }

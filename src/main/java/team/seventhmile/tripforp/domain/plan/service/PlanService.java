@@ -3,24 +3,15 @@ package team.seventhmile.tripforp.domain.plan.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
-import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
-import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanLikeDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
-import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
-import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.*;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
+import team.seventhmile.tripforp.domain.user.dto.UserDto;
+import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
@@ -94,30 +85,36 @@ public class PlanService {
 
     public PlanGetDetailDto getPlanById(Long planId) {
         Plan plan = planRepository.findById(planId)
-            .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
+                .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
+
+        // User와 Area 정보를 DTO로 변환
+        UserGetDto userDto = plan.getUser().toDto();
+        AreaDto areaDto = AreaDto.fromEntity(plan.getArea());
 
         // PlanItems를 PlanItemDto로 변환
         List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
-            .map(PlanGetItemDto::new)
-            .collect(Collectors.toList());
+                .map(PlanGetItemDto::new)
+                .collect(Collectors.toList());
 
         // PlanLikes를 PlanLikeDto로 변환
         List<PlanLikeDto> planLikeDtos = plan.getPlanLikes().stream()
-            .map(like -> new PlanLikeDto(
-                like.getId(),
-                like.getUser(),like.getPlan()))
-            .collect(Collectors.toList());
+                .map(like -> new PlanLikeDto(
+                        like.getId(),
+                        like.getUser(),
+                        like.getPlan()))
+                .collect(Collectors.toList());
 
+        // PlanGetDetailDto의 모든 필드를 설정하여 반환
         return new PlanGetDetailDto(
-                plan.getUser(),
-            plan.getId(),
-            plan.getTitle(),
-            plan.getStartDate(),
-            plan.getEndDate(),
-            plan.getArea(),
-            plan.getViews(),
-            planItemDtos,
-            planLikeDtos
+                userDto,              // User DTO
+                plan.getId(),         // Plan ID
+                plan.getTitle(),      // Plan Title
+                plan.getStartDate(),  // Plan Start Date
+                plan.getEndDate(),    // Plan End Date
+                areaDto,              // Area DTO
+                plan.getViews(),      // Views
+                planItemDtos,         // List of Plan Items DTOs
+                planLikeDtos          // List of Plan Likes DTOs
         );
     }
 }
