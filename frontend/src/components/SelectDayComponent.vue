@@ -33,13 +33,14 @@ const days = computed(() => {
 });
 
 const handleNext = () => {
-    if (startDate.value && endDate.value) {
+    if (startDate.value) {
         emit('dates-selected', {
             start: formatDate(startDate.value),
-            end: formatDate(endDate.value)
+            end: formatDate(endDate.value || startDate.value)  // endDate가 없으면 startDate로 설정
         });
     }
 };
+
 
 const monthYear = computed(() => {
     const options = {year: 'numeric', month: 'long'};
@@ -104,17 +105,22 @@ const formatDisplayDate = (date) => {
 const displayDateRange = computed(() => {
     if (startDate.value && endDate.value) {
         return `${formatDisplayDate(startDate.value)} ~ ${formatDisplayDate(endDate.value)}`;
+    } else {
+        return formatDisplayDate(startDate.value);
     }
-    return '';
 });
 
 const calculateDuration = computed(() => {
-    if (startDate.value && endDate.value) {
+    if (startDate.value) {
         const start = new Date(startDate.value);
-        const end = new Date(endDate.value);
+        const end = new Date(endDate.value || startDate.value);  // endDate가 없으면 startDate로 설정
         const diffTime = Math.abs(end - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return `${diffDays}박 ${diffDays + 1}일`;
+        if (diffDays === 0) {
+            return `당일치기`;  // 당일치기인 경우
+        } else {
+            return `${diffDays}박 ${diffDays + 1}일`;  // 다중일 경우
+        }
     }
     return '';
 });
@@ -161,13 +167,13 @@ const handleBack = () => {
                 </div>
             </div>
         </div>
-        <div v-if="startDate && endDate" class="selected-dates">
+        <div v-if="startDate" class="selected-dates">
             <div class="duration">여행 기간: {{ calculateDuration }}</div>
             <div class="date-range">{{ displayDateRange }}</div>
         </div>
         <div class="button-container">
             <button @click="handleBack" class="back-button">이전</button>
-            <button @click="handleNext" class="next-button" :disabled="!startDate || !endDate">다음</button>
+            <button @click="handleNext" class="next-button" :disabled="!startDate">다음</button>
         </div>
     </div>
 </template>
