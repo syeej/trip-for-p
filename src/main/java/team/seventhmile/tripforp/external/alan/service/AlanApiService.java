@@ -13,20 +13,17 @@ import team.seventhmile.tripforp.external.alan.dto.AlanApiResponse;
 public class AlanApiService {
 
     private final RestTemplate restTemplate;
-    private final String alanApiUrl;
     private final ObjectMapper objectMapper;
 
     public AlanApiService(RestTemplate restTemplate,
-        ObjectMapper objectMapper,
-        @Value("${alan.api.url}") String alanApiUrl) {
+        ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
-        this.alanApiUrl = alanApiUrl;
         this.objectMapper = objectMapper;
     }
 
     public AlanApiResponse processAlanApiRequest(String content, String clientId) {
         content = URLEncoder.encode("2024년 9월 17일부터 2024년 9월 19일까지 " + content + " 여행 코스(숙소, 음식점, 관광지)를 추천해줘", StandardCharsets.UTF_8);
-        String url = UriComponentsBuilder.fromHttpUrl(alanApiUrl + "/api/v1/question")
+        String url = UriComponentsBuilder.fromHttpUrl("https://kdt-api-function.azurewebsites.net" + "/api/v1/question")
             .queryParam("content", content)
             .queryParam("client_id", clientId)
             .encode()
