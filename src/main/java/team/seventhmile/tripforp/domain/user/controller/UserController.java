@@ -1,7 +1,7 @@
 package team.seventhmile.tripforp.domain.user.controller;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,20 +43,9 @@ public class UserController {
 
 	// refresh 토큰 재발급
 	@PostMapping("/reissue")
-	public ResponseEntity<?> reissue(HttpServletRequest request) {
-		String refreshToken = extractRefreshTokenFromCookie(request);
-		return jwtUtil.reissueAccessToken(refreshToken);
+	public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+
+		return jwtUtil.reissueToken(request, response);
 	}
 
-	private String extractRefreshTokenFromCookie(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("refresh")) {
-					return cookie.getValue();
-				}
-			}
-		}
-		return null;
-	}
 }
