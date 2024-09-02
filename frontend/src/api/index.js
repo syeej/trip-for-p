@@ -11,4 +11,8 @@ const createPlanAPI = function (request) {
     return instance.post(`/api/plans`, request);
 }
 
-export {processAlanAPI, createPlanAPI}
+const createUserAPI = function (request) {
+    return instance.post(`/api/users/registration`, request);
+}
+
+export {processAlanAPI, createPlanAPI, createUserAPI}
