@@ -3,6 +3,7 @@ package team.seventhmile.tripforp.domain.magazine.controller;
 import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,27 +12,26 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 import team.seventhmile.tripforp.domain.magazine.service.MagazineService;
 import team.seventhmile.tripforp.domain.user.entity.User;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/magazines")
 public class MagazineController {
 
 	private final MagazineService magazineService;
-
-	@Autowired
-	public MagazineController(MagazineService magazineService) {
-		this.magazineService = magazineService;
-	}
 
 	/**
 	 * 모든 매거진 글 목록을 조회합니다.
@@ -65,10 +65,13 @@ public class MagazineController {
 	@PostMapping
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<MagazineDto> createMagazinePost(
-		@Valid @RequestBody MagazineDto magazineDto,
-		@AuthenticationPrincipal UserDetails userDetails) {
-		User user = (User) userDetails;
-		magazineService.createMagazinePost(magazineDto, user.getId());
+		@Valid @ModelAttribute MagazineDto magazineDto,
+		@AuthenticationPrincipal UserDetails userDetails,
+		@RequestParam("files") List<MultipartFile> files) {
+
+		Long userId = Long.valueOf(userDetails.getUsername());
+
+		magazineService.createMagazinePost(magazineDto, userId, files);
 		return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
 	}
 
@@ -83,10 +86,12 @@ public class MagazineController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<MagazineDto> updateMagazinePost(
 		@PathVariable("id") Long id,
-		@Valid @RequestBody MagazineDto magazineDto,
-		@AuthenticationPrincipal UserDetails userDetails) {
-		User user = (User) userDetails;
-		magazineService.updateMagazinePost(id, magazineDto, user.getId());
+		@Valid @ModelAttribute MagazineDto magazineDto,
+		@AuthenticationPrincipal UserDetails userDetails,
+		@RequestParam("files") List<MultipartFile> files) {
+
+		Long userId = Long.valueOf(userDetails.getUsername());
+		magazineService.updateMagazinePost(id, magazineDto, userId, files);
 		return ResponseEntity.ok(magazineDto);
 	}
 
@@ -101,8 +106,9 @@ public class MagazineController {
 	public ResponseEntity<Void> deleteMagazinePost(
 		@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails userDetails) {
-		User user = (User) userDetails;
-		magazineService.deleteMagazinePost(id, user.getId());
+
+		Long userId = Long.valueOf(userDetails.getUsername());
+		magazineService.deleteMagazinePost(id, userId);
 		return ResponseEntity.noContent().build();
 	}
 }

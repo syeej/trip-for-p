@@ -7,6 +7,5 @@ import team.seventhmile.tripforp.domain.magazine.entity.Magazine;
 
 public interface MagazineRepository extends JpaRepository<Magazine, Long> {
 
-    List<Magazine> findAllByOrderByIdDesc();
+	List<Magazine> findAllByOrderByIdDesc();
 }
-
