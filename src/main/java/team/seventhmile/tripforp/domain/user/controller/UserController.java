@@ -1,5 +1,7 @@
 package team.seventhmile.tripforp.domain.user.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
 import team.seventhmile.tripforp.domain.user.service.UserService;
+import team.seventhmile.tripforp.global.jwt.JwtUtil;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ import team.seventhmile.tripforp.domain.user.service.UserService;
 public class UserController {
 
 	private final UserService userService;
+	private final JwtUtil jwtUtil;
 
 	// 회원가입
 	@PostMapping("/registration")
@@ -37,4 +41,22 @@ public class UserController {
 			? ResponseEntity.status(HttpStatus.CONFLICT).body(true) : ResponseEntity.ok(false);
 	}
 
+	// refresh 토큰 재발급
+	@PostMapping("/reissue")
+	public ResponseEntity<?> reissue(HttpServletRequest request) {
+		String refreshToken = extractRefreshTokenFromCookie(request);
+		return jwtUtil.reissueAccessToken(refreshToken);
+	}
+
+	private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("refresh")) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
+	}
 }
