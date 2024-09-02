@@ -1,7 +1,12 @@
 <script setup>
-import {ref} from "vue";
+import {computed} from "vue";
+import store from "@/store";
 
-const isLogin = ref(false);
+const hasAccessToken = computed(() => store.getters.getAccessToken);
+
+const logout = function () {
+    store.commit('clearData');
+};
 </script>
 
 <template>
@@ -11,7 +16,7 @@ const isLogin = ref(false);
                 <img src="../assets/logo.png" alt="홈 화면으로 이동">
             </router-link>
         </div>
-        <ul v-if="!isLogin">
+        <ul v-if="!hasAccessToken">
             <li>
                 <router-link to="/signup">회원가입 </router-link>
             </li>
@@ -22,15 +27,15 @@ const isLogin = ref(false);
                 <router-link to="/login">로그인</router-link>
             </li>
         </ul>
-        <ul v-if="isLogin">
+        <ul v-if="hasAccessToken">
             <li>
-                <router-link to="/signup">마이페이지</router-link>
+                <router-link to="/mypage">마이페이지</router-link>
             </li>
             <li>
                 |
             </li>
             <li>
-                <router-link to="/signup">로그아웃</router-link>
+                <router-link to="/" @click="logout">로그아웃</router-link>
             </li>
         </ul>
     </div>
