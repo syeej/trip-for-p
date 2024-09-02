@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.*;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
-import team.seventhmile.tripforp.domain.user.dto.UserDto;
-import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
@@ -104,17 +103,16 @@ public class PlanService {
                         like.getPlan()))
                 .collect(Collectors.toList());
 
-        // PlanGetDetailDto의 모든 필드를 설정하여 반환
         return new PlanGetDetailDto(
-                userDto,              // User DTO
-                plan.getId(),         // Plan ID
-                plan.getTitle(),      // Plan Title
-                plan.getStartDate(),  // Plan Start Date
-                plan.getEndDate(),    // Plan End Date
-                areaDto,              // Area DTO
-                plan.getViews(),      // Views
-                planItemDtos,         // List of Plan Items DTOs
-                planLikeDtos          // List of Plan Likes DTOs
+                userDto,
+                plan.getId(),
+                plan.getTitle(),
+                plan.getStartDate(),
+                plan.getEndDate(),
+                areaDto,
+                plan.getViews(),
+                planItemDtos,
+                planLikeDtos
         );
     }
 }
