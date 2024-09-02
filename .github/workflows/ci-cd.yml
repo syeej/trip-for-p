@@ -84,9 +84,11 @@ jobs:
             
             echo "docker-compose down 시작(--env-file .env down 제외)"
             docker-compose down
-            echo "docker-compose down 종료"
             
+            echo "docker-compose pull 시작"
             docker-compose pull
+            
+            echo "docker-compose up 시작"
             docker-compose up -d
             
             docker image prune -af
