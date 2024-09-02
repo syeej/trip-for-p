@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.QGetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.entity.QPlan;
@@ -21,8 +23,11 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
     private final QPlan qPlan = QPlan.plan;
 
     @Override
-    public Page<Plan> getPlans(String area, Pageable pageable) {
-        List<Plan> plans = queryFactory.selectFrom(qPlan)
+    public Page<GetPlanListResponse> getPlans(String area, Pageable pageable) {
+        System.out.println(Area.fromName(area));
+        List<GetPlanListResponse> plans = queryFactory
+            .select(new QGetPlanListResponse(qPlan))
+            .from(qPlan)
             .where(equalArea(area))
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
@@ -37,6 +42,12 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
     }
 
     private BooleanExpression equalArea(String area) {
-        return area != null ? qPlan.area.eq(Area.fromName(area)) : null;
+        if (area == null || area.isEmpty()) {
+            return null;
+        }
+        if (Area.fromName(area) == null) {
+            return qPlan.area.isNull();
+        }
+        return qPlan.area.eq(Area.fromName(area));
     }
 }
