@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @MappedSuperclass
@@ -13,8 +14,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @SuperBuilder
 @NoArgsConstructor
 public abstract class BaseEntity {
-    @CreationTimestamp
+    @CreationTimestamp(source = SourceType.DB)
     private ZonedDateTime createdAt;
-    @UpdateTimestamp
+    @UpdateTimestamp(source = SourceType.DB)
     private ZonedDateTime updatedAt;
 }
