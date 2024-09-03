@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
 @Repository
-public interface ReviewPostRepository extends JpaRepository<ReviewPost, Long>, ReviewPostRepositoryCustom {
-
+public interface ReviewPostRepository extends JpaRepository<ReviewPost, Long>,
+	ReviewPostRepositoryCustom {
 }

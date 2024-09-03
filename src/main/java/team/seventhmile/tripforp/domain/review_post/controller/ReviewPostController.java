@@ -1,61 +1,63 @@
 package team.seventhmile.tripforp.domain.review_post.controller;
 
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
 import team.seventhmile.tripforp.domain.review_post.service.ReviewPostService;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/review-posts")
 public class ReviewPostController {
 
-    private final ReviewPostService reviewPostService;
+	private final ReviewPostService reviewPostService;
 
-    @Autowired
-    public ReviewPostController(ReviewPostService reviewPostService) {
-        this.reviewPostService = reviewPostService;
-    }
+	// 리뷰 게시글 작성
+	@PostMapping
+	public ReviewPostDto createReviewPost(@RequestBody ReviewPostDto reviewPostDto,
+		@RequestParam("userId") Long userId,
+		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
+		return reviewPostService.createReviewPost(reviewPostDto, userId, files);
+	}
 
-    @PostMapping
-    public ReviewPostDto createReviewPost(@RequestBody ReviewPostDto reviewPostDto) {
-        return reviewPostService.createReviewPost(reviewPostDto);
-    }
+	// 리뷰 게시글 수정
+	@PutMapping("/{id}")
+	public ReviewPostDto updateReviewPost(@PathVariable("id") Long id,
+		@RequestBody ReviewPostDto reviewPostDto,
+		@RequestParam("userId") Long userId,
+		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
+		return reviewPostService.updateReviewPost(id, reviewPostDto, userId, files);
+	}
 
-    @PutMapping("/{id}")
-    public ReviewPostDto updateReviewPost(@PathVariable("id") Long id, @RequestBody ReviewPostDto reviewPostDto) {
-        return reviewPostService.updateReviewPost(id, reviewPostDto);
-    }
+	// 리뷰 게시글 삭제
+	@DeleteMapping("/{id}")
+	public void deleteReviewPost(@PathVariable("id") Long id,
+		@RequestParam("userId") Long userId) {
+		reviewPostService.deleteReviewPost(id, userId);
+	}
 
-    @DeleteMapping("/{id}")
-    public void deleteReviewPost(@PathVariable("id") Long id) {
-        reviewPostService.deleteReviewPost(id);
-    }
+	// 리뷰 게시글 목록 조회
+	@GetMapping
+	public Page<ReviewPostDto> getReviewPosts(
+		@RequestParam(value = "page", defaultValue = "0") int page,
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@RequestParam(value = "keyword", required = false) String keyword) {
+		PageRequest pageRequest = PageRequest.of(page, size);
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			return reviewPostService.getReviewPostSearch(keyword, pageRequest);
+		} else {
+			return reviewPostService.getAllReviewPost(pageRequest);
+		}
+	}
 
-    // 목록 조회, 검색 목록 조회 통합(검색 키워드 여부)
-    @GetMapping
-    public Page<ReviewPostDto> getReviewPosts(@RequestParam(value = "page", defaultValue = "0") int page,
-                                              @RequestParam(value = "size", defaultValue = "10") int size,
-                                              @RequestParam(value = "keyword", required = false) String keyword) {
-
-
-        PageRequest pageRequest = PageRequest.of(page, size);
-        Page<ReviewPostDto> reviewPostDto;
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            reviewPostDto = reviewPostService.getReviewPostSearch(keyword, pageRequest);
-        } else {
-            reviewPostDto = reviewPostService.getAllReviewPost(pageRequest);
-        }
-
-        return reviewPostDto;
-    }
-
-    @GetMapping("/{id}")
-    public ReviewPostDto getReviewPostDetail(@PathVariable("id") Long id) {
-        return reviewPostService.getReviewPostDetail(id);
-    }
-
-
+	// 리뷰 게시글 상세 조회
+	@GetMapping("/{id}")
+	public ReviewPostDto getReviewPostDetail(@PathVariable("id") Long id) {
+		return reviewPostService.getReviewPostDetail(id);
+	}
 }
