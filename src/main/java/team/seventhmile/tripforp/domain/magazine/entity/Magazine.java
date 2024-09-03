@@ -2,18 +2,19 @@ package team.seventhmile.tripforp.domain.magazine.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
+import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
 
 @Entity
@@ -27,10 +28,13 @@ public class Magazine extends BaseEntity {
 	// 게시글 id
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column (name = "magazine_post_id")
+	@Column(name = "magazine_post_id")
 	private Long id;
 
 	// 회원 id
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
 	// 제목
 	@Column(nullable = false)
