@@ -1,6 +1,6 @@
 <script setup>
-import {onMounted, ref} from 'vue';
-import { defineEmits } from 'vue';
+/* global kakao */
+import {defineEmits, ref} from 'vue';
 
 const searchQuery = ref('');
 const searchResults = ref([]);
@@ -22,12 +22,6 @@ const selectPlace = (place) => {
     searchQuery.value = '';
     searchResults.value = [];
 };
-onMounted(() => {
-    /* global kakao */
-    const script = document.createElement('script');
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.VUE_APP_KAKAO_MAP_API_KEY_JAVASCRIPT}&autoload=false&libraries=services`;
-    document.head.appendChild(script);
-})
 </script>
 
 <template>
