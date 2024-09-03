@@ -12,10 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-#      - name: Create application.yml from GitHub Secrets
-#        run: |
-#          mkdir -p src/main/resources/
-#          echo "${{ secrets.APPLICATION_YML }}" | tee src/main/resources/application.yml
+      - name: Create application.yml from GitHubSecrets
+        run: |
+          mkdir -p src/main/resources/
+          echo "${{ secrets.APPLICATION_YML }}" | tee src/main/resources/application.yml
 
       - name: Create .env.development from GitHub Secrets
         run: |
