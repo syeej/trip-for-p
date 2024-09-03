@@ -254,6 +254,7 @@ watch(currentDate, () => {
     <div class="plan-detail-view" v-if="plan">
         <h1>{{ plan.title }}</h1>
         <div class="plan-info">
+            <p>여행자: {{ plan.writer }}</p>
             <p>여행 지역: {{ plan.area }}</p>
             <p>여행 기간: {{ plan.startDate }} ~ {{ plan.endDate }}</p>
         </div>

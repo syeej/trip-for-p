@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
@@ -68,8 +69,8 @@ public class PlanController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPlanDetail(@PathVariable Long id) {
-        PlanGetDetailDto planDto = planService.getPlanById(id);
+    public ResponseEntity<GetPlanResponse> getPlanDetail(@PathVariable Long id) {
+        GetPlanResponse planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
     }
 }

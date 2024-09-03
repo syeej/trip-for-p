@@ -10,6 +10,7 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
@@ -113,41 +114,13 @@ public class PlanService {
         return planRepository.getPlans(area, pageable);
     }
 
-    public PlanGetDetailDto getPlanById(Long planId) {
-        Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
+    @Transactional
+    public GetPlanResponse getPlanById(Long planId) {
 
-        // User와 Area 정보를 DTO로 변환
-        UserGetDto userDto = plan.getUser().toDto();
-        AreaDto areaDto = AreaDto.fromEntity(plan.getArea());
-
-        // PlanItems를 PlanItemDto로 변환
-        List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
-                .map(PlanGetItemDto::new)
-                .collect(Collectors.toList());
-
-        // PlanLikes를 PlanLikeDto로 변환
-        List<PlanLikeDto> planLikeDtos = plan.getPlanLikes().stream()
-                .map(like -> new PlanLikeDto(
-                        like.getId(),
-                        like.getUser(),
-                        like.getPlan()))
-                .collect(Collectors.toList());
-
-        // Plan의 좋아요 개수 계산
+        Plan plan = planRepository.findPlan(planId);
         int likeCount = planLikeRepository.countByPlanId(planId);
+        plan.increaseViews();
 
-        return new PlanGetDetailDto(
-                userDto,
-                plan.getId(),
-                plan.getTitle(),
-                plan.getStartDate(),
-                plan.getEndDate(),
-
-                areaDto,
-                plan.getViews(),
-                likeCount,  // 좋아요 개수 전달
-                planItemDtos
-        );
+        return new GetPlanResponse(plan, likeCount);
     }
 }
