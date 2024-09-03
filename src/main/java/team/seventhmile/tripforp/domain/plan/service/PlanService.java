@@ -23,6 +23,8 @@ import team.seventhmile.tripforp.domain.plan.entity.Plan;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
@@ -33,6 +35,7 @@ public class PlanService {
 
     private final PlanRepository planRepository;
     private final PlanItemService planItemService;
+    private final PlanLikeRepository planLikeRepository;
 
     @Transactional
     public CreatePlanResponse createPlan(CreatePlanRequest request) {
@@ -115,16 +118,19 @@ public class PlanService {
                 like.getUser(),like.getPlan()))
             .collect(Collectors.toList());
 
+        // Plan의 좋아요 개수 계산
+        int likeCount = planLikeRepository.countByPlanId(planId);
+
         return new PlanGetDetailDto(
                 plan.getUser(),
-            plan.getId(),
-            plan.getTitle(),
-            plan.getStartDate(),
-            plan.getEndDate(),
-            plan.getArea(),
-            plan.getViews(),
-            planItemDtos,
-            planLikeDtos
+                plan.getId(),
+                plan.getTitle(),
+                plan.getStartDate(),
+                plan.getEndDate(),
+                plan.getArea(),
+                plan.getViews(),
+                likeCount,  // 좋아요 개수 전달
+                planItemDtos
         );
     }
 }
