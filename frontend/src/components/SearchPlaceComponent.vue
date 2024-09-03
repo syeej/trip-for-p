@@ -24,6 +24,9 @@ const selectPlace = (place) => {
 };
 onMounted(() => {
     /* global kakao */
+    const script = document.createElement('script');
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.VUE_APP_KAKAO_MAP_API_KEY_JAVASCRIPT}&autoload=false&libraries=services`;
+    document.head.appendChild(script);
 })
 </script>
 
