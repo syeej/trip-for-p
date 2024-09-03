@@ -1,4 +1,5 @@
 <script setup>
+/* global kakao */
 import {onMounted, ref} from "vue";
 
 const mapContainer = ref(null);
@@ -89,7 +90,6 @@ const initializeMap = () => {
 };
 
 onMounted(() => {
-    /* global kakao */
     initializeMap();
 });
 </script>
