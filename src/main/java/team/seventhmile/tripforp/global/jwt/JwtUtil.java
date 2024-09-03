@@ -2,6 +2,7 @@ package team.seventhmile.tripforp.global.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,20 +10,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import team.seventhmile.tripforp.domain.user.service.TokenService;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
 	private SecretKey secretKey;
-	private LoginFilter loginFilter;
+	private final TokenService tokenService;
 
-	public JwtUtil(@Value("${jwt.secret}") String secret) {
+	@Value("${jwt.secret}")
+	private String secret;
 
-		secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
+	// 생성자에서 SecretKey 및 TokenService 주입
+	@PostConstruct
+	public void init() {
+		this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
 			Jwts.SIG.HS256.key().build().getAlgorithm());
 	}
 
@@ -79,19 +87,23 @@ public class JwtUtil {
 			return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
 		}
 
-		// 리프레시 토큰이 유효한지 확인
-		String category = getCategory(refresh);
-		if (!"refresh".equals(category)) {
-			return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
-		}
-
 		// 사용자 정보 가져오기
 		String username = getUsername(refresh);
 		String role = getRole(refresh);
 
+		// 리프레시 토큰이 유효한지 확인
+		String redisRefreshToken = tokenService.getRefreshToken(username);
+
+		if (!refresh.equals(redisRefreshToken)) {
+			return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+		}
+
 		// 새로운 JWT 생성
 		String newAccess = createJwt("access", username, role, 600000L);
 		String newRefresh = createJwt("refresh", username, role, 86400000L);
+
+		// Redis에 새로운 Refresh Token 저장 (기존 토큰 대체)
+		tokenService.saveRefreshToken(username, newRefresh);
 
 		// 응답 설정
 		response.setHeader("access", newAccess);

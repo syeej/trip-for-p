@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import team.seventhmile.tripforp.domain.user.service.TokenService;
 import team.seventhmile.tripforp.global.jwt.JwtFilter;
 import team.seventhmile.tripforp.global.jwt.JwtUtil;
 import team.seventhmile.tripforp.global.jwt.LoginFilter;
@@ -24,6 +25,8 @@ public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 
 	private final JwtUtil jwtUtil;
+
+	private final TokenService tokenService;
 
 	//AuthenticationManager Bean 등록
 	@Bean
@@ -41,7 +44,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		LoginFilter loginFilter = new LoginFilter(
-			authenticationManager(authenticationConfiguration), jwtUtil);
+			authenticationManager(authenticationConfiguration), jwtUtil, tokenService);
 		loginFilter.setFilterProcessesUrl("/api/users/signin");
 
 		http
