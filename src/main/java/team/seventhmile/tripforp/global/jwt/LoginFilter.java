@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import team.seventhmile.tripforp.domain.user.service.TokenService;
 
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -21,6 +23,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	private final AuthenticationManager authenticationManager;
 	//JWTUtil 주입
 	private final JwtUtil jwtUtil;
+	// Redis 접근
+	private final TokenService tokenService;
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request,
@@ -29,8 +33,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		//클라이언트 요청에서 username, password 추출
 		String email = obtainUsername(request);
 		String password = obtainPassword(request);
-
-		System.out.println("LoginFilter email: " + email);
 
 		//스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -43,10 +45,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	//로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request,
-		HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
-		// CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-		// String username = customUserDetails.getUsername();
+		HttpServletResponse response, FilterChain chain, Authentication authentication)
+		throws IOException {
 
 		//유저 정보
 		String username = authentication.getName();
@@ -61,6 +61,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		//토큰 생성
 		String access = jwtUtil.createJwt("access", username, role, 600000L);
 		String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+
+		// Redis에 Refresh Token 저장
+		tokenService.saveRefreshToken(username, refresh);
 
 		//응답 설정
 		response.setHeader("access", access);
