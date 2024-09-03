@@ -58,9 +58,8 @@ public class SecurityConfig {
 
 		http
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/", "/api/users/**").permitAll()
+				.requestMatchers("/", "/api/**").permitAll()
 				.requestMatchers("/api/users/reissue").permitAll()
-				.requestMatchers("/api/plans/**").hasRole("USER")
 				.anyRequest().permitAll());
 
 		//JWTFilter 등록
