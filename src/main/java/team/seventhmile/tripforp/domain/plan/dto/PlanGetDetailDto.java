@@ -22,6 +22,6 @@ public class PlanGetDetailDto {
     private LocalDate endDate;
     private Area area;
     private int views;
+    private int likeCount;
     private List<PlanGetItemDto> planItems;
-    private List<PlanLikeDto> planLikes;
 }
