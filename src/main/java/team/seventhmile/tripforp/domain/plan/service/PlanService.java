@@ -3,6 +3,7 @@ package team.seventhmile.tripforp.domain.plan.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 
 import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
+import team.seventhmile.tripforp.domain.user.entity.User;
+import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
@@ -37,22 +40,29 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final PlanItemService planItemService;
     private final PlanLikeRepository planLikeRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public CreatePlanResponse createPlan(CreatePlanRequest request) {
+    public CreatePlanResponse createPlan(CreatePlanRequest request, UserDetails authenticatedPrincipal) {
+
+        User user = userRepository.findByEmail(authenticatedPrincipal.getUsername())
+            .orElseThrow(() -> new ResourceNotFoundException(User.class));
 
         Plan plan = Plan.builder()
+            .user(user)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .title(request.getTitle())
             .area(request.getArea())
             .build();
+        planRepository.save(plan);
+        planRepository.flush();
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
             //장소 가져오기, 없을 경우 장소 등록
             planItemService.createPlanItem(plan, planItemRequest);
         }
-        return new CreatePlanResponse(planRepository.save(plan).getId());
+        return new CreatePlanResponse(plan.getId());
     }
 
     @Transactional
