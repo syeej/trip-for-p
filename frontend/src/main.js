@@ -7,5 +7,4 @@ import store from "@/store/index.js";
 const app = createApp(App);
 app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$store = store;
-app.config.compilerOptions.comments = true;
 app.use(router).use(store).mount('#app')
