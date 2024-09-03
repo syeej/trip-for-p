@@ -66,7 +66,7 @@ public class PlanController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPlan(@PathVariable Long id) {
+    public ResponseEntity<?> getPlanDetail(@PathVariable Long id) {
         PlanGetDetailDto planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
     }
