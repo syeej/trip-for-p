@@ -7,12 +7,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import team.seventhmile.tripforp.domain.file.entity.File;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
@@ -20,6 +27,7 @@ import team.seventhmile.tripforp.global.common.BaseEntity;
 @Entity
 @Table(name = "magazines")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
@@ -62,4 +70,13 @@ public class Magazine extends BaseEntity {
 			throw new IllegalArgumentException(fieldName + " cannot be null or empty");
 		}
 	}
+
+
+	@ManyToMany
+	@JoinTable(
+		name = "magazine_files",
+		joinColumns = @JoinColumn(name = "magazine_id"),
+		inverseJoinColumns = @JoinColumn(name = "file_id")
+	)
+	private List<File> files;
 }
