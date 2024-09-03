@@ -52,6 +52,15 @@ public class Magazine extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 
+	// 첨부 파일
+	@ManyToMany
+	@JoinTable(
+		name = "magazine_files",
+		joinColumns = @JoinColumn(name = "magazine_id"),
+		inverseJoinColumns = @JoinColumn(name = "file_id")
+	)
+	private List<File> files;
+
 
 	// 수정 로직 (더티 체킹 방식)
 	public <T extends Magazine> void update(MagazineDto magazineDto) {
@@ -67,16 +76,7 @@ public class Magazine extends BaseEntity {
 	// Not Null 예외 처리 로직
 	public static void validateField(String field, String fieldName) {
 		if (field == null || field.isEmpty()) {
-			throw new IllegalArgumentException(fieldName + " cannot be null or empty");
+			throw new IllegalArgumentException("내용을 입력하세요.");
 		}
 	}
-
-
-	@ManyToMany
-	@JoinTable(
-		name = "magazine_files",
-		joinColumns = @JoinColumn(name = "magazine_id"),
-		inverseJoinColumns = @JoinColumn(name = "file_id")
-	)
-	private List<File> files;
 }

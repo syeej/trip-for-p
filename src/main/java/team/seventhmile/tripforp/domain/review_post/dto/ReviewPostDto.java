@@ -1,18 +1,24 @@
 package team.seventhmile.tripforp.domain.review_post.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
+import team.seventhmile.tripforp.domain.plan.entity.Plan;
+import team.seventhmile.tripforp.domain.review_comment.entity.ReviewComment;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
-import java.time.LocalDate;
 import java.util.List;
+import team.seventhmile.tripforp.domain.user.entity.User;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Builder
 public class ReviewPostDto {
 
@@ -22,35 +28,35 @@ public class ReviewPostDto {
 
     private Long userId;
 
+    @NotBlank
+    @Size(max = 255, message = "제목은 255자를 초과할 수 없습니다.")
     private String title;
 
+    @NotBlank
+    @Size(max = 999999, message = "내용은 999999자를 초과할 수 없습니다.")
     private String content;
 
     private Integer views;
 
-    private LocalDate createdAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
 
-    private LocalDate updatedAt;
+    private List<ReviewComment> comments;
 
-    // 이 부분 만약 변경 사항이 있을 시 타입 명만 수정해주면 됩니다.
-    private List<FreeComment> comments;
-
-    // TODO private File file;
-
-    // DTO -> Entity
-    public ReviewPost toEntity() {
+    // DTO -> Entity 변환
+    public ReviewPost convertToEntity(User user, Plan plan) {
         return ReviewPost.builder()
                 .id(this.id)
-                //.plan(this.planId)
-                //.user(this.userId)
+                .plan(plan)
+                .user(user)
                 .title(this.title)
                 .content(this.content)
-                .views(this.views)
+                .views(this.views != null ? this.views : 0)
                 .build();
     }
 
-    // Entity -> DTO
-    public static ReviewPostDto fromEntity(ReviewPost reviewPost) {
+    // Entity -> DTO 변환
+    public static ReviewPostDto convertToDto(ReviewPost reviewPost) {
         return ReviewPostDto.builder()
                 .id(reviewPost.getId())
                 .planId(reviewPost.getPlan().getId())
@@ -60,5 +66,4 @@ public class ReviewPostDto {
                 .views(reviewPost.getViews())
                 .build();
     }
-
 }
