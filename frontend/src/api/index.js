@@ -15,6 +15,10 @@ const processAlanAPI = function (request) {
         `/api/alan?content=${request.content}&client_id=${request.clientId}`);
 }
 
+const getPlanAPI = function (id) {
+    return instance.get(`/api/plans/${id}`);
+};
+
 const createPlanAPI = function (request) {
     return authInstance.post(`/api/plans`, request);
 }
@@ -33,4 +37,4 @@ const loginAPI = function (formData) {
 };
 
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI}
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI}
