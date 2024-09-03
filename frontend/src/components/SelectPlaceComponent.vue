@@ -1,5 +1,4 @@
 <script setup>
-/* global kakao */
 import {computed, defineEmits, defineProps, nextTick, onMounted, ref, watch} from "vue";
 import ItineraryComponent from "@/components/ItineraryComponent.vue";
 import SearchPlaceComponent from "@/components/SearchPlaceComponent.vue";
@@ -284,6 +283,7 @@ const goToNextDate = () => {
 };
 
 onMounted(() => {
+    /* global kakao */
     const script = document.createElement('script');
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.VUE_APP_KAKAO_MAP_API_KEY_JAVASCRIPT}&autoload=false&libraries=services`;
     document.head.appendChild(script);

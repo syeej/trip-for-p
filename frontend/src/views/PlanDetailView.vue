@@ -29,7 +29,6 @@
 </template>
 
 <script setup>
-/* global kakao */
 import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute} from "vue-router";
 import {getPlanAPI} from "@/api";
@@ -270,6 +269,7 @@ const updateMap = async () => {
 };
 
 onMounted(() => {
+    /* global kakao */
     getPlan();
 });
 
