@@ -10,6 +10,10 @@ const createAuthInstance = function () {
 
 const authInstance = createAuthInstance();
 
+const getPlanListAPI = function (request) {
+    return instance.get(`/api/plans?area=${request.area}&size=${request.size}&page=${request.page}`)
+}
+
 const processAlanAPI = function (request) {
     return instance.get(
         `/api/alan?content=${request.content}&client_id=${request.clientId}`);
@@ -37,4 +41,4 @@ const loginAPI = function (formData) {
 };
 
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI}
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI}

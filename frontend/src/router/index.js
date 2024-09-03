@@ -9,6 +9,7 @@ import PlanDetailView from "@/views/PlanDetailView.vue";
 import FreePostListView from "@/views/FreePostListView.vue";
 import HomeView from "@/views/HomeView.vue";
 import MypageView from "@/views/MypageView.vue";
+import PlanListView from "@/views/PlanListView.vue";
 
 const routes = [
     {
@@ -45,6 +46,11 @@ const routes = [
         path: '/signup',
         name: 'Signup',
         component: SignupView
+    },
+    {
+        path: '/plan',
+        name: 'PlanList',
+        component: PlanListView
     },
     {
         path: '/plan/write',

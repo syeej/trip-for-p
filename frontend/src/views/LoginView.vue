@@ -27,7 +27,7 @@ const login = async function () {
         formData.append('password', password.value);
 
         const response = await loginAPI(formData);
-        store.commit('setAccessToken', response.headers.getAuthorization().split(' ')[1])
+        store.commit('setAccessToken', response.headers.access)
         console.log('Login successful');
         await router.replace('/');
     } catch (error) {
