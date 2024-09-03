@@ -5,7 +5,8 @@ COPY ./package*.json .
 RUN npm install
 
 COPY . .
-RUN npm run build --mode development
+ENV NODE_ENV=development
+RUN npm run build
 
 # FE Run
 FROM nginx:latest
