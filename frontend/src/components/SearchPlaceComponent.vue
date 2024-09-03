@@ -1,7 +1,6 @@
 <script setup>
 /* global kakao */
-import { ref } from 'vue';
-import { defineEmits } from 'vue';
+import {defineEmits, ref} from 'vue';
 
 const searchQuery = ref('');
 const searchResults = ref([]);

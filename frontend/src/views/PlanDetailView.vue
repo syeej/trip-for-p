@@ -1,33 +1,3 @@
-<template>
-    <div class="plan-detail-view" v-if="plan">
-        <h1>{{ plan.title }}</h1>
-        <div class="plan-info">
-            <p>여행 지역: {{ plan.area }}</p>
-            <p>여행 기간: {{ plan.startDate }} ~ {{ plan.endDate }}</p>
-        </div>
-
-        <div class="date-navigation" v-if="dates.length > 0">
-            <button @click="prevDate" :disabled="currentDateIndex === 0" class="nav-button prev-button">&lt; 이전</button>
-            <span>{{ currentDate }}</span>
-            <button @click="nextDate" :disabled="currentDateIndex === dates.length - 1" class="nav-button next-button">다음 &gt;</button>
-        </div>
-
-        <div class="map-container" ref="mapContainer"></div>
-
-        <div class="itinerary">
-            <h2>일정</h2>
-            <div v-for="item in currentDatePlans" :key="item.sequence" class="itinerary-item">
-                <div class="sequence">{{ item.sequence }}</div>
-                <div class="place-info">
-                    <h3>{{ item.place.placeName }}</h3>
-                    <p>{{ item.place.addressName }}</p>
-                    <p v-if="item.memo">메모: {{ item.memo }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
-
 <script setup>
 /* global kakao */
 import {computed, onMounted, ref, watch} from 'vue';
@@ -279,6 +249,36 @@ watch(currentDate, () => {
     }
 });
 </script>
+
+<template>
+    <div class="plan-detail-view" v-if="plan">
+        <h1>{{ plan.title }}</h1>
+        <div class="plan-info">
+            <p>여행 지역: {{ plan.area }}</p>
+            <p>여행 기간: {{ plan.startDate }} ~ {{ plan.endDate }}</p>
+        </div>
+
+        <div class="date-navigation" v-if="dates.length > 0">
+            <button @click="prevDate" :disabled="currentDateIndex === 0" class="nav-button prev-button">&lt; 이전</button>
+            <span>{{ currentDate }}</span>
+            <button @click="nextDate" :disabled="currentDateIndex === dates.length - 1" class="nav-button next-button">다음 &gt;</button>
+        </div>
+
+        <div class="map-container" ref="mapContainer"></div>
+
+        <div class="itinerary">
+            <h2>일정</h2>
+            <div v-for="item in currentDatePlans" :key="item.sequence" class="itinerary-item">
+                <div class="sequence">{{ item.sequence }}</div>
+                <div class="place-info">
+                    <h3>{{ item.place.placeName }}</h3>
+                    <p>{{ item.place.addressName }}</p>
+                    <p v-if="item.memo">메모: {{ item.memo }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
 
 <style scoped>
 .plan-detail-view {
