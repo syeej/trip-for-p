@@ -77,7 +77,7 @@ public class PlanControllerTest {
         when(mockUser.getNickname()).thenReturn("Test User");
 
         // Mock the place and plan items
-        PlaceDto placeDto = new PlaceDto("충남 태안군 남면 신온리 168-14", "숙박", "비바온풀빌라펜션", "http://place.map.kakao.com/1452543531");
+        PlaceDto placeDto = new PlaceDto("충남 태안군 남면 신온리 168-14", "숙박", "비바온풀빌라펜션", "http://place.map.kakao.com/1452543531", 126.30129813989, 36.6140424036241);
         PlanGetItemDto planItemDto = new PlanGetItemDto(1L, placeDto, LocalDate.now(), "Test Memo", 1);
 
         // Create the PlanGetDetailDto including the mocked User
