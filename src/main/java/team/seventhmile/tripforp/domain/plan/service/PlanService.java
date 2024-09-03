@@ -1,6 +1,8 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
@@ -92,6 +94,10 @@ public class PlanService {
                     planItemDtos
             );
         }).collect(Collectors.toList());
+    }
+
+    public Page<GetPlanListResponse> getPlanList(String area, Pageable pageable) {
+        return planRepository.getPlans(area, pageable);
     }
 
     public PlanGetDetailDto getPlanById(Long planId) {

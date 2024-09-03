@@ -25,6 +25,8 @@ public class PlaceService {
                     .categoryName(request.getCategoryName())
                     .placeName(request.getPlaceName())
                     .placeUrl(request.getPlaceUrl())
+                    .x(request.getX())
+                    .y(request.getY())
                     .build();
                 return placeRepository.save(newPlace);
             });
