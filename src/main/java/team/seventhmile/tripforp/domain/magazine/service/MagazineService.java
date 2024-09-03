@@ -26,6 +26,7 @@ public class MagazineService {
 	private final UserRepository userRepository;
 	private final FileService fileService;
 
+
 	// 매거진 글 목록 조회
 	public Optional<List<MagazineDto>> getAllMagazineList() {
 		List<MagazineDto> magazines = magazineRepository.findAllByOrderByIdDesc().stream()
@@ -44,6 +45,7 @@ public class MagazineService {
 	@Transactional
 	public void createMagazinePost(MagazineDto magazineDto, Long userId,
 		List<MultipartFile> files) {
+
 		// 현재 로그인된 사용자를 가져오는 로직
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -55,6 +57,7 @@ public class MagazineService {
 		// Not Null 예외 처리
 		Magazine.validateField(magazineDto.getTitle(), "Title");
 		Magazine.validateField(magazineDto.getContent(), "Content");
+
 
 		// 파일 저장 로직
 		List<File> savedFiles = (files != null && !files.isEmpty() ? fileService.saveFiles(files)
@@ -72,6 +75,7 @@ public class MagazineService {
 	@Transactional
 	public void updateMagazinePost(Long id, MagazineDto magazineDto, Long userId,
 		List<MultipartFile> files) {
+
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("User not found"));
 

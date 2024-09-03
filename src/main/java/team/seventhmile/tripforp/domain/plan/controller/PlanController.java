@@ -2,6 +2,8 @@ package team.seventhmile.tripforp.domain.plan.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
@@ -51,13 +54,19 @@ public class PlanController {
         return ResponseEntity.noContent().build();
     }
 
+//    @GetMapping
+//    public List<PlanGetDto> getPlansByArea(@RequestParam("area") String area) {
+//        return planService.getPlansByArea(area);
+//    }
+
     @GetMapping
-    public List<PlanGetDto> getPlansByArea(@RequestParam("area") String area) {
-        return planService.getPlansByArea(area);
+    public Page<GetPlanListResponse> getPlansByArea(
+        @RequestParam(value = "area", required = false) String area, Pageable pageable) {
+        return planService.getPlanList(area, pageable);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPlan(@PathVariable Long id) {
+    public ResponseEntity<?> getPlanDetail(@PathVariable Long id) {
         PlanGetDetailDto planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
     }

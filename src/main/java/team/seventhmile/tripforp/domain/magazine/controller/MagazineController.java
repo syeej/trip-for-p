@@ -109,6 +109,7 @@ public class MagazineController {
 
 		Long userId = Long.valueOf(userDetails.getUsername());
 		magazineService.deleteMagazinePost(id, userId);
+
 		return ResponseEntity.noContent().build();
 	}
 }

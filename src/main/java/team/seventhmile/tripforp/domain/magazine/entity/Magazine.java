@@ -12,11 +12,13 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
 import team.seventhmile.tripforp.domain.file.entity.File;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 import team.seventhmile.tripforp.domain.user.entity.User;

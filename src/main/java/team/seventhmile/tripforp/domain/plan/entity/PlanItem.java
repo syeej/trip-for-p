@@ -1,10 +1,10 @@
 package team.seventhmile.tripforp.domain.plan.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
-import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,10 +19,11 @@ public class PlanItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     @JoinColumn(name = "plan_id", nullable = false)
     private Plan plan;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
