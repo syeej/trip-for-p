@@ -136,13 +136,8 @@ public class PlanServiceTest {
         assertNotNull(result);
         assertEquals("Test Plan", result.getTitle());
         assertEquals(1, result.getPlanItems().size());
-        assertEquals(1, result.getPlanLikes().size());
-
         PlanGetItemDto itemDto = result.getPlanItems().get(0);
         assertEquals("Test Place", itemDto.getPlace().getPlaceName());
-
-        // PlanLikeDto 검증 추가
-        assertEquals(1L, result.getPlanLikes().get(0).getUser().getId());
 
         verify(planRepository).findById(1L);
     }

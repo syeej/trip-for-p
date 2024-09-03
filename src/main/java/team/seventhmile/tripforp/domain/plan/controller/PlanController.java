@@ -4,16 +4,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
@@ -69,5 +62,11 @@ public class PlanController {
     public ResponseEntity<?> getPlanDetail(@PathVariable Long id) {
         PlanGetDetailDto planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
+    }
+
+   //IllegalArgumentException을 처리할 수 있는 예외 핸들러
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"" + ex.getMessage() + "\"}");
     }
 }
