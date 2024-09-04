@@ -14,6 +14,8 @@ import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
 
+import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -31,6 +33,16 @@ public class UserService {
 		// 이메일 누락 시
 		if (!StringUtils.hasText(userDto.getEmail())) {
 			throw new AuthCustomException(ErrorCode.REQUIRED_FIELD_MISSING);
+		}
+		// 이메일 중복 체크, 탈퇴된 이메일 확인
+		Optional<User> existingUser = userRepository.findByEmail(userDto.getEmail());
+		if (existingUser.isPresent()) {
+			User user = existingUser.get();
+			if (user.getIsDeleted()) { //탈퇴
+				throw new AuthCustomException(ErrorCode.WITHDRAWN_USER);
+			}
+			//중복
+			throw new AuthCustomException(ErrorCode.EMAIL_ALREADY_IN_USE);
 		}
 		//이메일 인증 상태 확인
 		Boolean isVerified = redisTemplate.opsForValue().get("EMAIL_VERIFIED:" + userDto.getEmail()) != null;
