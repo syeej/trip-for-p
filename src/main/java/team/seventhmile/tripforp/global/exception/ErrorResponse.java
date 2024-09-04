@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.global.exception;
 
+import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,11 +12,11 @@ public class ErrorResponse {
 
     private int status;
     private String message;
-    private Map<String, String> errors;
+    private List<String> errors;
     private String path;
 
     @Builder
-    public ErrorResponse(int status, String message, Map<String, String> errors, String path) {
+    public ErrorResponse(int status, String message, List<String> errors, String path) {
         this.status = status;
         this.message = message;
         this.errors = errors;
