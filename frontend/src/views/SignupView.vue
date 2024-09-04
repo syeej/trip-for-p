@@ -24,7 +24,7 @@ const sendVerificationEmail = async () => {
     alert("인증 이메일이 전송되었습니다.");
     showVerificationInput.value = true;
   } catch (error) {
-    alert("이메일 전송 중 오류가 발생했습니다.");
+    alert(error.message);
   }
 };
 
@@ -37,7 +37,7 @@ const verifyEmail = async () => {
     isVerificationFailed.value = false;
   } catch (error) {
     isEmailVerified.value = false;
-    verificationMessage.value = "인증 코드가 올바르지 않습니다.";
+    verificationMessage.value = error.message || "인증 코드가 올바르지 않습니다.";
     isVerificationFailed.value = true;
   }
 };

@@ -60,13 +60,24 @@ public class GlobalExceptionHandler {
     }
     //회원 관련
     @ExceptionHandler(AuthCustomException.class)
-    public ResponseEntity<ErrorResponse> handleAuthCustomException(AuthCustomException ex) {
+    public ResponseEntity<ErrorResponse> handleAuthCustomException(AuthCustomException ex, WebRequest request) {
         ErrorCode errorCode = ex.getErrorCode();
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(errorCode.getStatus().value())
-                .message(ex.getErrorMessage())
+                .message(ex.getErrorMessage() != null ? ex.getErrorMessage() : errorCode.getMessage())
+                .path(request.getDescription(false))
                 .build();
-        //ErrorResponse errorResponse = new ErrorResponse(errorCode.getCode(), errorCode.getMessage());
         return new ResponseEntity<>(errorResponse, errorCode.getStatus());
+    }
+
+    // 모든 예외를 처리하는 핸들러 추가
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("An unexpected error occurred")
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
