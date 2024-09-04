@@ -4,6 +4,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
@@ -18,26 +21,27 @@ public class ReviewPostController {
 
 	// 리뷰 게시글 작성
 	@PostMapping
-	public ReviewPostDto createReviewPost(@RequestBody ReviewPostDto reviewPostDto,
-		@RequestParam("userEmail") String userEmail,
+	public ReviewPostDto createReviewPost(
+		@AuthenticationPrincipal UserDetails user,
+		@RequestPart(value = "request") ReviewPostDto reviewPostDto,
 		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
-		return reviewPostService.createReviewPost(reviewPostDto, userEmail, files);
+		return reviewPostService.createReviewPost(reviewPostDto, user.getUsername(), files);
 	}
 
 	// 리뷰 게시글 수정
 	@PutMapping("/{id}")
 	public ReviewPostDto updateReviewPost(@PathVariable("id") Long id,
 		@RequestBody ReviewPostDto reviewPostDto,
-		@RequestParam("userEmail") String userEmail,
+		@AuthenticationPrincipal UserDetails user,
 		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
-		return reviewPostService.updateReviewPost(id, reviewPostDto, userEmail, files);
+		return reviewPostService.updateReviewPost(id, reviewPostDto, user.getUsername(), files);
 	}
 
 	// 리뷰 게시글 삭제
 	@DeleteMapping("/{id}")
 	public void deleteReviewPost(@PathVariable("id") Long id,
-		@RequestParam("userEmail") String userEmail) {
-		reviewPostService.deleteReviewPost(id, userEmail);
+		@AuthenticationPrincipal UserDetails user) {
+		reviewPostService.deleteReviewPost(id, user.getUsername());
 	}
 
 	// 리뷰 게시글 목록 조회

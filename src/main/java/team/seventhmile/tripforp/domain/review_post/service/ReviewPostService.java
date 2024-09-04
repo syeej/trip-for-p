@@ -23,6 +23,7 @@ import team.seventhmile.tripforp.domain.review_post.repository.ReviewPostReposit
 import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
+import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,11 +43,11 @@ public class ReviewPostService {
 
 		// 현재 로그인된 사용자 가져오기
 		User user = userRepository.findByEmail(userEmail)
-			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
 		// Plan 가져오기
 		Plan plan = planRepository.findByIdAndUser(reviewPostDto.getPlanId(), user)
-			.orElseThrow(() -> new IllegalArgumentException("Plan not found or not belongs to user"));
+			.orElseThrow(() -> new ResourceNotFoundException(Plan.class));
 
 		// 리뷰 게시글 생성
 		ReviewPost reviewPost = reviewPostDto.convertToEntity(user, plan);
@@ -71,7 +72,7 @@ public class ReviewPostService {
 		ReviewPostDto reviewPostDto, String userEmail, List<MultipartFile> files) {
 
 		ReviewPost reviewPost = reviewPostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(ReviewPost.class));
 
 		// 현재 로그인된 사용자 가져오기
 		User user = userRepository.findByEmail(userEmail)
@@ -129,14 +130,13 @@ public class ReviewPostService {
 	}
 
 	// 리뷰 게시글 상세 조회
-	@Transactional(readOnly = true)
+	@Transactional
 	public ReviewPostDto getReviewPostDetail(Long id) {
 		ReviewPost reviewPost = reviewPostRepository.findById(id)
 			.orElseThrow(() -> new EntityNotFoundException("ReviewPost not found"));
 
 		// 조회 수 증가
 		reviewPost.incrementViews();
-		reviewPostRepository.save(reviewPost); // 업데이트된 조회 수 저장
 
 		return ReviewPostDto.convertToDto(reviewPost);
 	}
