@@ -27,5 +27,10 @@ public class TokenService {
 	public void deleteRefreshToken(String username) {
 		redisTemplate.delete(username);
 	}
+
+	public boolean isKeyExists(String username) {
+		Boolean hasKey = redisTemplate.hasKey(username);
+		return hasKey != null && hasKey;
+	}
 }
 
