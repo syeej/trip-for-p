@@ -40,5 +40,32 @@ const loginAPI = function (formData) {
         })
 };
 
+//[회원가입] 인증코드 이메일 전송
+const sendVerificationEmailAPI = async function (request) {
+    try {
+        const response = await instance.post(`/api/mails/send-verification`, request);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw error.response.data;
+        } else {
+            throw { message: "네트워크 오류가 발생했습니다." };
+        }
+    }
+}
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI}
+//[회원가입] 인증코드 검증
+const verifyEmailAPI = async function (request) {
+    try {
+        const response = await instance.post(`/api/mails/verification`, request);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw error.response.data;
+        } else {
+            throw { message: "네트워크 오류가 발생했습니다." };
+        }
+    }
+}
+
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI}
