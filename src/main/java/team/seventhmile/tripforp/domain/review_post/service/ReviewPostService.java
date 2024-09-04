@@ -1,9 +1,6 @@
 package team.seventhmile.tripforp.domain.review_post.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,13 +14,13 @@ import team.seventhmile.tripforp.domain.file.service.FileService;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
-import team.seventhmile.tripforp.domain.review_post.entity.ReviewFile;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.domain.review_post.repository.ReviewPostRepository;
 import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
+import team.seventhmile.tripforp.global.exception.UnauthorizedAccessException;
 
 @Service
 @Transactional(readOnly = true)
@@ -56,8 +53,8 @@ public class ReviewPostService {
 		if (files != null && !files.isEmpty()) {
 			for (MultipartFile file : files) {
 				File savedFile = fileService.saveFile(file);
-				ReviewFile reviewFile = new ReviewFile(null, reviewPost, savedFile);
-				reviewPost.getReviewFiles().add(reviewFile);
+				savedFile.setReviewPost(reviewPost);
+				reviewPost.getFiles().add(savedFile);
 			}
 		}
 
@@ -76,25 +73,25 @@ public class ReviewPostService {
 
 		// 현재 로그인된 사용자 가져오기
 		User user = userRepository.findByEmail(userEmail)
-			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
 		// 작성자 확인
 		if (!reviewPost.getUser().getEmail().equals(userEmail)) {
-			throw new SecurityException("본인의 글만 수정할 수 있습니다.");
+			throw new UnauthorizedAccessException(ReviewPost.class);
 		}
 
 		// 파일 저장 로직
-		List<ReviewFile> reviewFiles = new ArrayList<>();
+		List<File> newFiles = new ArrayList<>();
 		if (files != null && !files.isEmpty()) {
 			for (MultipartFile file : files) {
 				File savedFile = fileService.saveFile(file);
-				ReviewFile reviewFile = new ReviewFile(null, reviewPost, savedFile);
-				reviewFiles.add(reviewFile);
+				savedFile.setReviewPost(reviewPost);
+				newFiles.add(savedFile);
 			}
 		}
 
 		// 업데이트
-		reviewPost.update(reviewPostDto.getTitle(), reviewPostDto.getContent(), reviewFiles);
+		reviewPost.update(reviewPostDto.getTitle(), reviewPostDto.getContent(), newFiles);
 
 		reviewPostRepository.save(reviewPost);
 
@@ -106,15 +103,15 @@ public class ReviewPostService {
 	public void deleteReviewPost(Long id, String userEmail) {
 
 		ReviewPost reviewPost = reviewPostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(ReviewPost.class));
 
 		// 현재 로그인된 사용자 가져오기
 		User user = userRepository.findByEmail(userEmail)
-			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
 		// 권한 확인 (작성자 또는 ADMIN)
 		if (!reviewPost.getUser().getEmail().equals(userEmail) && user.getRole() != Role.ADMIN) {
-			throw new SecurityException("삭제 권한이 없습니다.");
+			throw new UnauthorizedAccessException(ReviewPost.class);
 		}
 
 		reviewPostRepository.delete(reviewPost);
@@ -133,7 +130,7 @@ public class ReviewPostService {
 	@Transactional
 	public ReviewPostDto getReviewPostDetail(Long id) {
 		ReviewPost reviewPost = reviewPostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("ReviewPost not found"));
+			.orElseThrow(() -> new ResourceNotFoundException(ReviewPost.class));
 
 		// 조회 수 증가
 		reviewPost.incrementViews();
@@ -159,7 +156,7 @@ public class ReviewPostService {
 	@Transactional(readOnly = true)
 	public ReviewPost getReviewPostEntity(Long id) {
 		return reviewPostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(ReviewPost.class));
 	}
 
 }

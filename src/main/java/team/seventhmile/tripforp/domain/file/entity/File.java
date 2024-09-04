@@ -1,20 +1,20 @@
 package team.seventhmile.tripforp.domain.file.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import team.seventhmile.tripforp.domain.review_post.entity.ReviewFile;
+import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
 @Entity
 @Table(name = "files")
@@ -45,6 +45,7 @@ public class File {
 	@Column(nullable = false)
 	private String filePath;
 
-	@OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ReviewFile> reviewFiles;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "review_post_id")
+	private ReviewPost reviewPost;
 }

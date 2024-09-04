@@ -55,18 +55,19 @@ public class ReviewPost extends BaseEntity {
 	private List<ReviewComment> comments;
 
 	@OneToMany(mappedBy = "reviewPost", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ReviewFile> reviewFiles = new ArrayList<>();
+	private List<File> files = new ArrayList<>();
 
 
 	// 수정 로직 (더티 체킹 방식)
-	public void update(String title, String content, List<ReviewFile> files) {
+	public void update(String title, String content, List<File> files) {
 		validateField(title, "Title");
 		validateField(content, "Content");
 
 		this.title = title;
 		this.content = content;
-		this.reviewFiles.clear();
-		this.reviewFiles.addAll(files);
+		this.files.clear();
+		this.files.addAll(files);
+		files.forEach(file -> file.setReviewPost(this));
 	}
 
 	// 조회 수 증가 로직
