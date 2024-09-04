@@ -4,16 +4,16 @@ import SelectAreaComponent from "@/components/SelectAreaComponent.vue";
 
 const plans = ref([]);
 const currentPage = ref(1);
-const itemsPerPage = ref(5); // 페이지당 항목 수
-const isLoading = ref(false); // 로딩 상태 변수
-const selectedArea = ref(null); // 선택된 지역
-const showSelection = ref(true); // 지역 선택 화면을 보여줄지 여부
+const itemsPerPage = ref(5);
+const isLoading = ref(false);
+const selectedArea = ref(null);
+const showSelection = ref(true);
 
 const fetchPlans = async () => {
   if (!selectedArea.value) return;
 
   try {
-    isLoading.value = true; // 로딩 상태 시작
+    isLoading.value = true;
     const response = await fetch(`/api/plans?area=${selectedArea.value}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -24,7 +24,7 @@ const fetchPlans = async () => {
   } catch (error) {
     console.error('Error fetching plans:', error);
   } finally {
-    isLoading.value = false; // 로딩 완료
+    isLoading.value = false;
   }
 };
 
@@ -50,14 +50,14 @@ const changePage = (page) => {
 // 지역이 선택된 경우 처리
 const handleAreaSelected = (area) => {
   selectedArea.value = area;
-  showSelection.value = false; // 지역 선택 화면 숨기기
+  showSelection.value = false;
   fetchPlans();
 };
 
 // 뒤로가기 버튼 클릭 처리
 const goBackToSelection = () => {
-  showSelection.value = true; // 지역 선택 화면 보이기
-  selectedArea.value = null; // 선택된 지역 초기화
+  showSelection.value = true;
+  selectedArea.value = null;
 };
 
 </script>
@@ -253,7 +253,7 @@ tbody tr:last-child td:last-child {
 }
 
 .back-button {
-  margin: 1em 0em 0em -4em; /* 수정된 부분: 왼쪽 마진을 0으로 설정 */
+  margin: 1em 0em 0em -4em;
   border: 0px;
   border-radius: 5px;
   cursor: pointer;
