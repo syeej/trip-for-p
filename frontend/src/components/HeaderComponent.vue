@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from "vue";
+import {computed} from "vue";
 import store from "@/store";
 
-const hasAccessToken = computed(() => store.getters.getAccessToken);
+const isAccessTokenValid = computed(() => store.getters.isAccessTokenValid);
 
 const logout = function () {
     store.commit('clearData');
@@ -18,7 +18,7 @@ const logout = function () {
                 </router-link>
             </div>
             <ul class="auth-menu">
-                <template v-if="!hasAccessToken">
+                <template v-if="!isAccessTokenValid">
                     <li>
                         <router-link to="/signup">회원가입</router-link>
                     </li>
