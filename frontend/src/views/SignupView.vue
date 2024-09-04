@@ -97,9 +97,9 @@ const signup = async function () {
         alert("가입이 완료되었습니다.");
         await router.replace('/login');
     } catch (error) {
-        console.log(error.response.data);
-        if (error.response.data.status == 409) {
-            alert(error.response.data.message);
+        console.log("회원가입", error);
+        if (error.status === 409 || error.status === 403) {
+            alert(error.message);
         }
     }
 }

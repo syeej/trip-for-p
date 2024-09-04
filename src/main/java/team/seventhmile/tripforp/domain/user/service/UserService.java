@@ -1,6 +1,5 @@
 package team.seventhmile.tripforp.domain.user.service;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,9 +13,9 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
-import team.seventhmile.tripforp.global.exception.user.AlreadyUsedEmailException;
-import team.seventhmile.tripforp.global.exception.user.UserRegistrationException;
-import team.seventhmile.tripforp.global.exception.user.WithdrawnUserException;
+
+import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -31,27 +30,20 @@ public class UserService {
 	@Transactional
 	public void register(UserDto userDto) {
 
-		String email = userDto.getEmail();
-		String password = userDto.getPassword();
-		String nickname = userDto.getNickname();
-
-		// 이메일 검사
+		// 이메일 누락 시
 		if (!StringUtils.hasText(userDto.getEmail())) {
-			throw new UserRegistrationException("이메일은 필수 입력 항목입니다.");
+			throw new AuthCustomException(ErrorCode.REQUIRED_FIELD_MISSING);
 		}
-
 		// 이메일 중복 체크, 탈퇴된 이메일 확인
-		Optional<User> existingUser = userRepository.findByEmail(email);
+		Optional<User> existingUser = userRepository.findByEmail(userDto.getEmail());
 		if (existingUser.isPresent()) {
 			User user = existingUser.get();
-			// isDeleted true -> 탈퇴(삭제)한 회원
-			if (user.getIsDeleted()) {
-				throw new WithdrawnUserException("탈퇴한 사용자입니다.");
-			} else {
-				throw new AlreadyUsedEmailException("이미 사용중인 이메일입니다.");
+			if (user.getIsDeleted()) { //탈퇴
+				throw new AuthCustomException(ErrorCode.WITHDRAWN_USER);
 			}
+			//중복
+			throw new AuthCustomException(ErrorCode.EMAIL_ALREADY_IN_USE);
 		}
-
 		//이메일 인증 상태 확인
 		Boolean isVerified = redisTemplate.opsForValue().get("EMAIL_VERIFIED:" + userDto.getEmail()) != null;
 		if(!isVerified){
@@ -70,6 +62,7 @@ public class UserService {
 				.role(Role.USER)
 				.build();
 		userRepository.save(newUser);
+
 		// 회원가입 후 Redis에서 인증 정보 삭제
 		redisTemplate.delete("EMAIL_CODE:" + userDto.getEmail());
 		redisTemplate.delete("EMAIL_VERIFIED:" + userDto.getEmail());
