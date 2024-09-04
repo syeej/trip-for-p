@@ -1,8 +1,11 @@
 package team.seventhmile.tripforp.global.exception;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,31 +23,49 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
         MethodArgumentNotValidException ex, WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+        List<String> errors = new ArrayList<>();
+
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            String field = error.getField();
+            String defaultMessage = error.getDefaultMessage();
+
+            String simplifiedField = field.contains(".") ?
+                field.substring(field.lastIndexOf('.') + 1) : field;
+
+            errors.add(String.format("%s: %s", simplifiedField, defaultMessage));
+        }
+
         ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.BAD_REQUEST.value())
-            .message(ex.getMessage())
+            .message("입력값 검증에 실패했습니다.")
             .errors(errors)
-            .path(request.getDescription(false))
+            .path(request.getDescription(false).substring(4))
             .build();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     //리소스 존재 체크
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex,
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
         WebRequest request) {
         ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
-            .path(request.getDescription(false))
+            .path(request.getDescription(false).substring(4))
             .build();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    //게시글 소유자 체크
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAccessException(UnauthorizedAccessException ex,
+        WebRequest request) {
+        ErrorResponse response = ErrorResponse.builder()
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .message(ex.getMessage())
+            .path(request.getDescription(false).substring(4))
+            .build();
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
     //데이터베이스 무결성 제약 조건 위반
@@ -54,7 +75,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.CONFLICT.value())
             .message(ex.getMessage())
-            .path(request.getDescription(false))
+            .path(request.getDescription(false).substring(4))
             .build();
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
