@@ -11,6 +11,7 @@ import HomeView from "@/views/HomeView.vue";
 import MypageView from "@/views/MypageView.vue";
 import PlanListView from "@/views/PlanListView.vue";
 import ReviewPostListView from "@/views/ReviewPostListView.vue";
+import store from "@/store";
 
 const routes = [
     {
@@ -56,7 +57,8 @@ const routes = [
     {
         path: '/plan/write',
         name: 'WritePlan',
-        component: WritePlanView
+        component: WritePlanView,
+        meta: { requiresAuth: true }
     },
     {
         path: '/plan/:planId',
@@ -78,6 +80,20 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes
+})
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!store.getters.isAccessTokenValid) {
+            if (window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                next('/login')
+            }
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
 })
 
 export default router
