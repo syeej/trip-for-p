@@ -8,20 +8,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenService {
 
-	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
-	public TokenService(RedisTemplate<String, String> redisTemplate) {
+	public TokenService(RedisTemplate<String, Object> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
 
 	public void saveRefreshToken(String username, String refreshToken) {
-		// Refresh token을 Redis에 저장 (만료 시간: 24시간)
 		redisTemplate.opsForValue().set(username, refreshToken, 1, TimeUnit.DAYS);
 	}
 
 	public String getRefreshToken(String username) {
-		return redisTemplate.opsForValue().get(username);
+		Object token = redisTemplate.opsForValue().get(username);
+		return (token != null) ? token.toString() : null;
 	}
 
 	public void deleteRefreshToken(String username) {
