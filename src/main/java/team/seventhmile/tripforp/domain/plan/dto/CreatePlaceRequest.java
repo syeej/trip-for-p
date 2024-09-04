@@ -3,7 +3,6 @@ package team.seventhmile.tripforp.domain.plan.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.seventhmile.tripforp.domain.plan.entity.Place;
 
 @NoArgsConstructor
 @Getter

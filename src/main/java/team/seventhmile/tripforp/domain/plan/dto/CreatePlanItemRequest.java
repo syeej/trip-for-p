@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.seventhmile.tripforp.domain.plan.entity.Place;
 
 @NoArgsConstructor
 @Getter
