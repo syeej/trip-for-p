@@ -3,12 +3,14 @@ package team.seventhmile.tripforp.domain.plan.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 
 import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
+import team.seventhmile.tripforp.domain.user.entity.User;
+import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
@@ -37,22 +41,29 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final PlanItemService planItemService;
     private final PlanLikeRepository planLikeRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public CreatePlanResponse createPlan(CreatePlanRequest request) {
+    public CreatePlanResponse createPlan(CreatePlanRequest request, UserDetails authenticatedPrincipal) {
+
+        User user = userRepository.findByEmail(authenticatedPrincipal.getUsername())
+            .orElseThrow(() -> new ResourceNotFoundException(User.class));
 
         Plan plan = Plan.builder()
+            .user(user)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .title(request.getTitle())
             .area(request.getArea())
             .build();
+        planRepository.save(plan);
+        planRepository.flush();
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
             //장소 가져오기, 없을 경우 장소 등록
             planItemService.createPlanItem(plan, planItemRequest);
         }
-        return new CreatePlanResponse(planRepository.save(plan).getId());
+        return new CreatePlanResponse(plan.getId());
     }
 
     @Transactional
@@ -103,41 +114,13 @@ public class PlanService {
         return planRepository.getPlans(area, pageable);
     }
 
-    public PlanGetDetailDto getPlanById(Long planId) {
-        Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("Plan not found with id: " + planId));
+    @Transactional
+    public GetPlanResponse getPlanById(Long planId) {
 
-        // User와 Area 정보를 DTO로 변환
-        UserGetDto userDto = plan.getUser().toDto();
-        AreaDto areaDto = AreaDto.fromEntity(plan.getArea());
-
-        // PlanItems를 PlanItemDto로 변환
-        List<PlanGetItemDto> planItemDtos = plan.getPlanItems().stream()
-                .map(PlanGetItemDto::new)
-                .collect(Collectors.toList());
-
-        // PlanLikes를 PlanLikeDto로 변환
-        List<PlanLikeDto> planLikeDtos = plan.getPlanLikes().stream()
-                .map(like -> new PlanLikeDto(
-                        like.getId(),
-                        like.getUser(),
-                        like.getPlan()))
-                .collect(Collectors.toList());
-
-        // Plan의 좋아요 개수 계산
+        Plan plan = planRepository.findPlan(planId);
         int likeCount = planLikeRepository.countByPlanId(planId);
+        plan.increaseViews();
 
-        return new PlanGetDetailDto(
-                userDto,
-                plan.getId(),
-                plan.getTitle(),
-                plan.getStartDate(),
-                plan.getEndDate(),
-
-                areaDto,
-                plan.getViews(),
-                likeCount,  // 좋아요 개수 전달
-                planItemDtos
-        );
+        return new GetPlanResponse(plan, likeCount);
     }
 }

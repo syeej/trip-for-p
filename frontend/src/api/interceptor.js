@@ -21,7 +21,7 @@ const setInterceptors = function (instance) {
                 }
 
                 // 토큰이 유효하면 Authorization 헤더에 추가
-                config.headers.Authorization = `Bearer ${token}`;
+                config.headers.access = token;
             }
 
             return config;

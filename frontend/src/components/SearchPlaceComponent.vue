@@ -1,6 +1,5 @@
 <script setup>
-/* global kakao */
-import {defineEmits, ref} from 'vue';
+import {defineEmits, onMounted, ref} from 'vue';
 
 const searchQuery = ref('');
 const searchResults = ref([]);
@@ -22,6 +21,9 @@ const selectPlace = (place) => {
     searchQuery.value = '';
     searchResults.value = [];
 };
+onMounted(() => {
+    /* global kakao */
+})
 </script>
 
 <template>

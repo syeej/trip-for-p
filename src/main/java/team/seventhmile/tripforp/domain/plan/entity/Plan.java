@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
 
 @Entity
-@AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "plans")
@@ -45,6 +45,7 @@ public class Plan extends BaseEntity {
 
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
     private List<PlanLike> planLikes;  // PlanItems associated with this Plan
+
     @Column(nullable = false)
     private int views;
 
@@ -52,7 +53,8 @@ public class Plan extends BaseEntity {
      * 생성 메서드
      */
     @Builder
-    public Plan(LocalDate startDate, LocalDate endDate, String title, String area) {
+    public Plan(User user, LocalDate startDate, LocalDate endDate, String title, String area) {
+        this.user = user;
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;

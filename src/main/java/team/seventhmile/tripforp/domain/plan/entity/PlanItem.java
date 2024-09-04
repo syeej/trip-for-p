@@ -19,11 +19,10 @@ public class PlanItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonBackReference
     @JoinColumn(name = "plan_id", nullable = false)
     private Plan plan;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 

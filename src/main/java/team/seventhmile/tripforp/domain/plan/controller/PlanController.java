@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
@@ -33,9 +36,9 @@ public class PlanController {
 
     @PostMapping
     public CreatePlanResponse createPlan(
-        @RequestBody CreatePlanRequest request
-    ) {
-        return planService.createPlan(request);
+        @RequestBody CreatePlanRequest request,
+        @AuthenticationPrincipal UserDetails authenticatedPrincipal) {
+        return planService.createPlan(request, authenticatedPrincipal);
     }
 
     @PutMapping("/{id}")
@@ -66,8 +69,8 @@ public class PlanController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPlanDetail(@PathVariable Long id) {
-        PlanGetDetailDto planDto = planService.getPlanById(id);
+    public ResponseEntity<GetPlanResponse> getPlanDetail(@PathVariable Long id) {
+        GetPlanResponse planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
     }
 }

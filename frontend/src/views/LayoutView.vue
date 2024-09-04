@@ -1,20 +1,21 @@
 <script setup>
-import HeaderView from "@/components/HeaderComponent.vue";
-import FooterView from "@/components/FooterComponent.vue";
+import HeaderComponent from "@/components/HeaderComponent.vue";
+import FooterComponent from "@/components/FooterComponent.vue";
 import {useRoute} from "vue-router";
 
 const route = useRoute();
+
 </script>
 
 <template>
-    <div v-if="route.path !== '/signup' && route.path !== '/login'" class="app-header">
-        <HeaderView/>
+    <div v-if="route.path !== '/signup' && route.path !== '/login'" class="app-header" :key="$route.path">
+        <HeaderComponent/>
     </div>
     <div class="app-content">
         <RouterView :key="$router.path"/>
     </div>
     <div v-if="route.path !== '/signup' && route.path !== '/login'" class="app-footer">
-        <FooterView/>
+        <FooterComponent/>
     </div>
 </template>
 
