@@ -1,6 +1,5 @@
 package team.seventhmile.tripforp.domain.user.service;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,9 +13,7 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
-import team.seventhmile.tripforp.global.exception.user.AlreadyUsedEmailException;
-import team.seventhmile.tripforp.global.exception.user.UserRegistrationException;
-import team.seventhmile.tripforp.global.exception.user.WithdrawnUserException;
+
 
 @Slf4j
 @Service
