@@ -4,11 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.entity.PlanLike;
 import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
+import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.user.entity.User;
+import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,11 +23,16 @@ public class PlanLikeServiceTest {
 
   private PlanLikeService planLikeService;
   private PlanLikeRepository planLikeRepository;
+  private UserRepository userRepository;
+  private PlanRepository planRepository;
 
   @BeforeEach
   public void setUp() {
     planLikeRepository = Mockito.mock(PlanLikeRepository.class);
-    planLikeService = new PlanLikeService(planLikeRepository);
+    userRepository = Mockito.mock(UserRepository.class);
+    planRepository = Mockito.mock(PlanRepository.class);
+
+    planLikeService = new PlanLikeService(planLikeRepository, userRepository, planRepository);
   }
 
   @Test
@@ -35,8 +43,8 @@ public class PlanLikeServiceTest {
     Plan mockPlan = Mockito.mock(Plan.class);
 
     // ID 값을 모킹하여 설정
-    Mockito.when(mockUser.getId()).thenReturn(1L);
-    Mockito.when(mockPlan.getId()).thenReturn(1L);
+    Mockito.when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
+    Mockito.when(planRepository.findById(1L)).thenReturn(java.util.Optional.of(mockPlan));
 
     // PlanLike 엔티티를 리포지토리에 저장할 때 리턴될 값을 설정
     PlanLike mockPlanLike = PlanLike.builder()
@@ -47,8 +55,11 @@ public class PlanLikeServiceTest {
 
     when(planLikeRepository.save(any(PlanLike.class))).thenReturn(mockPlanLike);
 
+    // DTO 생성
+    PlanLikeRequestDto requestDto = new PlanLikeRequestDto(1L, 1L);
+
     // 서비스 메서드 호출
-    PlanLikeResponseDto result = planLikeService.likePlan(mockUser, mockPlan);
+    PlanLikeResponseDto result = planLikeService.likePlan(requestDto);
 
     // 결과가 null이 아닌지 확인하여, 서비스 로직이 제대로 동작했는지 검증
     assertNotNull(result);  // result 자체가 null이 아님을 확인
