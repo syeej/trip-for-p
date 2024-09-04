@@ -41,6 +41,7 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
             .where(equalArea(area))
             .leftJoin(qPlan.user).fetchJoin()
             .leftJoin(qPlan.planLikes)
+            .orderBy(qPlan.createdAt.desc())
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
@@ -67,6 +68,7 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
             .where(qPlan.user.email.eq(email))
             .leftJoin(qPlan.user).fetchJoin()
             .leftJoin(qPlan.planLikes)
+            .orderBy(qPlan.createdAt.desc())
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
