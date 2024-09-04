@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
 
     //리소스 존재 체크
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex,
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
         WebRequest request) {
         ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.NOT_FOUND.value())
@@ -45,6 +45,18 @@ public class GlobalExceptionHandler {
             .path(request.getDescription(false))
             .build();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    //게시글 소유자 체크
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAccessException(UnauthorizedAccessException ex,
+        WebRequest request) {
+        ErrorResponse response = ErrorResponse.builder()
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .message(ex.getMessage())
+            .path(request.getDescription(false))
+            .build();
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
     //데이터베이스 무결성 제약 조건 위반
