@@ -11,9 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
-import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.QGetPlanListResponse;
-import team.seventhmile.tripforp.domain.plan.dto.QGetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.entity.QPlan;
@@ -31,11 +29,18 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
 
     @Override
     public Page<GetPlanListResponse> getPlans(String area, Pageable pageable) {
-        System.out.println(Area.fromName(area));
         List<GetPlanListResponse> plans = queryFactory
-            .select(new QGetPlanListResponse(qPlan))
+            .select(new QGetPlanListResponse(
+                qPlan,
+                JPAExpressions
+                    .select(qPlanLike.count())
+                    .from(qPlanLike)
+                    .where(qPlanLike.plan.eq(qPlan))
+            ))
             .from(qPlan)
             .where(equalArea(area))
+            .leftJoin(qPlan.user).fetchJoin()
+            .leftJoin(qPlan.planLikes)
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
