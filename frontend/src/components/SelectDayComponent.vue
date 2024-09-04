@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { defineProps, defineEmits } from 'vue';
+import {ref, computed} from 'vue';
+import {defineProps, defineEmits} from 'vue';
 
 const props = defineProps({
     selectedRegion: String
@@ -8,9 +8,14 @@ const props = defineProps({
 
 const emit = defineEmits(['back-to-area', 'dates-selected']);
 
-const currentDate = ref(new Date());
 const startDate = ref(null);
 const endDate = ref(null);
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const currentMonth = today.getMonth();
+const currentYear = today.getFullYear();
+const currentDate = ref(new Date(currentYear, currentMonth, 1));
 
 const daysInMonth = computed(() => {
     const year = currentDate.value.getFullYear();
@@ -41,22 +46,33 @@ const handleNext = () => {
     }
 };
 
-
 const monthYear = computed(() => {
     const options = {year: 'numeric', month: 'long'};
     return currentDate.value.toLocaleDateString('ko-KR', options);
 });
 
+const isPrevMonthDisabled = computed(() => {
+    return currentDate.value.getFullYear() === currentYear &&
+        currentDate.value.getMonth() === currentMonth;
+});
+
 const prevMonth = () => {
-    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1);
+    if (!isPrevMonthDisabled.value) {
+        currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1);
+    }
 };
 
 const nextMonth = () => {
-    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1);
+    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1,
+        1);
 };
 
 const selectDate = (day) => {
-    const selectedDate = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), day);
+    const selectedDate = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(),
+        day);
+    if (isPastDate(day)) {
+        return;
+    }
     if (!startDate.value || (startDate.value && endDate.value)) {
         startDate.value = selectedDate;
         endDate.value = null;
@@ -81,13 +97,17 @@ const isSelected = (day) => {
 };
 
 const isInRange = (day) => {
-    if (!startDate.value || !endDate.value) return false;
+    if (!startDate.value || !endDate.value) {
+        return false;
+    }
     const date = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), day);
     return date > startDate.value && date < endDate.value;
 };
 
 const formatDate = (date) => {
-    if (!date) return '';
+    if (!date) {
+        return '';
+    }
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -95,7 +115,9 @@ const formatDate = (date) => {
 };
 
 const formatDisplayDate = (date) => {
-    if (!date) return '';
+    if (!date) {
+        return '';
+    }
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
@@ -125,6 +147,13 @@ const calculateDuration = computed(() => {
     return '';
 });
 
+const isPastDate = (day) => {
+    const date = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+};
+
 const handleBack = () => {
     emit('back-to-area');
 };
@@ -135,7 +164,7 @@ const handleBack = () => {
         <h2>{{ props.selectedRegion }}의 여행 날짜를 선택해주세요</h2>
         <div class="calendar">
             <div class="calendar-header">
-                <button @click="prevMonth">&lt;</button>
+                <button @click="prevMonth" class="nav-button" :disabled="isPrevMonthDisabled">&lt;</button>
                 <h3>{{ monthYear }}</h3>
                 <button @click="nextMonth">&gt;</button>
             </div>
@@ -155,15 +184,16 @@ const handleBack = () => {
                         v-for="day in days"
                         :key="day"
                         :class="{
-                            'day': true,
-                            'today': isToday(day),
-                            'selected': isSelected(day),
-                            'in-range': isInRange(day)
-                        }"
+    'day': true,
+    'today': isToday(day),
+    'selected': isSelected(day),
+    'in-range': isInRange(day),
+    'disabled': isPastDate(day)
+  }"
                         @click="selectDate(day)"
                     >
-                        {{ day }}
-                    </span>
+  {{ day }}
+</span>
                 </div>
             </div>
         </div>
@@ -199,7 +229,7 @@ h2 {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-header {
@@ -220,6 +250,10 @@ h2 {
 .calendar-header h3 {
     margin: 0;
     font-size: 18px;
+}
+.calendar-header button.nav-button:disabled {
+    color: #ccc;
+    cursor: not-allowed;
 }
 
 .weekdays {
@@ -252,6 +286,14 @@ h2 {
 .day:hover {
     background-color: #f0f0f0;
 }
+.day.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.day.disabled:hover {
+    background-color: #f0f0f0;
+}
 
 .today {
     color: #007bff;
@@ -282,11 +324,13 @@ h2 {
     font-size: 1.2em;
     color: #333;
 }
+
 .button-container {
     display: flex;
     gap: 10px;
 }
-button {
+
+.button-container button {
     margin-top: 20px;
     padding: 10px 20px;
     background-color: #4CAF50;
@@ -297,17 +341,19 @@ button {
     font-size: 16px;
     align-self: center;
 }
-button:disabled {
+
+.button-container button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
 }
-button:hover{
+
+.button-container button:hover {
     transform: translateY(-2px);
 }
 
-button:active{
+.button-container button:active {
     transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 480px) {
