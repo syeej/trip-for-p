@@ -16,11 +16,15 @@ const totalElements = ref(0);
 const totalPages = ref(0);
 
 const fetchPlans = async () => {
-    if (!selectedArea.value) return;
+    if (!selectedArea.value) {
+        return;
+    }
 
     try {
         isLoading.value = true;
-        const response = await fetch(`/api/plans?area=${selectedArea.value}&size=${itemsPerPage.value}&page=${currentPage.value - 1}`);
+        const response = await fetch(
+            `/api/plans?area=${selectedArea.value}&size=${itemsPerPage.value}&page=${currentPage.value
+            - 1}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -60,9 +64,13 @@ const updateWindowWidth = () => {
 
 // 상대적 시간 포맷팅 함수 추가
 const formatRelativeTime = (dateString) => {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diffInSeconds = Math.floor((now - past) / 1000);
+
+    const now = new Date().toISOString();
+    const cleanDateString = dateString.replace(/\[.*\]$/, '');
+    const past = new Date(cleanDateString).toISOString();
+    const diffInMilliseconds = new Date(now) - new Date(past);
+    const diffInSeconds = Math.floor(diffInMilliseconds / 1000);
+    console.log(diffInSeconds)
 
     if (diffInSeconds < 60) {
         return '방금 전';
@@ -132,7 +140,8 @@ watch(currentPage, fetchPlans);
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="plan in plans" :key="plan.id" @click="navigateToPlanDetails(plan.id)" class="clickable-row">
+                        <tr v-for="plan in plans" :key="plan.id"
+                            @click="navigateToPlanDetails(plan.id)" class="clickable-row">
                             <td class="col-title">{{ plan.title }}</td>
                             <td class="col-author">{{ plan.writer }}</td>
                             <td class="col-date">{{ formatRelativeTime(plan.createdAt) }}</td>
@@ -145,7 +154,8 @@ watch(currentPage, fetchPlans);
                 <p v-else>등록된 여행 코스가 없습니다.</p>
 
                 <div v-if="totalPages > 1" class="pagination">
-                    <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">이전</button>
+                    <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">이전
+                    </button>
                     <button
                         v-for="page in totalPages"
                         :key="page"
@@ -155,7 +165,9 @@ watch(currentPage, fetchPlans);
                     >
                         {{ page }}
                     </button>
-                    <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">다음</button>
+                    <button @click="changePage(currentPage + 1)"
+                            :disabled="currentPage === totalPages">다음
+                    </button>
                 </div>
             </div>
         </div>
@@ -166,6 +178,7 @@ watch(currentPage, fetchPlans);
 .container {
     width: 100%;
 }
+
 .SelectAreaComponent {
     margin-top: 50px;
 }
@@ -206,6 +219,7 @@ th {
 .col-author, .col-date {
     width: 15%;
 }
+
 .col-date {
     text-align: center;
 }
@@ -214,6 +228,7 @@ th {
     width: 5%;
     text-align: center;
 }
+
 .col-views {
     padding-right: 20px;
 }
@@ -256,6 +271,7 @@ td.col-title {
     margin-bottom: 1em;
     cursor: pointer;
 }
+
 .clickable-row {
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -264,6 +280,7 @@ td.col-title {
 .clickable-row:hover {
     background-color: #f5f5f5;
 }
+
 @media (max-width: 768px) {
     .col-author, .col-date, .col-likes, .col-views {
         display: none;
