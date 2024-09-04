@@ -11,7 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import team.seventhmile.tripforp.domain.user.service.TokenService;
+import team.seventhmile.tripforp.global.jwt.CustomLogoutFilter;
 import team.seventhmile.tripforp.global.jwt.JwtFilter;
 import team.seventhmile.tripforp.global.jwt.JwtUtil;
 import team.seventhmile.tripforp.global.jwt.LoginFilter;
@@ -73,6 +75,9 @@ public class SecurityConfig {
 		http
 			.sessionManagement((session) -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+		http
+			.addFilterBefore(new CustomLogoutFilter(jwtUtil, tokenService), LogoutFilter.class);
 
 		return http.build();
 	}
