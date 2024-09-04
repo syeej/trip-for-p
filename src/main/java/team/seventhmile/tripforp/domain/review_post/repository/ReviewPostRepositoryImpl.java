@@ -8,10 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import team.seventhmile.tripforp.domain.plan.entity.Plan;
+import team.seventhmile.tripforp.domain.plan.entity.QPlan;
 import team.seventhmile.tripforp.domain.review_post.entity.QReviewPost;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
 import java.util.List;
+import team.seventhmile.tripforp.domain.user.entity.User;
 
 @RequiredArgsConstructor
 @Repository
@@ -19,6 +22,7 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
     private final QReviewPost qReviewPost = QReviewPost.reviewPost;
+    private final QPlan qPlan = QPlan.plan;
 
     @Override
     public Page<ReviewPost> getReviewPosts(Pageable pageable) {
@@ -54,5 +58,11 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
         return PageableExecutionUtils.getPage(reviewPosts, pageable, count::fetchOne);
     }
 
-
+    // 사용자가 작성한 Plan 조회
+    @Override
+    public List<Plan> findUserPlans(User user) {
+        return queryFactory.selectFrom(qPlan)
+            .where(qPlan.user.eq(user))
+            .fetch();
+    }
 }

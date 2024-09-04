@@ -2,7 +2,6 @@ package team.seventhmile.tripforp.domain.review_post.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
@@ -20,25 +19,25 @@ public class ReviewPostController {
 	// 리뷰 게시글 작성
 	@PostMapping
 	public ReviewPostDto createReviewPost(@RequestBody ReviewPostDto reviewPostDto,
-		@RequestParam("userId") Long userId,
+		@RequestParam("userEmail") String userEmail,
 		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
-		return reviewPostService.createReviewPost(reviewPostDto, userId, files);
+		return reviewPostService.createReviewPost(reviewPostDto, userEmail, files);
 	}
 
 	// 리뷰 게시글 수정
 	@PutMapping("/{id}")
 	public ReviewPostDto updateReviewPost(@PathVariable("id") Long id,
 		@RequestBody ReviewPostDto reviewPostDto,
-		@RequestParam("userId") Long userId,
+		@RequestParam("userEmail") String userEmail,
 		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
-		return reviewPostService.updateReviewPost(id, reviewPostDto, userId, files);
+		return reviewPostService.updateReviewPost(id, reviewPostDto, userEmail, files);
 	}
 
 	// 리뷰 게시글 삭제
 	@DeleteMapping("/{id}")
 	public void deleteReviewPost(@PathVariable("id") Long id,
-		@RequestParam("userId") Long userId) {
-		reviewPostService.deleteReviewPost(id, userId);
+		@RequestParam("userEmail") String userEmail) {
+		reviewPostService.deleteReviewPost(id, userEmail);
 	}
 
 	// 리뷰 게시글 목록 조회

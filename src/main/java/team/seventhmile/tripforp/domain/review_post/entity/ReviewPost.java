@@ -1,6 +1,7 @@
 package team.seventhmile.tripforp.domain.review_post.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,25 +54,25 @@ public class ReviewPost extends BaseEntity {
 	@OneToMany(mappedBy = "reviewPost", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ReviewComment> comments;
 
-	@ManyToMany
-	@JoinTable(
-		name = "review_files",
-		joinColumns = @JoinColumn(name = "review_id"),
-		inverseJoinColumns = @JoinColumn(name = "file_id")
-	)
-	private List<File> files;
+	@OneToMany(mappedBy = "reviewPost", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ReviewFile> reviewFiles = new ArrayList<>();
 
 
 	// 수정 로직 (더티 체킹 방식)
-	public void update(String title, String content, List<File> files) {
+	public void update(String title, String content, List<ReviewFile> files) {
 		validateField(title, "Title");
 		validateField(content, "Content");
 
 		this.title = title;
 		this.content = content;
-		this.files = files;
+		this.reviewFiles.clear();
+		this.reviewFiles.addAll(files);
 	}
 
+	// 조회 수 증가 로직
+	public void incrementViews() {
+		this.views += 1;
+	}
 
 	// Not Null 예외 처리 로직
 	public static void validateField(String field, String fieldName) {
