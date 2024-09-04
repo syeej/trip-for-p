@@ -2,7 +2,7 @@ package team.seventhmile.tripforp.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender javaMailSender;
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     //이메일 인증 코드 전송
     public void sendVerificationEmail(String recipient) {
@@ -46,7 +46,8 @@ public class EmailService {
     }
     //이메일 인증코드 검증
     public boolean verifyEmailCode(String email, String code) {
-        String storedCode = redisTemplate.opsForValue().get("EMAIL_CODE:" + email);
+        Object storedCodeObj = redisTemplate.opsForValue().get("EMAIL_CODE:" + email);
+        String storedCode = storedCodeObj != null ? storedCodeObj.toString() : null;
         log.info("server 이메일과 인증코드 {}: {}", email, storedCode);
         log.info("client 인증코드 : {}", code);
         if (storedCode != null && storedCode.equals(code)) {
