@@ -58,5 +58,15 @@ public class GlobalExceptionHandler {
             .build();
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
-
+    //회원 관련
+    @ExceptionHandler(AuthCustomException.class)
+    public ResponseEntity<ErrorResponse> handleAuthCustomException(AuthCustomException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .message(ex.getErrorMessage())
+                .build();
+        //ErrorResponse errorResponse = new ErrorResponse(errorCode.getCode(), errorCode.getMessage());
+        return new ResponseEntity<>(errorResponse, errorCode.getStatus());
+    }
 }

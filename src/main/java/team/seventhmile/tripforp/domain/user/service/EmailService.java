@@ -17,7 +17,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    //이메일 인증 코드 전송
+    //이메일 인증 코드 전송(회원가입시)
     public void sendVerificationEmail(String recipient) {
         String emailCode = generateEmailCode();
         SimpleMailMessage message = new SimpleMailMessage();
@@ -44,7 +44,7 @@ public class EmailService {
         }
         return sb.toString();
     }
-    //이메일 인증코드 검증
+    //이메일 인증코드 검증(회원가입시)
     public boolean verifyEmailCode(String email, String code) {
         Object storedCodeObj = redisTemplate.opsForValue().get("EMAIL_CODE:" + email);
         String storedCode = storedCodeObj != null ? storedCodeObj.toString() : null;
@@ -52,7 +52,7 @@ public class EmailService {
         log.info("client 인증코드 : {}", code);
         if (storedCode != null && storedCode.equals(code)) {
             // 인증 성공 시 이메일 인증 상태를 Redis에 저장
-            redisTemplate.opsForValue().set("EMAIL_VERIFIED:" + email, "true", 30, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set("EMAIL_VERIFIED:" + email, "true", 5, TimeUnit.MINUTES);
             return true;
         }
         return false;

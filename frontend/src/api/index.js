@@ -40,5 +40,14 @@ const loginAPI = function (formData) {
         })
 };
 
+//[회원가입] 인증코드 이메일 전송
+const sendVerificationEmailAPI = function (request) {
+    return instance.post(`/api/mails/send-verification`, request);
+}
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI}
+//[회원가입] 인증코드 검증
+const verifyEmailAPI = function (request) {
+    return instance.post(`/api/mails/verification`, request);
+}
+
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI}
