@@ -10,6 +10,6 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlanLikeRequestDto {
-    private User user;
-    private Plan plan;
+    private Long userId;
+    private Long planId;
 }

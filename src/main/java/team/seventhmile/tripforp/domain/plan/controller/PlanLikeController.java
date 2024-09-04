@@ -24,7 +24,7 @@ public class PlanLikeController {
   @PostMapping
   public ResponseEntity<PlanLikeResponseDto> likePlan(@RequestBody PlanLikeRequestDto requestDto) {
     PlanLikeResponseDto responseDto =
-        planLikeService.likePlan(requestDto.getUser(), requestDto.getPlan());
+        planLikeService.likePlan(requestDto);
     return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
   }
 
