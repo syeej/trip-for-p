@@ -10,6 +10,7 @@ import FreePostListView from "@/views/FreePostListView.vue";
 import HomeView from "@/views/HomeView.vue";
 import MypageView from "@/views/MypageView.vue";
 import PlanListView from "@/views/PlanListView.vue";
+import ReviewPostListView from "@/views/ReviewPostListView.vue";
 
 const routes = [
     {
@@ -66,6 +67,11 @@ const routes = [
         path: '/free-post',
         name: 'FreePostList',
         component: FreePostListView
+    },
+    {
+        path: '/review-post',
+        name: 'ReviewPostList',
+        component: ReviewPostListView
     },
 ]
 
