@@ -53,6 +53,6 @@ public class CreatePlanRequest {
 
     @AssertTrue(message = "도착 날짜는 출발 날짜보다 뒤여야 합니다.")
     private boolean isEndDateAfterStartDate() {
-        return startDate != null && endDate != null && endDate.isAfter(startDate);
+        return startDate != null && endDate != null && (endDate.isEqual(startDate) || endDate.isAfter(startDate));
     }
 }
