@@ -11,6 +11,8 @@ public interface PlanRepositoryCustom {
 
     Page<GetPlanListResponse> getPlans(String area, Pageable pageable);
 
+    Page<GetPlanListResponse> getMyPlans(String email, Pageable pageable);
+
     Plan findPlan(Long id);
 
 }

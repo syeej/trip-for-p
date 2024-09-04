@@ -54,6 +54,32 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
     }
 
     @Override
+    public Page<GetPlanListResponse> getMyPlans(String email, Pageable pageable) {
+        List<GetPlanListResponse> plans = queryFactory
+            .select(new QGetPlanListResponse(
+                qPlan,
+                JPAExpressions
+                    .select(qPlanLike.count())
+                    .from(qPlanLike)
+                    .where(qPlanLike.plan.eq(qPlan))
+            ))
+            .from(qPlan)
+            .where(qPlan.user.email.eq(email))
+            .leftJoin(qPlan.user).fetchJoin()
+            .leftJoin(qPlan.planLikes)
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
+
+        JPAQuery<Long> count = queryFactory
+            .select(qPlan.count())
+            .from(qPlan)
+            .where(qPlan.user.email.eq(email));
+
+        return PageableExecutionUtils.getPage(plans, pageable, count::fetchOne);
+    }
+
+    @Override
     public Plan findPlan(Long id) {
         return queryFactory
             .selectFrom(qPlan)

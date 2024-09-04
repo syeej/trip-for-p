@@ -130,4 +130,8 @@ public class PlanService {
             throw new UnauthorizedAccessException(Plan.class);
         }
     }
+
+    public Page<GetPlanListResponse> getMyPlanList(UserDetails user, Pageable pageable) {
+        return planRepository.getMyPlans(user.getUsername(), pageable);
+    }
 }

@@ -87,4 +87,12 @@ public class PlanController {
         GetPlanResponse planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<Page<GetPlanListResponse>> getMyPlanList(
+        @AuthenticationPrincipal UserDetails user,
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok(planService.getMyPlanList(user, pageable));
+    }
 }
