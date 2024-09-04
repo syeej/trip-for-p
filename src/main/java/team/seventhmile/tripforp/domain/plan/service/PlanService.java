@@ -32,6 +32,7 @@ import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
+import team.seventhmile.tripforp.global.exception.UnauthorizedAccessException;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,9 +68,12 @@ public class PlanService {
     }
 
     @Transactional
-    public UpdatePlanResponse updatePlan(Long id, UpdatePlanRequest request) {
+    public UpdatePlanResponse updatePlan(Long id, UpdatePlanRequest request, UserDetails user) {
+
         Plan plan = planRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
+
+        checkPlanOwner(user, plan);
 
         plan.updatePlan(request);
 
@@ -81,9 +85,11 @@ public class PlanService {
     }
 
     @Transactional
-    public void deletePlan(Long id) {
+    public void deletePlan(Long id, UserDetails user) {
         Plan plan = planRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
+
+        checkPlanOwner(user, plan);
 
         planRepository.delete(plan);
     }
@@ -122,5 +128,14 @@ public class PlanService {
         plan.increaseViews();
 
         return new GetPlanResponse(plan, likeCount);
+    }
+
+    /**
+     * 수정, 삭제 시 작성자 본인이 맞는지 검증
+     */
+    private void checkPlanOwner(UserDetails user, Plan plan) {
+        if (!user.getUsername().equals(plan.getUser().getEmail())) {
+            throw new UnauthorizedAccessException(Plan.class);
+        }
     }
 }

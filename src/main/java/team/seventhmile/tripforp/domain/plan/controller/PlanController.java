@@ -1,10 +1,11 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,11 +21,8 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
-import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.service.PlanService;
 
 @RestController
@@ -34,42 +32,57 @@ public class PlanController {
 
     private final PlanService planService;
 
+    /**
+     * 여행 코스를 등록합니다.
+     *
+     * @param request 여행 코스 생성에 필요한 세부 정보가 포함된 요청 본문
+     * @param user 여행 코스를 생성하는 인증된 사용자
+     * @return 생성된 여행 코스의 id를 포함한 ResponseEntity
+     */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public CreatePlanResponse createPlan(
+    public ResponseEntity<CreatePlanResponse> createPlan(
         @RequestBody CreatePlanRequest request,
-        @AuthenticationPrincipal UserDetails authenticatedPrincipal) {
-        return planService.createPlan(request, authenticatedPrincipal);
+        @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(planService.createPlan(request, user));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
     public ResponseEntity<UpdatePlanResponse> updatePlan(
         @PathVariable("id") Long id,
-        @RequestBody UpdatePlanRequest request
+        @RequestBody UpdatePlanRequest request,
+        @AuthenticationPrincipal UserDetails user
     ) {
-        return ResponseEntity.ok(planService.updatePlan(id, request));
+        return ResponseEntity.ok(planService.updatePlan(id, request, user));
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlan(
-        @PathVariable("id") Long id
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal UserDetails user
     ) {
-        planService.deletePlan(id);
-        return ResponseEntity.noContent().build();
+        planService.deletePlan(id, user);
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .build();
     }
 
-//    @GetMapping
-//    public List<PlanGetDto> getPlansByArea(@RequestParam("area") String area) {
-//        return planService.getPlansByArea(area);
-//    }
-
     @GetMapping
-    public Page<GetPlanListResponse> getPlansByArea(
-        @RequestParam(value = "area", required = false) String area, Pageable pageable) {
-        return planService.getPlanList(area, pageable);
+    public ResponseEntity<Page<GetPlanListResponse>> getPlanList(
+        @RequestParam(value = "area", required = false) String area,
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok(planService.getPlanList(area, pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GetPlanResponse> getPlanDetail(@PathVariable Long id) {
+    public ResponseEntity<GetPlanResponse> getPlanDetail(
+        @PathVariable Long id
+    ) {
         GetPlanResponse planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
     }
