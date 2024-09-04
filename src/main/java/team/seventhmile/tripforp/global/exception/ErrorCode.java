@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "400001", "잘못된 인증 코드입니다."),
+    REQUIRED_FIELD_MISSING(HttpStatus.BAD_REQUEST, "400002", "필수 입력 항목이 누락되었습니다."),
     WITHDRAWN_USER(HttpStatus.FORBIDDEN, "403002", "탈퇴한 사용자입니다."),
     VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "404001", "인증 코드를 찾을 수 없습니다."),
     EMAIL_ALREADY_IN_USE(HttpStatus.CONFLICT, "409001", "이미 사용 중인 이메일입니다."),

@@ -3,19 +3,18 @@ package team.seventhmile.tripforp.domain.user.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import team.seventhmile.tripforp.domain.user.dto.ApiResponse;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
 import team.seventhmile.tripforp.domain.user.service.UserService;
 import team.seventhmile.tripforp.global.jwt.JwtUtil;
 
-@Controller
+@Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
@@ -25,16 +24,16 @@ public class UserController {
 
 	// 회원가입
 	@PostMapping("/registration")
-	public ResponseEntity<String> signup(@RequestBody UserDto userDto) {
+	public ResponseEntity<?> signup(@RequestBody UserDto userDto) {
 
 		userService.register(userDto);
 
-		return ResponseEntity.ok("User registered successfully");
+		return ResponseEntity.ok(new ApiResponse("success", "회원 가입 성공했습니다."));
 	}
 
 	// 닉네임 중복체크(중복 시 true 반환)
 	@GetMapping("/nickname-verification")
-	public ResponseEntity<Boolean> checkDuplicatedNickname(
+	public ResponseEntity<?> checkDuplicatedNickname(
 		@RequestParam("nickname") String nickname) {
 		boolean isDuplicated = userService.isDuplicatedNickname(nickname);
 		return isDuplicated

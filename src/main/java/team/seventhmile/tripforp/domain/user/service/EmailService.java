@@ -34,13 +34,12 @@ public class EmailService {
             }
             //중복
             throw new AuthCustomException(ErrorCode.EMAIL_ALREADY_IN_USE);
-
         }
         String emailCode = generateEmailCode();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(recipient); //수신자 설정
         message.setSubject("이메일 인증"); //제목 설정
-        message.setText("귀하의 인증 코드는 " + emailCode + " 입니다."); //내용 설정
+        message.setText("귀하의 인증 코드는 " + emailCode + " 입니다.\n인증 코드는 5분 간 유지됩니다."); //내용 설정
         try {
             javaMailSender.send(message);
             redisTemplate.opsForValue().set("EMAIL_CODE:" + recipient, emailCode, 5, TimeUnit.MINUTES);
@@ -75,18 +74,8 @@ public class EmailService {
         if (!storedCode.equals(code)) {
             throw new AuthCustomException(ErrorCode.INVALID_VERIFICATION_CODE);
         }
-
         redisTemplate.opsForValue().set("EMAIL_VERIFIED:" + email, "true", 5, TimeUnit.MINUTES);
         redisTemplate.delete("EMAIL_CODE:" + email);
-        /*String storedCode = storedCodeObj != null ? storedCodeObj.toString() : null;
-        log.info("server 이메일과 인증코드 {}: {}", email, storedCode);
-        log.info("client 인증코드 : {}", code);
-        if (storedCode != null && storedCode.equals(code)) {
-            // 인증 성공 시 이메일 인증 상태를 Redis에 저장
-            redisTemplate.opsForValue().set("EMAIL_VERIFIED:" + email, "true", 5, TimeUnit.MINUTES);
-            return true;
-        }
-        return false;*/
     }
 
 }

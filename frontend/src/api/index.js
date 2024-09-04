@@ -27,8 +27,19 @@ const createPlanAPI = function (request) {
     return authInstance.post(`/api/plans`, request);
 }
 
-const createUserAPI = function (request) {
-    return instance.post(`/api/users/registration`, request);
+const createUserAPI = async function (request) {
+    //return instance.post(`/api/users/registration`, request);
+    try {
+        const response = await instance.post(`/api/users/registration`, request);
+        return response.data;
+    } catch (error) {
+        console.log("회원가입", error);
+        if (error.response) {
+            throw error.response.data;
+        } else {
+            throw { message: "네트워크 오류가 발생했습니다." };
+        }
+    }
 }
 
 const loginAPI = function (formData) {
