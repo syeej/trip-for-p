@@ -50,11 +50,7 @@ const drawMap = () => {
             hoveredRegion.value = null;
             updateTextVisibility();
         })
-        .on("click", (event, d) => {
-            selectedRegion.value = d.properties.name;
-            updateSelectedRegion();
-            updateTextVisibility();
-        });
+        .on("click", handleRegionClick);
 
         const textLayer = svg.append("g")
         .attr("class", "region-labels");
@@ -92,6 +88,20 @@ const handleNext = () => {
     if (selectedRegion.value) {
         emit('area-selected', selectedRegion.value);
     }
+};
+
+const handleRegionClick = (event, d) => {
+    selectedRegion.value = d.properties.name;
+    updateSelectedRegion();
+    updateTextVisibility();
+
+    // 버튼으로 스크롤
+    setTimeout(() => {
+        const button = document.querySelector('.next-button');
+        if (button) {
+            button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
 };
 
 onMounted(() => {

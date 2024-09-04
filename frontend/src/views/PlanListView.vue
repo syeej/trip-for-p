@@ -1,265 +1,285 @@
 <script setup>
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
 import SelectAreaComponent from "@/components/SelectAreaComponent.vue";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 const plans = ref([]);
 const currentPage = ref(1);
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(10);
 const isLoading = ref(false);
 const selectedArea = ref(null);
 const showSelection = ref(true);
+const windowWidth = ref(window.innerWidth);
+const totalElements = ref(0);
+const totalPages = ref(0);
 
 const fetchPlans = async () => {
-  if (!selectedArea.value) return;
+    if (!selectedArea.value) return;
 
-  try {
-    isLoading.value = true;
-    const response = await fetch(`/api/plans?area=${selectedArea.value}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+        isLoading.value = true;
+        const response = await fetch(`/api/plans?area=${selectedArea.value}&size=${itemsPerPage.value}&page=${currentPage.value - 1}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('API 응답 데이터:', data);
+        plans.value = data.content;
+        totalElements.value = data.totalElements;
+        totalPages.value = data.totalPages;
+    } catch (error) {
+        console.error('Error fetching plans:', error);
+    } finally {
+        isLoading.value = false;
     }
-    const data = await response.json();
-    console.log('API 응답 데이터:', data);
-    plans.value = data.content;
-  } catch (error) {
-    console.error('Error fetching plans:', error);
-  } finally {
-    isLoading.value = false;
-  }
 };
 
-// 현재 페이지에 해당하는 데이터를 계산
-const paginatedPlans = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return plans.value.slice(start, end);
-});
-
-// 총 페이지 수 계산
-const totalPages = computed(() => {
-  return Math.ceil(plans.value.length / itemsPerPage.value);
-});
-
-// 페이지 변경 함수
 const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+    }
 };
 
-// 지역이 선택된 경우 처리
 const handleAreaSelected = (area) => {
-  selectedArea.value = area;
-  showSelection.value = false;
-  fetchPlans();
+    selectedArea.value = area;
+    showSelection.value = false;
+    currentPage.value = 1;  // Reset to first page when area changes
+    fetchPlans();
 };
 
-// 뒤로가기 버튼 클릭 처리
 const goBackToSelection = () => {
-  showSelection.value = true;
-  selectedArea.value = null;
+    showSelection.value = true;
+    selectedArea.value = null;
 };
 
+const updateWindowWidth = () => {
+    windowWidth.value = window.innerWidth;
+};
+
+// 상대적 시간 포맷팅 함수 추가
+const formatRelativeTime = (dateString) => {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diffInSeconds = Math.floor((now - past) / 1000);
+
+    if (diffInSeconds < 60) {
+        return '방금 전';
+    } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `${minutes}분 전`;
+    } else if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours}시간 전`;
+    } else {
+        return formatDate(dateString);
+    }
+};
+
+// 날짜 포맷팅 함수 추가
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+// 새로운 함수: 계획 상세 페이지로 이동
+const navigateToPlanDetails = (planId) => {
+    router.push(`/plan/${planId}`);
+};
+
+onMounted(() => {
+    window.addEventListener('resize', updateWindowWidth);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', updateWindowWidth);
+});
+
+const isMobile = computed(() => windowWidth.value < 768);
+
+watch(currentPage, fetchPlans);
 </script>
 
 <template>
-  <div>
-    <!-- 지역 선택 화면 -->
-    <div v-if="showSelection">
-      <SelectAreaComponent @area-selected="handleAreaSelected" />
-    </div>
-
-    <!-- 테이블 화면 -->
-    <div v-else>
-      <img
-          @click="goBackToSelection"
-          class="back-button"
-          src="@/assets/backbutton.png"
-          alt="뒤로가기 버튼"
-      />
-      <div v-if="isLoading">로딩 중...</div>
-      <div v-else-if="selectedArea">
-        <h3>{{ selectedArea }}의 여행 코스</h3>
-        <table v-if="paginatedPlans.length > 0">
-          <thead>
-          <tr>
-            <th class="col-author">작성자</th>
-            <th class="col-title">제목</th>
-            <th class="col-likes"><img src="@/assets/likes.png" alt="좋아요수" /></th>
-            <th class="col-views"><img src="@/assets/viewers.png" alt="조회수" /></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="plan in paginatedPlans" :key="plan.id">
-            <td class="col-author">
-              <div class="author-name">{{ plan.writer }}</div>
-              <div class="author-date">{{ new Date(plan.createdAt).toLocaleDateString() }}</div>
-            </td>
-            <td class="col-title">{{ plan.title }}</td>
-            <td class="col-likes">{{ plan.likes }}</td>
-            <td class="col-views">{{ plan.views }}</td>
-          </tr>
-          </tbody>
-        </table>
-        <p v-else>등록된 여행 코스가 없습니다.</p>
-
-        <!-- 페이지네이션 버튼 -->
-        <div v-if="totalPages > 1" class="pagination">
-          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">이전</button>
-          <button v-for="page in totalPages" :key="page" @click="changePage(page)" :class="{ active: page === currentPage }">
-            {{ page }}
-          </button>
-          <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">다음</button>
+    <div class="container">
+        <div v-if="showSelection">
+            <SelectAreaComponent @area-selected="handleAreaSelected" class="SelectAreaComponent"/>
         </div>
-      </div>
+
+        <div v-else class="plans-container">
+            <img
+                @click="goBackToSelection"
+                class="back-button"
+                src="@/assets/backbutton.png"
+                alt="뒤로가기 버튼"
+            />
+            <div v-if="isLoading">로딩 중...</div>
+            <div v-else-if="selectedArea">
+                <h3>{{ selectedArea }}의 여행 코스</h3>
+                <div v-if="plans.length > 0" class="table-responsive">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th class="col-title">제목</th>
+                            <th class="col-author">작성자</th>
+                            <th class="col-date">작성일</th>
+                            <th class="col-likes"><img src="@/assets/likes.png" alt="좋아요수"/></th>
+                            <th class="col-views"><img src="@/assets/viewers.png" alt="조회수"/></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="plan in plans" :key="plan.id" @click="navigateToPlanDetails(plan.id)" class="clickable-row">
+                            <td class="col-title">{{ plan.title }}</td>
+                            <td class="col-author">{{ plan.writer }}</td>
+                            <td class="col-date">{{ formatRelativeTime(plan.createdAt) }}</td>
+                            <td class="col-likes">{{ plan.likes }}</td>
+                            <td class="col-views">{{ plan.views }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p v-else>등록된 여행 코스가 없습니다.</p>
+
+                <div v-if="totalPages > 1" class="pagination">
+                    <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">이전</button>
+                    <button
+                        v-for="page in totalPages"
+                        :key="page"
+                        @click="changePage(page)"
+                        :class="{ active: page === currentPage }"
+                        v-show="!isMobile || (page >= currentPage - 1 && page <= currentPage + 1) || page === 1 || page === totalPages"
+                    >
+                        {{ page }}
+                    </button>
+                    <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">다음</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
+.container {
+    width: 100%;
+}
+.SelectAreaComponent {
+    margin-top: 50px;
+}
+
+.plans-container {
+    margin-top: 2em;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
 table {
-  width: 100%;
-  padding-top: 1em;
-  margin: 3em 0;
-  border: 1px solid;
-  border-radius: 10px;
-  border-collapse: separate;
-  border-spacing: 0;
-  text-align: center;
+    width: 100%;
+    margin: 1em 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-thead {
-  position: relative;
-}
-
-thead::after {
-  content: '';
-  position: absolute;
-  left: 3%;
-  right: 3%;
-  bottom: 0;
-  border-bottom: 1px solid;
-}
-
-thead th {
-  border-bottom: none;
-}
-
-tr {
-  position: relative;
-}
-
-td {
-  font-size: 13px;
-  text-align: center;
-  vertical-align: middle;
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 th {
-  text-align: center;
-  vertical-align: middle;
-  font-size: 15px;
-}
-
-.col-author {
-  padding-top: 1.5em;
-  padding-left: 5em;
-  padding-right: 7em;
-  padding-bottom: 1.5em;
-}
-
-.author-name {
-  font-size: 13px;
-}
-
-.author-date {
-  font-size: 10px;
-  color: gray;
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: center;
 }
 
 .col-title {
-  padding-top: 1.5em;
-  padding-left: 12em;
-  padding-right: 12em;
-  padding-bottom: 1.5em;
+    width: 40%;
 }
 
-.col-likes {
-  padding-top: 1.5em;
-  padding-left: 5em;
-  padding-right: 1em;
-  padding-bottom: 1.5em;
+.col-author, .col-date {
+    width: 15%;
+}
+.col-date {
+    text-align: center;
 }
 
+.col-likes, .col-views {
+    width: 5%;
+    text-align: center;
+}
 .col-views {
-  padding-top: 1.5em;
-  padding-left: 1em;
-  padding-right: 5em;
-  padding-bottom: 1.5em;
+    padding-right: 20px;
 }
 
-tbody tr::after {
-  content: '';
-  position: absolute;
-  left: 3%;
-  right: 3%;
-  bottom: 0;
-  border-bottom: 1px solid #a1a1a1;
-}
-
-tbody tr:last-child::after {
-  border-bottom: none;
-}
-
-thead tr:first-child th:first-child {
-  border-top-left-radius: 10px;
-}
-
-thead tr:first-child th:last-child {
-  border-top-right-radius: 10px;
-}
-
-tbody tr:last-child td:first-child {
-  border-bottom-left-radius: 10px;
-}
-
-tbody tr:last-child td:last-child {
-  border-bottom-right-radius: 10px;
+td.col-title {
+    padding-left: 30px;
 }
 
 .pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 1em;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1em;
 }
 
 .pagination button {
-  margin: 0 0.5em;
-  padding: 0.5em 1em;
-  border: 1px solid #000000;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  cursor: pointer;
+    margin: 0.25em;
+    padding: 0.5em 1em;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .pagination button.active {
-  background-color: #707070;
-  color: white;
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #e9ecef;
 }
 
 .pagination button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .back-button {
-  margin: 1em 0em 0em -4em;
-  border: 0px;
-  border-radius: 5px;
-  cursor: pointer;
+    margin-bottom: 1em;
+    cursor: pointer;
+}
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.back-button:hover {
-  background-color: #e0e0e0;
+.clickable-row:hover {
+    background-color: #f5f5f5;
+}
+@media (max-width: 768px) {
+    .col-author, .col-date, .col-likes, .col-views {
+        display: none;
+    }
+
+    .col-title {
+        width: 100%;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    .pagination button {
+        padding: 0.3em 0.6em;
+        font-size: 0.9em;
+    }
 }
 </style>
