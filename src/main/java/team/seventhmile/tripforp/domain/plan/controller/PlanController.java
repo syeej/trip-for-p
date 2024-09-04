@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +43,7 @@ public class PlanController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<CreatePlanResponse> createPlan(
-        @RequestBody CreatePlanRequest request,
+        @Valid @RequestBody CreatePlanRequest request,
         @AuthenticationPrincipal UserDetails user) {
         return ResponseEntity
             .status(HttpStatus.CREATED)

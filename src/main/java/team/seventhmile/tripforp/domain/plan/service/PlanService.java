@@ -1,5 +1,7 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,22 +13,13 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetDetailDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanLikeDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
-import team.seventhmile.tripforp.domain.plan.dto.UserGetDto;
-import team.seventhmile.tripforp.domain.plan.dto.AreaDto;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.user.entity.User;
@@ -58,7 +51,6 @@ public class PlanService {
             .area(request.getArea())
             .build();
         planRepository.save(plan);
-        planRepository.flush();
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
             //장소 가져오기, 없을 경우 장소 등록
