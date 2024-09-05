@@ -5,8 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.user.dto.ApiResponse;
+import team.seventhmile.tripforp.domain.user.dto.ModifyPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
 import team.seventhmile.tripforp.domain.user.service.UserService;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
@@ -47,6 +54,13 @@ public class UserController {
 	public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
 		return jwtUtil.reissueToken(request, response);
+	}
+
+	@PatchMapping("/password/renewal")
+	public ResponseEntity<?> modifyUserPassword(HttpServletRequest request,
+		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
+
+		return userService.modifyUserPassword(request, modifyPasswordRequest.getNewPassword());
 	}
 
 }
