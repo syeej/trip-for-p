@@ -1,7 +1,7 @@
 <script setup>
 import router from "@/router";
-import {computed, onMounted, ref} from "vue";
-import {createUserAPI, sendVerificationEmailAPI, verifyEmailAPI} from "@/api";
+import {computed, onMounted, ref, watch} from "vue";
+import {createUserAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI} from "@/api";
 
 const email = ref("");
 const password = ref("");
@@ -16,6 +16,10 @@ const showVerificationInput = ref(false);
 //인증 결과
 const verificationMessage = ref("");
 const isVerificationFailed = ref(false);
+// 닉네임 중복 검사 관련 상태
+const isNicknameVerified = ref(false);
+const nicknameVerificationMessage = ref("");
+const isNicknameVerificationFailed = ref(false);
 
 //이메일 인증코드 전송
 const sendVerificationEmail = async () => {
@@ -41,10 +45,38 @@ const verifyEmail = async () => {
     isVerificationFailed.value = true;
   }
 };
+// 닉네임 중복 검사
+const verifyNickname = async () => {
+  try {
+    const isDuplicated = await verifyNickNameAPI(nickname.value);
+    if (isDuplicated.status !== 'success') {
+      isNicknameVerified.value = false;
+      nicknameVerificationMessage.value = "이미 사용 중인 닉네임입니다.";
+      isNicknameVerificationFailed.value = true;
+    } else {
+      isNicknameVerified.value = true;
+      nicknameVerificationMessage.value = "사용 가능한 닉네임입니다.";
+      isNicknameVerificationFailed.value = false;
+    }
+  } catch (error) {
+    isNicknameVerified.value = false;
+    nicknameVerificationMessage.value = error.message || "닉네임 중복 검사 중 오류가 발생했습니다.";
+    isNicknameVerificationFailed.value = true;
+  }
+};
+
+// 닉네임 입력 필드에 대한 감시
+watch(nickname, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    isNicknameVerified.value = false;
+    nicknameVerificationMessage.value = "닉네임 중복 확인이 필요합니다.";
+    isNicknameVerificationFailed.value = false;
+  }
+});
 
 // 버튼 활성화 여부를 computed로 계산
 const isFormValid = computed(() => {
-    return email.value && password.value && passwordCheck.value && nickname.value && isEmailVerified.value;
+    return email.value && password.value && passwordCheck.value && nickname.value && isEmailVerified.value && isNicknameVerified.value;
 });
 
 const goLogin = function () {
@@ -81,6 +113,10 @@ const signup = async function () {
         }
         if (!isEmailVerified.value) {
           alert("이메일 인증이 필요합니다.");
+          return;
+        }
+        if (!isNicknameVerified.value) {
+          alert("닉네임 중복 확인이 필요합니다.");
           return;
         }
         if (!validateEmail()) {
@@ -164,7 +200,19 @@ onMounted(() => {
         </p>
         <input type="password" class="signup-password" placeholder="비밀번호" v-model="password">
         <input type="password" class="signup-password-check" placeholder="비밀번호 확인" v-model="passwordCheck">
-        <input type="text" class="signup-nickname" placeholder="닉네임" v-model="nickname">
+<!--        <input type="text" class="signup-nickname" placeholder="닉네임" v-model="nickname">-->
+        <!-- 닉네임 입력 및 중복 검사 -->
+        <div class="nickname-verification-container">
+          <input type="text" class="signup-nickname" placeholder="닉네임" v-model="nickname">
+          <button @click="verifyNickname" :disabled="!nickname" class="verification-button">중복 확인</button>
+        </div>
+        <!-- 닉네임 중복 검사 메시지 -->
+        <p v-if="nicknameVerificationMessage" :class="[
+        'verification-message',
+        { 'verification-success': isNicknameVerified, 'verification-failed': isNicknameVerificationFailed }
+      ]">
+          {{ nicknameVerificationMessage }}
+        </p>
         <button @click="signup" :disabled="!isFormValid">가입하기</button>
       </div>
 
@@ -314,7 +362,15 @@ onMounted(() => {
   color: #C5CCD2;
   font-family: 'Pretendard Variable', sans-serif;
 }
-
+/* 닉네임 중복 검사 컨테이너 */
+.nickname-verification-container {
+  display: flex;
+  width: 100%;
+  max-width: 450px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 /* 인증 메시지 스타일 */
 .verification-message {
   font-size: 14px;

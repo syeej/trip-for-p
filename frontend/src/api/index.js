@@ -78,5 +78,21 @@ const verifyEmailAPI = async function (request) {
         }
     }
 }
+//[회원가입] 닉네임 중복 검사
+const verifyNickNameAPI = async function(request) {
+    var nickname = request
+    try {
+        const response = await instance.get(`/api/users/nickname-verification`, {
+            params: { nickname }
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw error.response.data;
+        } else {
+            throw { message: "네트워크 오류가 발생했습니다." };
+        }
+    }
+}
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI}
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI}
