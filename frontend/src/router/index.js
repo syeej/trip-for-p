@@ -50,7 +50,7 @@ const routes = [
         component: SignupView
     },
     {
-        path: '/plan',
+        path: '/plan/list/:area?',
         name: 'PlanList',
         component: PlanListView
     },

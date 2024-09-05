@@ -3,6 +3,7 @@ import {defineEmits, onMounted, ref} from 'vue';
 
 const searchQuery = ref('');
 const searchResults = ref([]);
+const searchInputRef = ref(null);
 const emit = defineEmits(['place-selected']);
 
 const searchPlace = () => {
@@ -21,6 +22,11 @@ const selectPlace = (place) => {
     searchQuery.value = '';
     searchResults.value = [];
 };
+const scrollToInput = () => {
+    if (searchInputRef.value) {
+        searchInputRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+};
 onMounted(() => {
     /* global kakao */
 })
@@ -30,8 +36,10 @@ onMounted(() => {
     <div class="search-place">
         <div class="search-input-container">
             <input
+                ref="searchInputRef"
                 v-model="searchQuery"
                 @keyup.enter="searchPlace"
+                @focus="scrollToInput"
                 placeholder="장소를 검색하세요"
                 class="search-input"
             >

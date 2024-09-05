@@ -1,9 +1,11 @@
 <script setup>
-import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import SelectAreaComponent from "@/components/SelectAreaComponent.vue";
-import {useRouter} from "vue-router";
+import router from "@/router";
+import {useRoute} from "vue-router";
+import {getPlanListAPI} from "@/api";
 
-const router = useRouter();
+const route = useRoute();
 
 const plans = ref([]);
 const currentPage = ref(1);
@@ -15,6 +17,18 @@ const windowWidth = ref(window.innerWidth);
 const totalElements = ref(0);
 const totalPages = ref(0);
 
+// 라우트 파라미터에서 지역 정보를 불러오는 함수
+const loadSelectedAreaFromRoute = () => {
+    const areaFromRoute = route.params.area;
+    if (areaFromRoute) {
+        selectedArea.value = areaFromRoute;
+        showSelection.value = false;
+        fetchPlans();
+    } else {
+        showSelection.value = true;
+    }
+};
+
 const fetchPlans = async () => {
     if (!selectedArea.value) {
         return;
@@ -22,17 +36,15 @@ const fetchPlans = async () => {
 
     try {
         isLoading.value = true;
-        const response = await fetch(
-            `/api/plans?area=${selectedArea.value}&size=${itemsPerPage.value}&page=${currentPage.value
-            - 1}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const getPlanListRequest = {
+            area: selectedArea.value,
+            size: itemsPerPage.value,
+            page: currentPage.value - 1
         }
-        const data = await response.json();
-        console.log('API 응답 데이터:', data);
-        plans.value = data.content;
-        totalElements.value = data.totalElements;
-        totalPages.value = data.totalPages;
+        const response = await getPlanListAPI(getPlanListRequest);
+        plans.value = response.data.content;
+        totalElements.value = response.data.totalElements;
+        totalPages.value = response.data.totalPages;
     } catch (error) {
         console.error('Error fetching plans:', error);
     } finally {
@@ -49,13 +61,15 @@ const changePage = (page) => {
 const handleAreaSelected = (area) => {
     selectedArea.value = area;
     showSelection.value = false;
-    currentPage.value = 1;  // Reset to first page when area changes
+    currentPage.value = 1;
+    router.push(`/plan/list/${area}`);  // URL 업데이트
     fetchPlans();
 };
 
 const goBackToSelection = () => {
     showSelection.value = true;
     selectedArea.value = null;
+    router.push('/plan/list');
 };
 
 const updateWindowWidth = () => {
@@ -101,6 +115,7 @@ const navigateToPlanDetails = (planId) => {
 
 onMounted(() => {
     window.addEventListener('resize', updateWindowWidth);
+    loadSelectedAreaFromRoute();  // 컴포넌트 마운트 시 라우트에서 지역 정보 불러오기
 });
 
 onUnmounted(() => {
@@ -110,6 +125,22 @@ onUnmounted(() => {
 const isMobile = computed(() => windowWidth.value < 768);
 
 watch(currentPage, fetchPlans);
+
+// 라우트 변경 감지
+watch(
+    () => route.params.area,
+    (newArea) => {
+        if (newArea) {
+            selectedArea.value = newArea;
+            showSelection.value = false;
+            currentPage.value = 1;
+            fetchPlans();
+        } else {
+            showSelection.value = true;
+            selectedArea.value = null;
+        }
+    }
+);
 </script>
 
 <template>
@@ -180,7 +211,7 @@ watch(currentPage, fetchPlans);
 }
 
 .SelectAreaComponent {
-    margin-top: 50px;
+    margin-top: 2em;
 }
 
 .plans-container {
