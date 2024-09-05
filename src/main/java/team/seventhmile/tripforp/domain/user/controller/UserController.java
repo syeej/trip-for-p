@@ -5,14 +5,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.user.dto.ApiResponse;
+import team.seventhmile.tripforp.domain.user.dto.ModifyPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
+import team.seventhmile.tripforp.domain.user.dto.UserInfoRequest;
+import team.seventhmile.tripforp.domain.user.dto.UserInfoResponse;
+import team.seventhmile.tripforp.domain.user.service.MyPageService;
 import team.seventhmile.tripforp.domain.user.service.UserService;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
@@ -26,6 +33,7 @@ public class UserController {
 
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
+	private final MyPageService myPageService;
 
 	// 회원가입
 	@PostMapping("/registration")
@@ -52,5 +60,27 @@ public class UserController {
 	public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
 		return jwtUtil.reissueToken(request, response);
+	}
+
+	//(마이페이지)개인정보 조회
+	@GetMapping("/info")
+	public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal UserDetails userDetails){
+		return ResponseEntity.ok(myPageService.getUserInfo(userDetails));
+	}
+
+	//개인정보 수정
+	@PatchMapping("/info")
+	public ResponseEntity<UserInfoResponse> updateUser(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@RequestBody UserInfoRequest userInfoReq){
+
+		return ResponseEntity.ok(myPageService.updateInfo(userDetails, userInfoReq));
+	}
+
+	//비밀번호 변경
+	@PatchMapping("/info/password")
+	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
+		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
+		return myPageService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
 	}
 }
