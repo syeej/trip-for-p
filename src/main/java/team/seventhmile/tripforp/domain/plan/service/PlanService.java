@@ -38,13 +38,13 @@ public class PlanService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreatePlanResponse createPlan(CreatePlanRequest request, UserDetails authenticatedPrincipal) {
+    public CreatePlanResponse createPlan(CreatePlanRequest request, UserDetails user) {
 
-        User user = userRepository.findByEmail(authenticatedPrincipal.getUsername())
+        User findUser = userRepository.findByEmail(user.getUsername())
             .orElseThrow(() -> new ResourceNotFoundException(User.class));
 
         Plan plan = Plan.builder()
-            .user(user)
+            .user(findUser)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .title(request.getTitle())

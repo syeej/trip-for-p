@@ -40,8 +40,9 @@ const logout = function () {
         </div>
         <nav class="submenu-nav">
             <ul class="submenu">
+                <li><router-link to="/">메인</router-link></li>
+                <li><router-link to="/plan/list">코스 찾기</router-link></li>
                 <li><router-link to="/plan/write">코스 등록</router-link></li>
-                <li><router-link to="/plan">코스 공유</router-link></li>
                 <li><router-link to="/free-post">자유게시판</router-link></li>
                 <li><router-link to="/review-post">리뷰게시판</router-link></li>
             </ul>
@@ -103,6 +104,10 @@ header {
     justify-content: space-around;
     list-style-type: none;
     padding: 10px 0;
+}
+.submenu li {
+    flex: 1;
+    text-align: center;
 }
 
 a {
