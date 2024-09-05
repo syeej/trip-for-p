@@ -57,4 +57,12 @@ public class User extends BaseEntity {
 	public UserGetDto toDto() {
 		return new UserGetDto(this.nickname, this.email);
 	}
+
+	//[마이페이지] - 개인정보수정
+	public void updateNickname(String nickname){
+		this.nickname = nickname;
+	}
+	public void updatePassword(String password){
+		this.password = password;
+	}
 }
