@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.user.dto.ModifyPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserInfoResponse;
 import team.seventhmile.tripforp.domain.user.service.MyPageService;
-import team.seventhmile.tripforp.domain.user.service.UserService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,7 +21,6 @@ import team.seventhmile.tripforp.domain.user.service.UserService;
 @RequestMapping("/api/mypage")
 public class MyPageController {
     private final MyPageService myPageService;
-    private final UserService userService;
 
     //(마이페이지)개인정보 조회
     @GetMapping("/info")
@@ -33,7 +31,6 @@ public class MyPageController {
     @PatchMapping("/info/password")
     public ResponseEntity<?> modifyPassword(HttpServletRequest request,
         @RequestBody ModifyPasswordRequest modifyPasswordRequest) {
-
-        return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
+        return myPageService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
     }
 }
