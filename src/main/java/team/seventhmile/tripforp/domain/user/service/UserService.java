@@ -44,6 +44,7 @@ public class UserService {
 			//중복
 			throw new AuthCustomException(ErrorCode.EMAIL_ALREADY_IN_USE);
 		}
+
 		//이메일 인증 상태 확인
 		Boolean isVerified = redisTemplate.opsForValue().get("EMAIL_VERIFIED:" + userDto.getEmail()) != null;
 		if(!isVerified){
@@ -69,8 +70,12 @@ public class UserService {
 	}
 
 	// 닉네임 중복 체크
-	public Boolean isDuplicatedNickname(String nickname) {
-		return userRepository.existsByNickname(nickname);
+	public boolean isDuplicatedNickname(String nickname) {
+		if (userRepository.existsByNickname(nickname)) {
+			log.info("Nickname '{}' 사용중", nickname);
+			return true;
+		}
+		return false;
 	}
 
 }
