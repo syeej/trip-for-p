@@ -19,7 +19,6 @@ import team.seventhmile.tripforp.domain.user.dto.ModifyPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
 import team.seventhmile.tripforp.domain.user.dto.UserInfoRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserInfoResponse;
-import team.seventhmile.tripforp.domain.user.service.MyPageService;
 import team.seventhmile.tripforp.domain.user.service.UserService;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
@@ -33,7 +32,6 @@ public class UserController {
 
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
-	private final MyPageService myPageService;
 
 	// 회원가입
 	@PostMapping("/registration")
@@ -64,23 +62,24 @@ public class UserController {
 
 	//(마이페이지)개인정보 조회
 	@GetMapping("/info")
-	public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal UserDetails userDetails){
-		return ResponseEntity.ok(myPageService.getUserInfo(userDetails));
+	public ResponseEntity<UserInfoResponse> getUserInfo(
+		@AuthenticationPrincipal UserDetails userDetails) {
+		return ResponseEntity.ok(userService.getUserInfo(userDetails));
 	}
 
 	//개인정보 수정
 	@PatchMapping("/info")
 	public ResponseEntity<UserInfoResponse> updateUser(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestBody UserInfoRequest userInfoReq){
+		@RequestBody UserInfoRequest userInfoReq) {
 
-		return ResponseEntity.ok(myPageService.updateInfo(userDetails, userInfoReq));
+		return ResponseEntity.ok(userService.updateInfo(userDetails, userInfoReq));
 	}
 
 	//비밀번호 변경
 	@PatchMapping("/info/password")
 	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
 		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
-		return myPageService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
+		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
 	}
 }
