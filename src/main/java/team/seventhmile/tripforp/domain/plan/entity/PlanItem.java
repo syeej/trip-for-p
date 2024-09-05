@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
 
 @Entity
@@ -29,6 +30,7 @@ public class PlanItem {
     @Column(name = "plan_item_id")
     private Long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false)
     private Plan plan;
@@ -61,9 +63,5 @@ public class PlanItem {
         this.memo = request.getMemo();
 
         return id;
-    }
-
-    public void setPlan(Plan plan) {
-        this.plan = plan;
     }
 }
