@@ -51,6 +51,7 @@ public class MyPageService {
 
     private String extractAccessToken(HttpServletRequest request) {
         return request.getHeader("access");
+    }
 
     //개인정보 수정
     @Transactional
