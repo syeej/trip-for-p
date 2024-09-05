@@ -55,12 +55,4 @@ public class UserController {
 
 		return jwtUtil.reissueToken(request, response);
 	}
-
-	@PatchMapping("/password/renewal")
-	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
-		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
-
-		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
-	}
-
 }
