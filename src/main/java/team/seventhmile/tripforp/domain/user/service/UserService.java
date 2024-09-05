@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,17 +89,18 @@ public class UserService {
 
 		String accessToken = extractAccessToken(request);
 		if (accessToken == null) {
-			throw new AuthCustomException(ErrorCode.INVALID_VERIFICATION_CODE);
+			throw new AuthCustomException(ErrorCode.ACCESS_TOKEN_NOT_FOUND);
 		}
 
 		try {
 			String username = jwtUtil.getUsername(accessToken);
 			if (username == null) {
-				return new ResponseEntity<>("Username not found in token", HttpStatus.BAD_REQUEST);
+				throw new AuthCustomException(ErrorCode.EMAIL_NOT_FOUND_IN_TOKEN);
 			}
 
 			User currentUser = userRepository.findByEmail(username)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND_IN_DATABASE));
+			log.info("사용자 '{}'의 비밀번호를 변경합니다.", username);
 
 			User updatedUser = User.builder()
 				.id(currentUser.getId())
@@ -113,12 +113,11 @@ public class UserService {
 
 			userRepository.save(updatedUser);
 
-			return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+			return new ResponseEntity<>("비밀번호 변경이 성공적으로 완료되었습니다.", HttpStatus.OK);
 		} catch (ExpiredJwtException e) {
-			return new ResponseEntity<>("Access token expired", HttpStatus.UNAUTHORIZED);
+			throw new AuthCustomException(ErrorCode.TOKEN_EXPIRED);
 		} catch (Exception e) {
-			return new ResponseEntity<>("Error changing password: " + e.getMessage(),
-				HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new AuthCustomException(ErrorCode.PASSWORD_CHANGE_ERROR);
 		}
 	}
 
