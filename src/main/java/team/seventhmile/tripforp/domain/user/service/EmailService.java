@@ -35,11 +35,11 @@ public class EmailService {
             //중복
             throw new AuthCustomException(ErrorCode.EMAIL_ALREADY_IN_USE);
         }
-        String emailCode = generateEmailCode();
+        String emailCode = generateEmailCode().trim();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(recipient); //수신자 설정
         message.setSubject("이메일 인증"); //제목 설정
-        message.setText("귀하의 인증 코드는 " + emailCode + " 입니다.\n인증 코드는 5분 간 유지됩니다."); //내용 설정
+        message.setText("귀하의 인증 코드는 " + emailCode + "입니다.\n인증 코드는 5분 간 유지됩니다."); //내용 설정
         try {
             javaMailSender.send(message);
             redisTemplate.opsForValue().set("EMAIL_CODE:" + recipient, emailCode, 5, TimeUnit.MINUTES);
