@@ -35,7 +35,7 @@ const sendVerificationEmail = async () => {
 //인증코드 검증
 const verifyEmail = async () => {
   try {
-    await verifyEmailAPI({ email: email.value, code: verificationCode.value });
+    await verifyEmailAPI({ email: email.value, code: verificationCode.value.trim() });
     isEmailVerified.value = true;
     verificationMessage.value = "이메일이 성공적으로 인증되었습니다.";
     isVerificationFailed.value = false;
@@ -47,31 +47,30 @@ const verifyEmail = async () => {
 };
 // 닉네임 중복 검사
 const verifyNickname = async () => {
-  try {
-    const isDuplicated = await verifyNickNameAPI(nickname.value);
-    if (isDuplicated.status !== 'success') {
-      isNicknameVerified.value = false;
-      nicknameVerificationMessage.value = "이미 사용 중인 닉네임입니다.";
-      isNicknameVerificationFailed.value = true;
-    } else {
-      isNicknameVerified.value = true;
-      nicknameVerificationMessage.value = "사용 가능한 닉네임입니다.";
-      isNicknameVerificationFailed.value = false;
+    try {
+        const isDuplicated = await verifyNickNameAPI(nickname.value);
+        if (isDuplicated.status !== 'success') {
+            isNicknameVerified.value = false;
+            nicknameVerificationMessage.value = "이미 사용 중인 닉네임입니다.";
+            isNicknameVerificationFailed.value = true;
+        } else {
+            isNicknameVerified.value = true;
+            nicknameVerificationMessage.value = "사용 가능한 닉네임입니다.";
+            isNicknameVerificationFailed.value = false;
+        }
+    } catch (error) {
+        isNicknameVerified.value = false;
+        nicknameVerificationMessage.value = error.message || "닉네임 중복 검사 중 오류가 발생했습니다.";
+        isNicknameVerificationFailed.value = true;
     }
-  } catch (error) {
-    isNicknameVerified.value = false;
-    nicknameVerificationMessage.value = error.message || "닉네임 중복 검사 중 오류가 발생했습니다.";
-    isNicknameVerificationFailed.value = true;
-  }
 };
-
 // 닉네임 입력 필드에 대한 감시
 watch(nickname, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    isNicknameVerified.value = false;
-    nicknameVerificationMessage.value = "닉네임 중복 확인이 필요합니다.";
-    isNicknameVerificationFailed.value = false;
-  }
+    if (newValue !== oldValue) {
+        isNicknameVerified.value = false;
+        nicknameVerificationMessage.value = "닉네임 중복 확인이 필요합니다.";
+        isNicknameVerificationFailed.value = false;
+    }
 });
 
 // 버튼 활성화 여부를 computed로 계산
@@ -116,8 +115,8 @@ const signup = async function () {
           return;
         }
         if (!isNicknameVerified.value) {
-          alert("닉네임 중복 확인이 필요합니다.");
-          return;
+            alert("닉네임 중복 확인이 필요합니다.");
+            return;
         }
         if (!validateEmail()) {
             alert("올바르지 않은 이메일 형식입니다.")
@@ -133,9 +132,9 @@ const signup = async function () {
         alert("가입이 완료되었습니다.");
         await router.replace('/login');
     } catch (error) {
-        console.log("회원가입", error);
-        if (error.status === 409 || error.status === 403) {
-            alert(error.message);
+        console.log(error.response.data);
+        if (error.response.data.status == 409) {
+            alert(error.response.data.message);
         }
     }
 }
@@ -213,7 +212,7 @@ onMounted(() => {
       ]">
           {{ nicknameVerificationMessage }}
         </p>
-        <button @click="signup" :disabled="!isFormValid">가입하기</button>
+        <button @click="signup" :disabled="!isFormValid" class="signup-button">가입하기</button>
       </div>
 
       <div class="go-login-button" @click="goLogin">
@@ -233,12 +232,20 @@ onMounted(() => {
   align-items: center;
 }
 
+.signup-title img {
+    width: 100%;
+    max-width: 450px; /* 최대 크기 제한 */
+    height: auto; /* 높이 자동 조절 */
+    cursor: pointer;
+}
+
 .signup-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
+    margin-bottom: 100px;
 }
 
 .signup-form {
@@ -293,8 +300,8 @@ onMounted(() => {
 .signup-nickname:focus,
 .signup-verification:focus {
   outline: none;
-  border: 2px solid #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border: 2px solid #333333;
+    box-shadow: 0 0 5px rgba(51, 51, 51, 0.5);
 }
 
 /* 버튼 스타일 */
@@ -306,7 +313,6 @@ onMounted(() => {
   font-family: 'Pretendard Variable', sans-serif;
   font-size: 16px;
   border-radius: 10px;
-  margin: 25px 0;
   border: 1px solid #000000;
   cursor: pointer;
 }
@@ -319,14 +325,26 @@ onMounted(() => {
 
 /* 이메일 인증 컨테이너 */
 .email-verification-container,
-.verification-code-container {
+.verification-code-container,
+.nickname-verification-container{
   display: flex;
   width: 100%;
   max-width: 450px;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
+.signup-email, .signup-verification, .signup-nickname {
+    flex: 7;
+}
+.verification-button, .verify-button {
+    flex: 3;
+}
+.signup-verification, .signup-nickname {
+    margin-top: 0;
+}
+
+
 /* 이메일 인증 전송, 확인 버튼 */
 .verification-button,
 .verify-button {
@@ -334,6 +352,10 @@ onMounted(() => {
   height: 60px;
   border-radius: 10px;
   margin: 0;
+}
+
+.signup-button {
+    margin: 25px 0;
 }
 
 /* 로그인 버튼 */
@@ -369,7 +391,6 @@ onMounted(() => {
   max-width: 450px;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
 }
 /* 인증 메시지 스타일 */
 .verification-message {

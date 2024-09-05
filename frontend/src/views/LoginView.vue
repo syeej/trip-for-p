@@ -80,6 +80,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* 공통 스타일 */
 .login-wrap {
     width: 100%;
     display: flex;
@@ -87,18 +88,10 @@ onMounted(() => {
     align-items: center;
 }
 
-.login-title {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 0 0 auto;
-    margin-bottom: 20px;
-}
-
 .login-title img {
     width: 100%;
-    max-width: 450px; /* 최대 크기 제한 */
-    height: auto; /* 높이 자동 조절 */
+    max-width: 450px;
+    height: auto;
     cursor: pointer;
 }
 
@@ -108,6 +101,7 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
     width: 100%;
+    margin-bottom: 100px;
 }
 
 .login-form {
@@ -117,42 +111,41 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
 }
-.login-form button {
-    cursor: pointer;
-}
 
+/* 입력 필드 공통 스타일 */
 .login-email,
 .login-password {
     width: 100%;
     height: 60px;
     border: 1px solid #C5CCD2;
+    border-radius: 10px;
     padding-left: 50px;
     font-family: 'Pretendard Variable', sans-serif;
     font-size: 16px;
     background-repeat: no-repeat;
     background-position: 20px center;
+    margin-top: 10px;
 }
 
+/* 특정 입력 필드 스타일 */
 .login-email {
-    border-radius: 10px 10px 0 0;
     background-image: url("@/assets/email.png");
+    margin-top: 0;
 }
 
 .login-password {
-    border-top: 0;
     background-image: url("@/assets/password.png");
 }
 
-.login-email:focus{
-    outline: none;
-    border: 3px solid #D9D9D9;
-}
+/* 포커스 스타일 */
+.login-email:focus,
 .login-password:focus {
     outline: none;
-    border: 3px solid #D9D9D9;
-    border-top: 2px solid #D9D9D9;
+    border: 2px solid #333333;
+    box-shadow: 0 0 5px rgba(51, 51, 51, 0.5);
 }
 
+/* 버튼 스타일 */
 .login-form button {
     background-color: #000000;
     width: 100%;
@@ -161,8 +154,9 @@ onMounted(() => {
     font-family: 'Pretendard Variable', sans-serif;
     font-size: 16px;
     border-radius: 10px;
-    margin: 25px 0;
     border: 1px solid #000000;
+    cursor: pointer;
+    margin: 25px 0;
 }
 
 .login-form button:disabled {
@@ -171,6 +165,7 @@ onMounted(() => {
     cursor: not-allowed;
 }
 
+/* 회원가입 버튼 */
 .go-signup-button {
     cursor: pointer;
     display: flex;
@@ -186,40 +181,24 @@ onMounted(() => {
     line-height: 16px;
 }
 
-.login-email::placeholder, .login-password::placeholder {
+/* 플레이스홀더 스타일 */
+.login-email::placeholder,
+.login-password::placeholder {
     font-size: 15px;
     color: #C5CCD2;
     font-family: 'Pretendard Variable', sans-serif;
 }
 
-.login-password {
-    width: 450px;
-    height: 60px;
-    border: 1px solid #C5CCD2;
-    border-top: 0;
-    padding-left: 50px;
-    font-family: 'Pretendard Variable', sans-serif;
-    font-size: 16px;
-    background-image: url("@/assets/password.png");
-    background-repeat: no-repeat;
-    background-position: 20px center;
-}
-
-/* 반응형 미디어 쿼리 */
+/* 반응형 스타일 */
 @media (max-width: 768px) {
     .login-email,
     .login-password {
         height: 50px;
         font-size: 14px;
     }
-
     .login-form button {
         height: 45px;
         font-size: 14px;
-    }
-
-    .login-title img {
-        height: 350px;
     }
 }
 
@@ -230,14 +209,9 @@ onMounted(() => {
         font-size: 12px;
         padding-left: 40px;
     }
-
     .login-form button {
         height: 40px;
-        font-size: 14px;
-    }
-
-    .login-title img {
-        height: 250px;
+        font-size: 12px;
     }
 }
 
