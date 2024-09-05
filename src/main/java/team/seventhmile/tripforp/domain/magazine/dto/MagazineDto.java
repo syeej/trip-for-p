@@ -3,11 +3,13 @@ package team.seventhmile.tripforp.domain.magazine.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.seventhmile.tripforp.domain.file.entity.File;
 import team.seventhmile.tripforp.domain.magazine.entity.Magazine;
 import team.seventhmile.tripforp.domain.user.entity.User;
 
@@ -15,7 +17,6 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Getter
 public class MagazineDto {
 
 	private Long id;
@@ -28,16 +29,23 @@ public class MagazineDto {
 	@Size(max = 999999, message = "내용은 999999자를 초과할 수 없습니다.")
 	private String content;
 
+	private Integer views;
+
 	private ZonedDateTime createdAt;
 	private ZonedDateTime updatedAt;
 
+	private List<Long> fileIds;
+
 	// dto -> entity 변환
-	public static Magazine convertToEntity(MagazineDto magazineDto, User user) {
+	public Magazine convertToEntity(User user) {
 		return Magazine.builder()
-			.title(magazineDto.getTitle())
-			.content(magazineDto.getContent())
-			.createdAt(magazineDto.getCreatedAt() != null ? magazineDto.getCreatedAt() : ZonedDateTime.now())
-			.updatedAt(magazineDto.getUpdatedAt())
+			.id(this.id)
+			.user(user)
+			.title(this.title)
+			.content(this.content)
+			.views(this.views != null ? this.views : 0)
+			.createdAt(this.createdAt != null ? this.createdAt : ZonedDateTime.now())
+			.updatedAt(this.updatedAt)
 			.build();
 	}
 
@@ -47,8 +55,12 @@ public class MagazineDto {
 			.id(magazine.getId())
 			.title(magazine.getTitle())
 			.content(magazine.getContent())
+			.views(magazine.getViews())
 			.createdAt(magazine.getCreatedAt())
 			.updatedAt(magazine.getUpdatedAt())
+			.fileIds(magazine.getFiles() != null ? magazine.getFiles().stream()
+				.map(File::getId)
+				.toList() : new ArrayList<>())
 			.build();
 	}
 }
