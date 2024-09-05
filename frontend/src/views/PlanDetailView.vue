@@ -273,12 +273,12 @@ watch(currentDate, () => {
             alt="뒤로가기 버튼"
         />
         <div class="title-info">
-            <h1 v-if="plan.startDate !== plan.endDate">{{ plan.title }} / {{ plan.startDate }} ~ {{ plan.endDate }}</h1>
-            <h1 v-else>{{ plan.title }} / {{ plan.startDate }}</h1>
+            <h2 v-if="plan.startDate !== plan.endDate">{{ plan.title }} / {{ plan.startDate }} ~ {{ plan.endDate }}</h2>
+            <h2 v-else>{{ plan.title }} / {{ plan.startDate }}</h2>
             <p>{{ formatDate(plan.createdAt) }}</p>
         </div>
         <div class="plan-info">
-            <span>작성자: {{ plan.writer }}</span>
+            <span>{{ plan.writer }}</span>
             <p>
                 <span>좋아요 {{ plan.likeCount }}</span>
                 <span>조회 {{ plan.views }}</span>
@@ -314,7 +314,10 @@ watch(currentDate, () => {
 }
 .title-info {
     display: flex;
-    margin-bottom: 20px;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background: #fcfcfc;
 }
 .title-info p {
     display: flex;
@@ -324,8 +327,10 @@ watch(currentDate, () => {
 }
 .plan-info {
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
+    padding: 10px 20px 10px 20px;
     justify-content: space-between;
+    border-bottom: 1px solid #eee;
 }
 .plan-info p {
     display: flex;
@@ -338,7 +343,9 @@ watch(currentDate, () => {
     align-items: center;
     margin-bottom: 20px;
 }
-
+.date-navigation span {
+    font-size: 20px;
+}
 .nav-button {
     padding: 10px 20px;
     font-size: 14px;
