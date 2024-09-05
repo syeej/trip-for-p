@@ -15,7 +15,6 @@ import team.seventhmile.tripforp.global.common.BaseEntity;
 @Entity
 @AllArgsConstructor
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name = "users")

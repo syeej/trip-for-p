@@ -279,7 +279,7 @@ onMounted(() => {
   gap: 10px;
   margin-bottom: 10px;
 }
-
+/* 이메일 인증 전송, 확인 버튼 */
 .verification-button,
 .verify-button {
   width: 80px;
@@ -322,7 +322,7 @@ onMounted(() => {
   text-align: left;
   width: 100%;
 }
-
+/* 인증 메시지 결과에 따른 색상 */
 .verification-success {
   color: #28a745;
 }
