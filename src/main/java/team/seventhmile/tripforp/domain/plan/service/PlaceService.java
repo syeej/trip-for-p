@@ -15,7 +15,7 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
 
     @Transactional
-    public Place FindOrCreatePlace(CreatePlaceRequest request) {
+    public Place findOrCreatePlace(CreatePlaceRequest request) {
         return placeRepository.findByAddressNameAndPlaceName(
                 request.getAddressName(),
                 request.getPlaceName())
