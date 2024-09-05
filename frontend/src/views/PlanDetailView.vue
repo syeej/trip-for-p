@@ -3,6 +3,7 @@
 import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute} from "vue-router";
 import {getPlanAPI} from "@/api";
+import router from "@/router";
 
 const mapContainer = ref(null);
 const currentDateIndex = ref(0);
@@ -238,6 +239,19 @@ const updateMap = async () => {
         map.value.setLevel(3);
     }
 };
+const goBackToSelection = () => {
+    router.push(`/plan/list/${plan.value.area}`);
+};
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
+};
 
 onMounted(() => {
     getPlan();
@@ -252,11 +266,23 @@ watch(currentDate, () => {
 
 <template>
     <div class="plan-detail-view" v-if="plan">
-        <h1>{{ plan.title }}</h1>
+        <img
+            @click="goBackToSelection"
+            class="back-button"
+            src="@/assets/backbutton.png"
+            alt="뒤로가기 버튼"
+        />
+        <div class="title-info">
+            <h2 v-if="plan.startDate !== plan.endDate">{{ plan.title }} / {{ plan.startDate }} ~ {{ plan.endDate }}</h2>
+            <h2 v-else>{{ plan.title }} / {{ plan.startDate }}</h2>
+            <p>{{ formatDate(plan.createdAt) }}</p>
+        </div>
         <div class="plan-info">
-            <p>여행자: {{ plan.writer }}</p>
-            <p>여행 지역: {{ plan.area }}</p>
-            <p>여행 기간: {{ plan.startDate }} ~ {{ plan.endDate }}</p>
+            <span>{{ plan.writer }}</span>
+            <p>
+                <span>좋아요 {{ plan.likeCount }}</span>
+                <span>조회 {{ plan.views }}</span>
+            </p>
         </div>
 
         <div class="date-navigation" v-if="dates.length > 0">
@@ -284,11 +310,31 @@ watch(currentDate, () => {
 <style scoped>
 .plan-detail-view {
     width: 100%;
-    margin-top: 60px;
+    margin-top: 2em;
 }
-
+.title-info {
+    display: flex;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background: #fcfcfc;
+}
+.title-info p {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: auto;
+}
 .plan-info {
-    margin-bottom: 20px;
+    display: flex;
+    margin-bottom: 50px;
+    padding: 10px 20px 10px 20px;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+}
+.plan-info p {
+    display: flex;
+    gap: 10px;
 }
 
 .date-navigation {
@@ -297,7 +343,9 @@ watch(currentDate, () => {
     align-items: center;
     margin-bottom: 20px;
 }
-
+.date-navigation span {
+    font-size: 20px;
+}
 .nav-button {
     padding: 10px 20px;
     font-size: 14px;
@@ -350,5 +398,9 @@ watch(currentDate, () => {
 .place-info p {
     margin: 0;
     color: #666;
+}
+.back-button {
+    margin-bottom: 1em;
+    cursor: pointer;
 }
 </style>
