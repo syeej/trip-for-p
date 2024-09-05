@@ -1,7 +1,6 @@
 package team.seventhmile.tripforp.domain.user.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,20 +83,10 @@ public class UserService {
 		return false;
 	}
 
-	// 비밀번호 변경
-	public ResponseEntity<?> modifyUserPassword(HttpServletRequest request, String newPassword) {
-
-		String accessToken = extractAccessToken(request);
-		if (accessToken == null) {
-			throw new AuthCustomException(ErrorCode.ACCESS_TOKEN_NOT_FOUND);
-		}
+	// 비밀번호 재설정 로직
+	public ResponseEntity<?> resetPassword(String username, String newPassword) {
 
 		try {
-			String username = jwtUtil.getUsername(accessToken);
-			if (username == null) {
-				throw new AuthCustomException(ErrorCode.EMAIL_NOT_FOUND_IN_TOKEN);
-			}
-
 			User currentUser = userRepository.findByEmail(username)
 				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND_IN_DATABASE));
 			log.info("사용자 '{}'의 비밀번호를 변경합니다.", username);
@@ -119,11 +108,6 @@ public class UserService {
 		} catch (Exception e) {
 			throw new AuthCustomException(ErrorCode.PASSWORD_CHANGE_ERROR);
 		}
-	}
-
-	private String extractAccessToken(HttpServletRequest request) {
-
-		return request.getHeader("access");
 	}
 
 }
