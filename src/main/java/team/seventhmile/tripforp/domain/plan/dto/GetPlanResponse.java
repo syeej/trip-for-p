@@ -2,6 +2,7 @@ package team.seventhmile.tripforp.domain.plan.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class GetPlanResponse {
     private int views;
     private int likeCount;
     private List<PlanGetItemDto> planItems;
+    private ZonedDateTime createdAt;
 
     @QueryProjection
     public GetPlanResponse(Plan plan, int likeCount) {
@@ -34,5 +36,6 @@ public class GetPlanResponse {
         this.planItems = plan.getPlanItems().stream()
             .map(PlanGetItemDto::new)
             .toList();
+        this.createdAt = plan.getCreatedAt();
     }
 }
