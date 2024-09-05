@@ -9,6 +9,7 @@ public enum ErrorCode {
     REQUIRED_FIELD_MISSING(HttpStatus.BAD_REQUEST, "400002", "필수 입력 항목이 누락되었습니다."),
     WITHDRAWN_USER(HttpStatus.FORBIDDEN, "403002", "탈퇴한 사용자입니다."),
     VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "404001", "인증 코드를 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "40402", "해당 사용자를 찾을 수 없습니다."),
     EMAIL_ALREADY_IN_USE(HttpStatus.CONFLICT, "409001", "이미 사용 중인 이메일입니다."),
     NICKNAME_ALREADY_IN_USE(HttpStatus.CONFLICT, "409002", "이미 사용 중인 닉네임입니다."),
     EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "403001", "이메일 인증이 완료되지 않았습니다."),
