@@ -57,10 +57,10 @@ public class UserController {
 	}
 
 	@PatchMapping("/password/renewal")
-	public ResponseEntity<?> modifyUserPassword(HttpServletRequest request,
+	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
 		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
 
-		return userService.modifyUserPassword(request, modifyPasswordRequest.getNewPassword());
+		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
 	}
 
 }

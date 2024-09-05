@@ -84,20 +84,26 @@ public class UserService {
 		return false;
 	}
 
-	// 비밀번호 변경
-	public ResponseEntity<?> modifyUserPassword(HttpServletRequest request, String newPassword) {
-
+	// 비밀번호 변경(마이페이지에서)
+	public ResponseEntity<?> modifyPassword(HttpServletRequest request, String newPassword) {
 		String accessToken = extractAccessToken(request);
 		if (accessToken == null) {
 			throw new AuthCustomException(ErrorCode.ACCESS_TOKEN_NOT_FOUND);
 		}
 
-		try {
-			String username = jwtUtil.getUsername(accessToken);
-			if (username == null) {
-				throw new AuthCustomException(ErrorCode.EMAIL_NOT_FOUND_IN_TOKEN);
-			}
+		String username = jwtUtil.getUsername(accessToken);
+		if (username == null) {
+			throw new AuthCustomException(ErrorCode.EMAIL_NOT_FOUND_IN_TOKEN);
+		}
 
+		return resetPassword(username, newPassword);
+	}
+
+
+	// 비밀번호 재설정 로직
+	public ResponseEntity<?> resetPassword(String username, String newPassword) {
+
+		try {
 			User currentUser = userRepository.findByEmail(username)
 				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND_IN_DATABASE));
 			log.info("사용자 '{}'의 비밀번호를 변경합니다.", username);
