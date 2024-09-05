@@ -32,8 +32,8 @@ public class CreatePlaceRequest {
     private String placeUrl;
 
     @NotNull(message = "경도(X 좌표)는 필수입니다.")
-    @DecimalMin(value = "-90.0", message = "위도는 -90.0 이상이어야 합니다.")
-    @DecimalMax(value = "90.0", message = "위도는 90.0 이하여야 합니다.")
+    @DecimalMin(value = "-180.0", message = "경도는 -180.0 이상이어야 합니다.")
+    @DecimalMax(value = "180.0", message = "경도는 180.0 이하여야 합니다.")
     private double x;
 
     @NotNull(message = "위도(Y 좌표)는 필수입니다.")
