@@ -1,13 +1,19 @@
 <script setup>
+/* global kakao */
 import {defineEmits, onMounted, ref} from 'vue';
 
 const searchQuery = ref('');
 const searchResults = ref([]);
 const searchInputRef = ref(null);
+const isKakaoMapsLoaded = ref(false);
 const emit = defineEmits(['place-selected']);
 
 const searchPlace = () => {
     if (!searchQuery.value) return;
+    if (!isKakaoMapsLoaded.value) {
+        console.error('Kakao Maps SDK is not loaded yet');
+        return;
+    }
 
     const places = new kakao.maps.services.Places();
     places.keywordSearch(searchQuery.value, (result, status) => {
@@ -22,14 +28,24 @@ const selectPlace = (place) => {
     searchQuery.value = '';
     searchResults.value = [];
 };
+
 const scrollToInput = () => {
     if (searchInputRef.value) {
         searchInputRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 };
+
 onMounted(() => {
-    /* global kakao */
-})
+    const checkKakaoMaps = () => {
+        if (window.kakao && window.kakao.maps) {
+            isKakaoMapsLoaded.value = true;
+        } else {
+            setTimeout(checkKakaoMaps, 300);
+        }
+    };
+
+    checkKakaoMaps();
+});
 </script>
 
 <template>
