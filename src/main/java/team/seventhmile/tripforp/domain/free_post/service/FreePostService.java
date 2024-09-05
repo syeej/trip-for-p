@@ -1,12 +1,9 @@
 package team.seventhmile.tripforp.domain.free_post.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.free_post.dto.FreePostDto;
@@ -15,86 +12,72 @@ import team.seventhmile.tripforp.domain.free_post.repository.FreePostRepository;
 import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
+import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
+import team.seventhmile.tripforp.global.exception.UnauthorizedAccessException;
 
 
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class FreePostService {
 
 	private final FreePostRepository freePostRepository;
 	private final UserRepository userRepository;
 
-	@Autowired
-	public FreePostService(FreePostRepository freePostRepository, UserRepository userRepository) {
-		this.freePostRepository = freePostRepository;
-		this.userRepository = userRepository;
-	}
-
 	// 자유 게시글 생성
 	@Transactional
-	public FreePostDto createFreePost(FreePostDto freePostDto) {
+	public FreePostDto createFreePost(FreePostDto freePostDto, String userEmail) {
 
-		User user = userRepository.findById(freePostDto.getUserId())
-			.orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+		// 현재 로그인된 사용자 가져오기
+		User user = userRepository.findByEmail(userEmail)
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
-		FreePost freePost = freePostDto.toEntity(user);
+		FreePost freePost = freePostDto.convertToEntity(user);
 		freePostRepository.save(freePost);
 
-		return FreePostDto.fromEntity(freePost);
+		return FreePostDto.convertToDto(freePost);
 	}
 
 	// 자유 게시글 수정
 	@Transactional
-	public FreePostDto updateFreePost(Long id, FreePostDto freePostDto) {
+	public FreePostDto updateFreePost(Long id, FreePostDto freePostDto, String userEmail) {
 
-		// 현재 사용자 정보 가져오기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String currentUserEmail = authentication.getName();
-
-		// 게시글 존재 여부 확인
 		FreePost freePost = freePostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class));
+
+		// 현재 로그인된 사용자 가져오기
+		User user = userRepository.findByEmail(userEmail)
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
 		// 작성자 확인
-		if (!freePost.getUser().getEmail().equals(currentUserEmail)) {
-			throw new SecurityException("본인의 글만 수정할 수 있습니다.");
+		if (!freePost.getUser().getEmail().equals(userEmail)) {
+			throw new UnauthorizedAccessException(FreePost.class);
 		}
 
-		// 업데이트 로직
-		User user = userRepository.findById(freePostDto.getUserId())
-			.orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-
-		freePost.update(
-			freePostDto.getContent(),
-			freePostDto.getViews()
-		);
-
-		freePost.setUser(user);
+		// 업데이트
+		freePost.update(freePostDto.getContent());
 
 		freePostRepository.save(freePost);
 
-		return FreePostDto.fromEntity(freePost);
+		return FreePostDto.convertToDto(freePost);
 	}
 
 	// 자유 게시글 삭제
 	@Transactional
-	public void deleteFreePost(Long id) {
-
-		// 현재 사용자 정보 가져오기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String currentUserEmail = authentication.getName();
+	public void deleteFreePost(Long id, String userEmail) {
 
 		// 게시글 존재 여부 확인
 		FreePost freePost = freePostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class));
 
-		// 사용자 정보 확인
-		User currentUser = userRepository.findByEmail(currentUserEmail)
-			.orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+		// 현재 로그인된 사용자 가져오기
+		User user = userRepository.findByEmail(userEmail)
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
 		// 권한 확인: ADMIN 또는 작성자
-		if (!freePost.getUser().getEmail().equals(currentUserEmail)
-			&& currentUser.getRole() != Role.ADMIN) {
-			throw new SecurityException("삭제 권한이 없습니다.");
+		if (!freePost.getUser().getEmail().equals(userEmail)
+			&& user.getRole() != Role.ADMIN) {
+			throw new UnauthorizedAccessException(FreePost.class);
 		}
 
 		freePostRepository.delete(freePost);
@@ -105,18 +88,20 @@ public class FreePostService {
 	public Page<FreePostDto> getAllFreePost(Pageable pageable) {
 
 		return freePostRepository.getFreePosts(pageable)
-			.map(FreePostDto::fromEntity);
+			.map(FreePostDto::convertToDto);
 
 	}
 
 	// 자유 게시글 상세 조회
-	@Transactional(readOnly = true)
+	@Transactional
 	public FreePostDto getFreePostDetail(Long id) {
+		FreePost freePost = freePostRepository.findById(id)
+			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class));
 
-		return freePostRepository.findById(id)
-			.map(FreePostDto::fromEntity)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+		// 조회 수 증가
+		freePost.incrementViews();
 
+		return FreePostDto.convertToDto(freePost);
 	}
 
 	// 자유 게시글 검색(제목, 내용) 조회
@@ -129,7 +114,7 @@ public class FreePostService {
 
 		Page<FreePost> freePosts = freePostRepository.getFreePostKeywordContaining(keyword.trim(),
 			pageable);
-		return freePosts.map(FreePostDto::fromEntity);
+		return freePosts.map(FreePostDto::convertToDto);
 
 	}
 

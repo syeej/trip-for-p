@@ -30,28 +30,29 @@ public class FreePostDto {
 	private Integer views;
 
 	private ZonedDateTime createdAt;
-
 	private ZonedDateTime updatedAt;
 
 	private List<FreeComment> comments;
 
 	// DTO -> Entity
-	public FreePost toEntity(User user) {
+	public FreePost convertToEntity(User user) {
 		return FreePost.builder()
 			.id(this.id)
 			.user(user)
 			.content(this.content)
-			.views(this.views)
+			.views(0)
 			.build();
 	}
 
 	// Entity -> DTO
-	public static FreePostDto fromEntity(FreePost freePost) {
+	public static FreePostDto convertToDto(FreePost freePost) {
 		return FreePostDto.builder()
 			.id(freePost.getId())
+			.userId(freePost.getUser().getId())
 			.content(freePost.getContent())
 			.views(freePost.getViews())
+			.createdAt(freePost.getCreatedAt())
+			.updatedAt(freePost.getUpdatedAt())
 			.build();
 	}
-
 }
