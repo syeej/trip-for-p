@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.magazine.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,7 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -19,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import org.hibernate.annotations.ColumnDefault;
 import team.seventhmile.tripforp.domain.file.entity.File;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 import team.seventhmile.tripforp.domain.user.entity.User;
@@ -52,31 +56,37 @@ public class Magazine extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 
+	// 조회수
+	@Column(nullable = false)
+	@ColumnDefault("0")
+	private Integer views;
+
 	// 첨부 파일
-	@ManyToMany
-	@JoinTable(
-		name = "magazine_files",
-		joinColumns = @JoinColumn(name = "magazine_id"),
-		inverseJoinColumns = @JoinColumn(name = "file_id")
-	)
-	private List<File> files;
+	@OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<File> files = new ArrayList<>();
 
 
 	// 수정 로직 (더티 체킹 방식)
-	public <T extends Magazine> void update(MagazineDto magazineDto) {
-		// Not Null 예외 처리
-		validateField(magazineDto.getTitle(), "Title");
-		validateField(magazineDto.getContent(), "Content");
+	public void update(String title, String content, List<File> files) {
+		validateField(title, "Title");
+		validateField(content, "Content");
 
-		this.title = magazineDto.getTitle();
-		this.content = magazineDto.getContent();
+		this.title = title;
+		this.content = content;
+		this.files.clear();
+		this.files.addAll(files);
+		files.forEach(file -> file.setMagazine(this));
 	}
 
+	// 조회 수 증가 로직
+	public void incrementViews() {
+		this.views += 1;
+	}
 
 	// Not Null 예외 처리 로직
 	public static void validateField(String field, String fieldName) {
 		if (field == null || field.isEmpty()) {
-			throw new IllegalArgumentException("내용을 입력하세요.");
+			throw new IllegalArgumentException(fieldName + "은(는) 필수 입력 항목입니다.");
 		}
 	}
 }
