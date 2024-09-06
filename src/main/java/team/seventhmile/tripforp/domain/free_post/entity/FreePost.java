@@ -1,6 +1,7 @@
 package team.seventhmile.tripforp.domain.free_post.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class FreePost extends BaseEntity {
     private Integer views;
 
     @OneToMany(mappedBy = "freePost", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FreeComment> comments;
+    private List<FreeComment> comments = new ArrayList<>();
 
     // 수정 로직
     public void update(String content) {

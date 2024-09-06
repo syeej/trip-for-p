@@ -8,15 +8,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import team.seventhmile.tripforp.domain.file.entity.File;
-import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
+import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
+import team.seventhmile.tripforp.domain.file.entity.ReviewFile;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.review_comment.entity.ReviewComment;
-import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -55,19 +53,26 @@ public class ReviewPost extends BaseEntity {
 	private List<ReviewComment> comments;
 
 	@OneToMany(mappedBy = "reviewPost", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<File> files = new ArrayList<>();
+	@Builder.Default
+	private List<ReviewFile> files = new ArrayList<>();
 
 
 	// 수정 로직 (더티 체킹 방식)
-	public void update(String title, String content, List<File> files) {
+	public void update(String title, String content) {
 		validateField(title, "Title");
 		validateField(content, "Content");
 
 		this.title = title;
 		this.content = content;
+	}
+
+	public void addFile(ReviewFile file) {
+		this.files.add(file);
+		file.setReviewPost(this);
+	}
+
+	public void clearFile() {
 		this.files.clear();
-		this.files.addAll(files);
-		files.forEach(file -> file.setReviewPost(this));
 	}
 
 	// 조회 수 증가 로직

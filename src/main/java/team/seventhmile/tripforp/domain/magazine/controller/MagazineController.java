@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.magazine.controller;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -35,17 +35,20 @@ public class MagazineController {
 	public MagazineDto createMagazinePost(
 		@AuthenticationPrincipal UserDetails user,
 		@RequestPart(value = "request") MagazineDto magazineDto,
-		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
+		@RequestPart(value = "files", required = false) List<MultipartFile> files
+	) throws IOException {
 		return magazineService.createMagazinePost(magazineDto, user.getUsername(), files);
 	}
 
 	// 매거진 게시글 수정
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public MagazineDto updateMagazinePost(@PathVariable("id") Long id,
-		@RequestBody MagazineDto magazineDto,
+	public MagazineDto updateMagazinePost(
+		@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user,
-		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
+		@RequestPart(value = "request") MagazineDto magazineDto,
+		@RequestPart(value = "files", required = false) List<MultipartFile> files
+	) throws IOException {
 		return magazineService.updateMagazinePost(id, magazineDto, user.getUsername(), files);
 	}
 
