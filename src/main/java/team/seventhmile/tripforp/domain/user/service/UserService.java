@@ -1,8 +1,11 @@
 package team.seventhmile.tripforp.domain.user.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,6 +36,7 @@ public class UserService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final JwtUtil jwtUtil;
+	private final TokenService tokenService;
 
 	// 회원가입
 	@Transactional
@@ -191,5 +195,20 @@ public class UserService {
 			log.error("비밀번호 찾기 중 예기치 못한 에러가 발생했습니다.", e);
 			throw new AuthCustomException(ErrorCode.PASSWORD_CHANGE_ERROR);
 		}
+	}
+	//회원 탈퇴
+	@Transactional
+	public void deleteUser(UserDetails userDetails, HttpServletResponse response) {
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
+		user.withdrawalUser();
+		//리프레시 토큰 삭제 (클라이언트도 access 토큰 삭제해야함)
+		tokenService.deleteRefreshToken(userDetails.getUsername());
+		//Refresh 토큰 Cookie 값 0
+		Cookie cookie = new Cookie("refresh", null);
+		cookie.setMaxAge(0);
+		cookie.setPath("/api/users");
+		response.addCookie(cookie);
+		log.info("withdrawal tkservice {}", tokenService.getRefreshToken(userDetails.getUsername()));
 	}
 }
