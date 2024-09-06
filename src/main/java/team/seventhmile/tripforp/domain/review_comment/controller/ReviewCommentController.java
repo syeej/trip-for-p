@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +46,7 @@ public class ReviewCommentController {
 	public ResponseEntity<ReviewCommentDto> createReviewComment(
 		@PathVariable Long postId,
 		@Valid @RequestBody ReviewCommentDto commentDto,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		ReviewPost reviewPost = reviewPostService.getReviewPostEntity(postId);
 		ReviewCommentDto createdComment = reviewCommentService.createComment(reviewPost, commentDto,
 			user);
@@ -57,7 +58,7 @@ public class ReviewCommentController {
 		@PathVariable Long postId,
 		@PathVariable Long commentId,
 		@Valid @RequestBody ReviewCommentDto commentDto,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		ReviewCommentDto updatedComment = reviewCommentService.updateComment(commentId, commentDto,
 			user);
 		return ResponseEntity.ok(updatedComment);
@@ -67,7 +68,7 @@ public class ReviewCommentController {
 	public ResponseEntity<Void> deleteReviewComment(
 		@PathVariable Long postId,
 		@PathVariable Long commentId,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		reviewCommentService.deleteComment(commentId, user);
 		return ResponseEntity.noContent().build();
 	}
