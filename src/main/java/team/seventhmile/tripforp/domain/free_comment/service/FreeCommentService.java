@@ -3,6 +3,7 @@ package team.seventhmile.tripforp.domain.free_comment.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
@@ -10,16 +11,21 @@ import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.free_comment.repository.FreeCommentRepository;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.user.entity.User;  // 올바른 User import
+import team.seventhmile.tripforp.domain.user.repository.UserRepository;
+import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
 @Transactional(readOnly = true)
 public class FreeCommentService {
 
 	private final FreeCommentRepository freeCommentRepository;
+	private final UserRepository userRepository;
 
 	@Autowired
-	public FreeCommentService(FreeCommentRepository freeCommentRepository) {
+	public FreeCommentService(FreeCommentRepository freeCommentRepository,
+		UserRepository userRepository) {
 		this.freeCommentRepository = freeCommentRepository;
+		this.userRepository = userRepository;
 	}
 
 	// 자유 게시판 댓글 조회
@@ -33,18 +39,22 @@ public class FreeCommentService {
 	// 자유 게시판 댓글 작성
 	@Transactional
 	public FreeCommentDto createComment(FreePost freePost, FreeCommentDto freeCommentDto,
-		User user) {
+		UserDetails user) {
+		User findUser = getUser(user);
 		FreeComment freeComment = mapToEntity(freeCommentDto);
 		freeComment.setFreePost(freePost);
-		freeComment.setAuthor(user);
+		freeComment.setAuthor(findUser);
 		FreeComment savedComment = freeCommentRepository.save(freeComment);
 		return mapToDto(savedComment);
 	}
 
+
+
 	// 자유 게시판 댓글 수정
 	@Transactional
-	public FreeCommentDto updateComment(Long id, FreeCommentDto updatedCommentDto, User user) {
-		FreeComment existingComment = freeCommentRepository.findByIdAndAuthor(id, user)
+	public FreeCommentDto updateComment(Long id, FreeCommentDto updatedCommentDto, UserDetails user) {
+		User findUser = getUser(user);
+		FreeComment existingComment = freeCommentRepository.findByIdAndAuthor(id, findUser)
 			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
 
 		existingComment.setContent(updatedCommentDto.getContent());
@@ -54,8 +64,9 @@ public class FreeCommentService {
 
 	// 자유 게시판 댓글 삭제
 	@Transactional
-	public void deleteComment(Long id, User user) {
-		FreeComment freeComment = freeCommentRepository.findByIdAndAuthor(id, user)
+	public void deleteComment(Long id, UserDetails user) {
+		User findUser = getUser(user);
+		FreeComment freeComment = freeCommentRepository.findByIdAndAuthor(id, findUser)
 			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
 		freeCommentRepository.delete(freeComment);
 	}
@@ -76,5 +87,10 @@ public class FreeCommentService {
 		FreeComment freeComment = new FreeComment();
 		freeComment.setContent(freeCommentDto.getContent());
 		return freeComment;
+	}
+
+	private User getUser(UserDetails user) {
+		return userRepository.findByEmail(user.getUsername())
+			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class ReviewPostController {
 	 * @param files 첨부할 파일 목록 (선택사항)
 	 * @return 작성된 리뷰 게시글의 DTO
 	 */
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public ReviewPostDto createReviewPost(
 		@AuthenticationPrincipal UserDetails user,
@@ -35,6 +37,7 @@ public class ReviewPostController {
 	) throws IOException {
 		return reviewPostService.createReviewPost(reviewPostDto, user.getUsername(), files);
 	}
+
 
 	/**
 	 * 기존 리뷰 게시글을 수정합니다.
@@ -45,6 +48,7 @@ public class ReviewPostController {
 	 * @param files 첨부할 파일 목록 (선택사항)
 	 * @return 수정된 리뷰 게시글의 DTO
 	 */
+	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/{id}")
 	public ReviewPostDto updateReviewPost(@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user,
@@ -60,6 +64,7 @@ public class ReviewPostController {
 	 * @param id 삭제할 리뷰 게시글의 ID
 	 * @param user 현재 인증된 사용자 정보
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{id}")
 	public void deleteReviewPost(@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user) {

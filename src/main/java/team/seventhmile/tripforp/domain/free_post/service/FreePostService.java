@@ -160,7 +160,8 @@ public class FreePostService {
 	@Transactional(readOnly = true)
 	public FreePost getFreePostEntity(Long id) {
 		return freePostRepository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class));
+
+			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class, id));
 	}
 
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.user.dto.ApiResponse;
+import team.seventhmile.tripforp.domain.user.dto.FindPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.ModifyPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
 import team.seventhmile.tripforp.domain.user.dto.UserInfoRequest;
@@ -81,5 +82,12 @@ public class UserController {
 	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
 		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
 		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
+	}
+
+	//비밀번호 찾기(비밀번호 재설정)
+	@PostMapping("password/renewal")
+	public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
+		return userService.findPassword(findPasswordRequest.getEmail(),
+			findPasswordRequest.getNewPassword());
 	}
 }

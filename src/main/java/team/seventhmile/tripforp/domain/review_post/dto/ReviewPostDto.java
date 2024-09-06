@@ -3,13 +3,16 @@ package team.seventhmile.tripforp.domain.review_post.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
 import team.seventhmile.tripforp.domain.file.entity.ReviewFile;
+import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
+import team.seventhmile.tripforp.domain.review_comment.dto.GetReviewCommentDto;
 import team.seventhmile.tripforp.domain.review_comment.entity.ReviewComment;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
@@ -43,7 +46,7 @@ public class ReviewPostDto {
 
 	private List<String> fileUrls;
 
-	private List<ReviewComment> comments;
+	private List<GetReviewCommentDto> comments;
 
 	/**
 	 * DTO를 ReviewPost 엔티티로 변환합니다.
@@ -80,6 +83,8 @@ public class ReviewPostDto {
 			.createdAt(reviewPost.getCreatedAt())
 			.updatedAt(reviewPost.getUpdatedAt())
 			.fileUrls(reviewPost.getFiles().stream().map(ReviewFile::getUrl).toList())
+			.comments(reviewPost.getComments() != null ? reviewPost.getComments().stream().map(
+				GetReviewCommentDto::new).toList() : new ArrayList<>())
 			.build();
 	}
 }

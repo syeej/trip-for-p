@@ -3,10 +3,13 @@ package team.seventhmile.tripforp.domain.free_post.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
+import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.user.entity.User;
@@ -32,7 +35,7 @@ public class FreePostDto {
 	private ZonedDateTime createdAt;
 	private ZonedDateTime updatedAt;
 
-	private List<FreeComment> comments;
+	private List<GetFreeCommentDto> comments = new ArrayList<>();
 
 	/**
 	 * DTO를 FreePost 엔티티로 변환합니다.
@@ -63,6 +66,8 @@ public class FreePostDto {
 			.views(freePost.getViews())
 			.createdAt(freePost.getCreatedAt())
 			.updatedAt(freePost.getUpdatedAt())
+			.comments(freePost.getComments() != null ? freePost.getComments().stream().map(GetFreeCommentDto::new).toList() : new ArrayList<>())
 			.build();
 	}
+
 }
