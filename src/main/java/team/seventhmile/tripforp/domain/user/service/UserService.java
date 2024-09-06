@@ -173,13 +173,13 @@ public class UserService {
 		User user = userRepository.findByEmail(userDetails.getUsername())
 				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
 		user.withdrawalUser();
-		//리프레시 토큰 삭제 (클라이언트도 access 토큰 삭제)
+		//리프레시 토큰 삭제 (클라이언트도 access 토큰 삭제해야함)
 		tokenService.deleteRefreshToken(userDetails.getUsername());
 		//Refresh 토큰 Cookie 값 0
 		Cookie cookie = new Cookie("refresh", null);
 		cookie.setMaxAge(0);
 		cookie.setPath("/api/users");
 		response.addCookie(cookie);
-		log.info("withdrawal tkservice {}", tokenService.getRefreshToken(userDetails.getUsername()));
+		//log.info("withdrawal tkservice {}", tokenService.getRefreshToken(userDetails.getUsername()));
 	}
 }
