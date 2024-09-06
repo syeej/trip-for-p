@@ -45,7 +45,13 @@ public class ReviewPostDto {
 
 	private List<ReviewComment> comments;
 
-	// DTO -> Entity 변환
+	/**
+	 * DTO를 ReviewPost 엔티티로 변환합니다.
+	 *
+	 * @param user 변환할 사용자 엔티티
+	 * @param plan 변환할 플랜 엔티티
+	 * @return 변환된 ReviewPost 엔티티
+	 */
 	public ReviewPost convertToEntity(User user, Plan plan) {
 		return ReviewPost.builder()
 			.id(this.id)
@@ -57,7 +63,12 @@ public class ReviewPostDto {
 			.build();
 	}
 
-	// Entity -> DTO 변환
+	/**
+	 * ReviewPost 엔티티를 DTO로 변환합니다.
+	 *
+	 * @param reviewPost 변환할 ReviewPost 엔티티
+	 * @return 변환된 ReviewPostDto
+	 */
 	public static ReviewPostDto convertToDto(ReviewPost reviewPost) {
 		return ReviewPostDto.builder()
 			.id(reviewPost.getId())

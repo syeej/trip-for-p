@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.free_post.dto.FreePostDto;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.free_post.repository.FreePostRepository;
+import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
@@ -24,7 +25,12 @@ public class FreePostService {
 	private final FreePostRepository freePostRepository;
 	private final UserRepository userRepository;
 
-	// 자유 게시글 생성
+	/**
+	 * 자유 게시글을 작성합니다.
+	 * @param freePostDto 게시글 DTO
+	 * @param userEmail 작성자 이메일
+	 * @return 작성된 자유 게시글의 DTO
+	 */
 	@Transactional
 	public FreePostDto createFreePost(FreePostDto freePostDto, String userEmail) {
 
@@ -32,13 +38,22 @@ public class FreePostService {
 		User user = userRepository.findByEmail(userEmail)
 			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 
+		// 자유 게시글 생성
 		FreePost freePost = freePostDto.convertToEntity(user);
+
 		freePostRepository.save(freePost);
 
 		return FreePostDto.convertToDto(freePost);
 	}
 
-	// 자유 게시글 수정
+	/**
+	 * 자유 게시글을 수정합니다.
+	 * 작성자만 수정할 수 있습니다.
+	 * @param id 수정할 게시글의 ID
+	 * @param freePostDto 수정할 게시글의 DTO
+	 * @param userEmail 작성자 이메일
+	 * @return 수정된 자유 게시글의 DTO
+	 */
 	@Transactional
 	public FreePostDto updateFreePost(Long id, FreePostDto freePostDto, String userEmail) {
 
@@ -54,7 +69,7 @@ public class FreePostService {
 			throw new UnauthorizedAccessException(FreePost.class);
 		}
 
-		// 업데이트
+		// 게시글 수정
 		freePost.update(freePostDto.getContent());
 
 		freePostRepository.save(freePost);
@@ -62,7 +77,12 @@ public class FreePostService {
 		return FreePostDto.convertToDto(freePost);
 	}
 
-	// 자유 게시글 삭제
+	/**
+	 * 자유 게시글을 삭제합니다.
+	 * 작성자 또는 ADMIN만 삭제할 수 있습니다.
+	 * @param id 삭제할 게시글의 ID
+	 * @param userEmail 요청자 이메일
+	 */
 	@Transactional
 	public void deleteFreePost(Long id, String userEmail) {
 
@@ -83,7 +103,11 @@ public class FreePostService {
 		freePostRepository.delete(freePost);
 	}
 
-	// 자유 게시글 목록 조회
+	/**
+	 * 모든 자유 게시글을 페이지네이션하여 조회합니다.
+	 * @param pageable 페이징 정보
+	 * @return 페이지네이션된 자유 게시글 목록
+	 */
 	@Transactional(readOnly = true)
 	public Page<FreePostDto> getAllFreePost(Pageable pageable) {
 
@@ -92,7 +116,12 @@ public class FreePostService {
 
 	}
 
-	// 자유 게시글 상세 조회
+	/**
+	 * 특정 ID의 자유 게시글을 상세 조회합니다.
+	 * 조회할 때마다 조회 수가 증가합니다.
+	 * @param id 조회할 게시글의 ID
+	 * @return 자유 게시글 DTO
+	 */
 	@Transactional
 	public FreePostDto getFreePostDetail(Long id) {
 		FreePost freePost = freePostRepository.findById(id)
@@ -104,7 +133,12 @@ public class FreePostService {
 		return FreePostDto.convertToDto(freePost);
 	}
 
-	// 자유 게시글 검색(제목, 내용) 조회
+	/**
+	 * 키워드를 포함하는 자유 게시글을 페이지네이션하여 검색합니다.
+	 * @param keyword 검색 키워드
+	 * @param pageable 페이징 정보
+	 * @return 검색된 자유 게시글 목록
+	 */
 	@Transactional(readOnly = true)
 	public Page<FreePostDto> getFreePostSearch(String keyword, Pageable pageable) {
 
@@ -118,11 +152,15 @@ public class FreePostService {
 
 	}
 
-	// FreePost 엔티티 조회
+	/**
+	 * 특정 ID의 자유 게시글 엔티티를 조회합니다.
+	 * @param id 조회할 게시글의 ID
+	 * @return 자유 게시글 엔티티
+	 */
 	@Transactional(readOnly = true)
 	public FreePost getFreePostEntity(Long id) {
 		return freePostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class));
 	}
 
 }

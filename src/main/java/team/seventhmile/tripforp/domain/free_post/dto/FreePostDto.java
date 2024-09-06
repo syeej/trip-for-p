@@ -34,7 +34,12 @@ public class FreePostDto {
 
 	private List<FreeComment> comments;
 
-	// DTO -> Entity
+	/**
+	 * DTO를 FreePost 엔티티로 변환합니다.
+	 *
+	 * @param user 변환할 사용자 엔티티
+	 * @return 변환된 FreePost 엔티티
+	 */
 	public FreePost convertToEntity(User user) {
 		return FreePost.builder()
 			.id(this.id)
@@ -44,7 +49,12 @@ public class FreePostDto {
 			.build();
 	}
 
-	// Entity -> DTO
+	/**
+	 * FreePost 엔티티를 DTO로 변환합니다.
+	 *
+	 * @param freePost 변환할 FreePost 엔티티
+	 * @return 변환된 FreePostDto
+	 */
 	public static FreePostDto convertToDto(FreePost freePost) {
 		return FreePostDto.builder()
 			.id(freePost.getId())

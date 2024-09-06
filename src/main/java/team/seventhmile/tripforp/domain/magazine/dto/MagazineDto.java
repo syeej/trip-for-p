@@ -35,7 +35,12 @@ public class MagazineDto {
 
 	private List<String> fileUrls;
 
-	// dto -> entity 변환
+	/**
+	 * DTO를 Magazine 엔티티로 변환합니다.
+	 *
+	 * @param user 변환할 사용자 엔티티
+	 * @return 변환된 Magazine 엔티티
+	 */
 	public Magazine convertToEntity(User user) {
 		return Magazine.builder()
 			.id(this.id)
@@ -48,7 +53,12 @@ public class MagazineDto {
 			.build();
 	}
 
-	// entity -> dto 변환
+	/**
+	 * Magazine 엔티티를 DTO로 변환합니다.
+	 *
+	 * @param magazine 변환할 Magazine 엔티티
+	 * @return 변환된 Magazine DTO
+	 */
 	public static MagazineDto convertToDto(Magazine magazine) {
 		return MagazineDto.builder()
 			.id(magazine.getId())

@@ -25,6 +25,7 @@ import org.hibernate.annotations.ColumnDefault;
 import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
+import team.seventhmile.tripforp.global.exception.ValidationUtils;
 
 @Entity
 @Table(name = "magazines")
@@ -65,16 +66,26 @@ public class Magazine extends BaseEntity {
 	private List<MagazineFile> files = new ArrayList<>();
 
 
-	// 수정 로직 (더티 체킹 방식)
+	/**
+	 * 매거진 게시글의 제목, 내용, 첨부 파일 목록을 수정합니다.
+	 *
+	 * @param title 수정할 제목
+	 * @param content 수정할 내용
+	 * @param files 첨부할 파일 목록
+	 */
 	public void update(String title, String content) {
-		validateField(title, "Title");
-		validateField(content, "Content");
+		// 필드 유효성 검사
+		ValidationUtils.validateField(title, "Title");
+		ValidationUtils.validateField(content, "Content");
 
+		// 제목, 내용 및 파일 목록 업데이트
 		this.title = title;
 		this.content = content;
 	}
 
-	// 조회 수 증가 로직
+	/**
+	 * 매거진 게시글의 조회 수를 1 증가시킵니다.
+	 */
 	public void incrementViews() {
 		this.views += 1;
 	}
@@ -88,10 +99,4 @@ public class Magazine extends BaseEntity {
 		this.files.clear();
 	}
 
-	// Not Null 예외 처리 로직
-	public static void validateField(String field, String fieldName) {
-		if (field == null || field.isEmpty()) {
-			throw new IllegalArgumentException(fieldName + "은(는) 필수 입력 항목입니다.");
-		}
-	}
 }

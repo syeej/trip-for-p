@@ -12,6 +12,7 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.global.common.BaseEntity;
 
 import java.util.List;
+import team.seventhmile.tripforp.global.exception.ValidationUtils;
 
 @Entity
 @Getter
@@ -41,23 +42,24 @@ public class FreePost extends BaseEntity {
     @OneToMany(mappedBy = "freePost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FreeComment> comments;
 
-    // 수정 로직
+    /**
+     * 자유 게시글의 내용을 수정합니다.
+     *
+     * @param content 수정할 내용
+     */
     public void update(String content) {
-        validateField(content, "Content");
+        // 필드 유효성 검사
+        ValidationUtils.validateField(content, "Content");
 
+        // 내용 업데이트
         this.content = content;
     }
 
-    // 조회 수 증가 로직
+    /**
+     * 리뷰 게시글의 조회 수를 1 증가시킵니다.
+     */
     public void incrementViews() {
         this.views += 1;
-    }
-
-    // Not Null 예외 처리 로직
-    public static void validateField(String field, String fieldName) {
-        if (field == null || field.isEmpty()) {
-            throw new IllegalArgumentException(fieldName + "은(는) 필수 입력 항목입니다.");
-        }
     }
 }
 

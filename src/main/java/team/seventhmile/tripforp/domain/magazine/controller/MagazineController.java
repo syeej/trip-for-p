@@ -29,7 +29,14 @@ public class MagazineController {
 
 	private final MagazineService magazineService;
 
-	// 매거진 게시글 작성
+	/**
+	 * 매거진 게시글을 작성합니다.
+	 *
+	 * @param user 작성자 정보
+	 * @param magazineDto 작성할 게시글 정보 DTO
+	 * @param files 첨부 파일 리스트
+	 * @return 작성된 게시글 정보 DTO
+	 */
 	@PostMapping
 	@PreAuthorize("hasRole('ADMIN')")
 	public MagazineDto createMagazinePost(
@@ -40,7 +47,15 @@ public class MagazineController {
 		return magazineService.createMagazinePost(magazineDto, user.getUsername(), files);
 	}
 
-	// 매거진 게시글 수정
+	/**
+	 * 매거진 게시글을 수정합니다.
+	 *
+	 * @param id 수정할 게시글의 ID
+	 * @param magazineDto 수정할 게시글 정보 DTO
+	 * @param user 작성자 정보
+	 * @param files 첨부 파일 리스트
+	 * @return 수정된 게시글 정보 DTO
+	 */
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public MagazineDto updateMagazinePost(
@@ -52,7 +67,12 @@ public class MagazineController {
 		return magazineService.updateMagazinePost(id, magazineDto, user.getUsername(), files);
 	}
 
-	// 매거진 게시글 삭제
+	/**
+	 * 매거진 게시글을 삭제합니다.
+	 *
+	 * @param id 삭제할 게시글의 ID
+	 * @param user 작성자 정보
+	 */
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public void deleteMagazinePost(@PathVariable("id") Long id,
@@ -60,7 +80,14 @@ public class MagazineController {
 		magazineService.deleteMagazinePost(id, user.getUsername());
 	}
 
-	// 매거진 게시글 목록 조회
+	/**
+	 * 매거진 게시글 목록을 조회합니다.
+	 *
+	 * @param page 페이지 번호
+	 * @param size 페이지 크기
+	 * @param keyword 검색 키워드 (옵션)
+	 * @return 페이징된 게시글 정보 DTO
+	 */
 	@GetMapping
 	public ResponseEntity<Page<MagazineDto>> getAllMagazineList(
 		@RequestParam(value = "page", defaultValue = "0") int page,
@@ -74,7 +101,12 @@ public class MagazineController {
 		}
 	}
 
-	// 매거진 게시글 상세 조회
+	/**
+	 * 매거진 게시글을 상세 조회합니다.
+	 *
+	 * @param id 조회할 게시글의 ID
+	 * @return 상세 조회된 게시글 정보 DTO
+	 */
 	@GetMapping("/{id}")
 	public MagazineDto getMagazineDetail(@PathVariable("id") Long id) {
 		return magazineService.getMagazineDetail(id);
