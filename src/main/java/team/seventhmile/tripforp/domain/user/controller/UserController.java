@@ -85,20 +85,19 @@ public class UserController {
 		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
 	}
 
-	//회원 탈퇴
-	@PatchMapping("/deletion")
-	public ResponseEntity<?> deleteUser(
-			@AuthenticationPrincipal UserDetails userDetails,
-			HttpServletResponse httpServletResponse){
-		userService.deleteUser(userDetails, httpServletResponse);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-
 	//비밀번호 찾기(비밀번호 재설정)
 	@PostMapping("password/renewal")
 	public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
 		return userService.findPassword(findPasswordRequest.getEmail(),
 			findPasswordRequest.getNewPassword());
+	}
 
+	//회원 탈퇴
+	@PatchMapping("/deletion")
+	public ResponseEntity<?> deleteUser(
+			@AuthenticationPrincipal UserDetails userDetails,
+			HttpServletResponse httpServletResponse) {
+		userService.deleteUser(userDetails, httpServletResponse);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }
