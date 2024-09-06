@@ -3,13 +3,12 @@ package team.seventhmile.tripforp.domain.magazine.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import team.seventhmile.tripforp.domain.file.entity.File;
+import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
 import team.seventhmile.tripforp.domain.magazine.entity.Magazine;
 import team.seventhmile.tripforp.domain.user.entity.User;
 
@@ -34,7 +33,7 @@ public class MagazineDto {
 	private ZonedDateTime createdAt;
 	private ZonedDateTime updatedAt;
 
-	private List<Long> fileIds;
+	private List<String> fileUrls;
 
 	// dto -> entity 변환
 	public Magazine convertToEntity(User user) {
@@ -58,9 +57,8 @@ public class MagazineDto {
 			.views(magazine.getViews())
 			.createdAt(magazine.getCreatedAt())
 			.updatedAt(magazine.getUpdatedAt())
-			.fileIds(magazine.getFiles() != null ? magazine.getFiles().stream()
-				.map(File::getId)
-				.toList() : new ArrayList<>())
+			.fileUrls(magazine.getFiles().stream().map(MagazineFile::getUrl).toList())
 			.build();
 	}
+
 }

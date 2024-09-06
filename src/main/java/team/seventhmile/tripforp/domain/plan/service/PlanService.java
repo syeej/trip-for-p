@@ -53,7 +53,6 @@ public class PlanService {
         planRepository.save(plan);
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
-            //장소 가져오기, 없을 경우 장소 등록
             planItemService.createPlanItem(plan, planItemRequest);
         }
         return new CreatePlanResponse(plan.getId());
@@ -65,7 +64,7 @@ public class PlanService {
         Plan plan = planRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
 
-        checkPlanOwner(user, plan);
+        checkUpdateAuthorization(user, plan);
 
         plan.updatePlan(request);
 
@@ -81,35 +80,9 @@ public class PlanService {
         Plan plan = planRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(Plan.class, id));
 
-        checkPlanOwner(user, plan);
+        checkDeleteAuthorization(user, plan);
 
         planRepository.delete(plan);
-    }
-
-    public List<PlanGetDto> getPlansByArea(String areaName) {
-        Area area = Area.fromName(areaName);
-
-        List<Plan> plans = planRepository.findByArea(area);
-
-        return plans.stream().map(plan -> {
-
-            List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()
-                    .map(planItem -> new PlanListItemDto(
-                            planItem.getSequence(),
-                            planItem.getPlace().getPlaceName()))
-                    .collect(Collectors.toList());
-
-            return new PlanGetDto(
-                    plan.getUser(),
-                    plan.getTitle(),
-                    plan.getViews(),
-                    planItemDtos
-            );
-        }).collect(Collectors.toList());
-    }
-
-    public Page<GetPlanListResponse> getPlanList(String area, Pageable pageable) {
-        return planRepository.getPlans(area, pageable);
     }
 
     @Transactional
@@ -122,16 +95,49 @@ public class PlanService {
         return new GetPlanResponse(plan, likeCount);
     }
 
-    /**
-     * 수정, 삭제 시 작성자 본인이 맞는지 검증
-     */
-    private void checkPlanOwner(UserDetails user, Plan plan) {
-        if (!user.getUsername().equals(plan.getUser().getEmail())) {
-            throw new UnauthorizedAccessException(Plan.class);
-        }
+    public Page<GetPlanListResponse> getPlanList(String area, Pageable pageable) {
+        return planRepository.getPlans(area, pageable);
     }
 
     public Page<GetPlanListResponse> getMyPlanList(UserDetails user, Pageable pageable) {
         return planRepository.getMyPlans(user.getUsername(), pageable);
+    }
+
+    /**
+     * 수정, 삭제 시 작성자 본인이 맞는지 검증
+     */
+    private void checkUpdateAuthorization(UserDetails user, Plan plan) {
+        if (!user.getUsername().equals(plan.getUser().getEmail())) {
+            System.out.println(user.getAuthorities());
+            throw new UnauthorizedAccessException(Plan.class);
+        }
+    }
+
+    private void checkDeleteAuthorization(UserDetails user, Plan plan) {
+        if (!user.getUsername().equals(plan.getUser().getEmail()) && !user.getAuthorities().contains("ROLE_ADMIN")) {
+            throw new UnauthorizedAccessException(Plan.class);
+        }
+    }
+
+    public List<PlanGetDto> getPlansByArea(String areaName) {
+        Area area = Area.fromName(areaName);
+
+        List<Plan> plans = planRepository.findByArea(area);
+
+        return plans.stream().map(plan -> {
+
+            List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()
+                .map(planItem -> new PlanListItemDto(
+                    planItem.getSequence(),
+                    planItem.getPlace().getPlaceName()))
+                .collect(Collectors.toList());
+
+            return new PlanGetDto(
+                plan.getUser(),
+                plan.getTitle(),
+                plan.getViews(),
+                planItemDtos
+            );
+        }).collect(Collectors.toList());
     }
 }

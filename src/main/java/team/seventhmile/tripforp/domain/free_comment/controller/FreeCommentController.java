@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,33 +43,36 @@ public class FreeCommentController {
 		return ResponseEntity.ok(freeComments);
 	}
 
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public ResponseEntity<FreeCommentDto> createFreeComment(
 		@PathVariable Long postId,
 		@Valid @RequestBody FreeCommentDto commentDto,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
 		FreeCommentDto createdComment = freeCommentService.createComment(freePost, commentDto,
 			user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
 	}
 
+	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/{commentId}")
 	public ResponseEntity<FreeCommentDto> updateFreeComment(
 		@PathVariable Long postId,
 		@PathVariable Long commentId,
 		@Valid @RequestBody FreeCommentDto commentDto,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		FreeCommentDto updatedComment = freeCommentService.updateComment(commentId, commentDto,
 			user);
 		return ResponseEntity.ok(updatedComment);
 	}
 
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{commentId}")
 	public ResponseEntity<Void> deleteFreeComment(
 		@PathVariable Long postId,
 		@PathVariable Long commentId,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		freeCommentService.deleteComment(commentId, user);
 		return ResponseEntity.noContent().build();
 	}
