@@ -52,6 +52,7 @@ const logout = function () {
 
 <style scoped>
 header {
+    z-index:2;
     width: 100%;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
