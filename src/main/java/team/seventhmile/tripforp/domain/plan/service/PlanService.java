@@ -53,7 +53,6 @@ public class PlanService {
         planRepository.save(plan);
 
         for (CreatePlanItemRequest planItemRequest : request.getPlanItems()) {
-            //장소 가져오기, 없을 경우 장소 등록
             planItemService.createPlanItem(plan, planItemRequest);
         }
         return new CreatePlanResponse(plan.getId());
@@ -86,32 +85,6 @@ public class PlanService {
         planRepository.delete(plan);
     }
 
-    public List<PlanGetDto> getPlansByArea(String areaName) {
-        Area area = Area.fromName(areaName);
-
-        List<Plan> plans = planRepository.findByArea(area);
-
-        return plans.stream().map(plan -> {
-
-            List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()
-                    .map(planItem -> new PlanListItemDto(
-                            planItem.getSequence(),
-                            planItem.getPlace().getPlaceName()))
-                    .collect(Collectors.toList());
-
-            return new PlanGetDto(
-                    plan.getUser(),
-                    plan.getTitle(),
-                    plan.getViews(),
-                    planItemDtos
-            );
-        }).collect(Collectors.toList());
-    }
-
-    public Page<GetPlanListResponse> getPlanList(String area, Pageable pageable) {
-        return planRepository.getPlans(area, pageable);
-    }
-
     @Transactional
     public GetPlanResponse getPlanById(Long planId) {
 
@@ -120,6 +93,14 @@ public class PlanService {
         plan.increaseViews();
 
         return new GetPlanResponse(plan, likeCount);
+    }
+
+    public Page<GetPlanListResponse> getPlanList(String area, Pageable pageable) {
+        return planRepository.getPlans(area, pageable);
+    }
+
+    public Page<GetPlanListResponse> getMyPlanList(UserDetails user, Pageable pageable) {
+        return planRepository.getMyPlans(user.getUsername(), pageable);
     }
 
     /**
@@ -138,7 +119,25 @@ public class PlanService {
         }
     }
 
-    public Page<GetPlanListResponse> getMyPlanList(UserDetails user, Pageable pageable) {
-        return planRepository.getMyPlans(user.getUsername(), pageable);
+    public List<PlanGetDto> getPlansByArea(String areaName) {
+        Area area = Area.fromName(areaName);
+
+        List<Plan> plans = planRepository.findByArea(area);
+
+        return plans.stream().map(plan -> {
+
+            List<PlanListItemDto> planItemDtos = plan.getPlanItems().stream()
+                .map(planItem -> new PlanListItemDto(
+                    planItem.getSequence(),
+                    planItem.getPlace().getPlaceName()))
+                .collect(Collectors.toList());
+
+            return new PlanGetDto(
+                plan.getUser(),
+                plan.getTitle(),
+                plan.getViews(),
+                planItemDtos
+            );
+        }).collect(Collectors.toList());
     }
 }
