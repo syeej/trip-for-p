@@ -56,7 +56,7 @@ public class Plan extends BaseEntity {
     private List<PlanItem> planItems = new ArrayList<>();  // PlanItems associated with this Plan
 
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
-    private List<PlanLike> planLikes;  // PlanItems associated with this Plan
+    private List<PlanLike> planLikes = new ArrayList<>();  // PlanItems associated with this Plan
 
     @Column(nullable = false)
     private int views;

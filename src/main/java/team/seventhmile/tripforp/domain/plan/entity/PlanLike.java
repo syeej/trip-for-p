@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "plan_like")
+@Table(name = "plan_likes",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "plan_id"}))
 public class PlanLike {
 
   @Id

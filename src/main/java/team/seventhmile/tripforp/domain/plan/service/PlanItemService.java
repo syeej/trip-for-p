@@ -21,7 +21,7 @@ public class PlanItemService {
 
     @Transactional
     public void createPlanItem(Plan plan, CreatePlanItemRequest request) {
-        Place place = placeService.FindOrCreatePlace(request.getPlace());
+        Place place = placeService.findOrCreatePlace(request.getPlace());
         PlanItem planItem = PlanItem.builder()
             .place(place)
             .sequence(request.getSequence())
@@ -33,7 +33,7 @@ public class PlanItemService {
 
     @Transactional
     public void updateOrCreatePlanItem(Plan plan, UpdatePlanItemRequest request) {
-        Place place = placeService.FindOrCreatePlace(request.getPlace());
+        Place place = placeService.findOrCreatePlace(request.getPlace());
 
         if (request.getId() != null) {
             PlanItem planItem = planItemRepository.findById(request.getId())
