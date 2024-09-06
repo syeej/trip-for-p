@@ -122,7 +122,7 @@ public class UserService {
 		return UserInfoResponse.from(user);
 	}
 
-	//비밀번호 변경
+	//비밀번호 변경 (비밀번호 로직 중복 정리 예정)
 	@Transactional
 	public ResponseEntity<?> modifyPassword(HttpServletRequest request, String newPassword) {
 		String accessToken = extractAccessToken(request);

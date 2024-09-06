@@ -61,14 +61,14 @@ public class UserController {
 	}
 
 	//(마이페이지)개인정보 조회
-	@GetMapping("/info")
+	@GetMapping("/me")
 	public ResponseEntity<UserInfoResponse> getUserInfo(
 		@AuthenticationPrincipal UserDetails userDetails) {
 		return ResponseEntity.ok(userService.getUserInfo(userDetails));
 	}
 
 	//개인정보 수정
-	@PatchMapping("/info")
+	@PatchMapping("/me")
 	public ResponseEntity<UserInfoResponse> updateUser(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@RequestBody UserInfoRequest userInfoReq) {
@@ -77,7 +77,7 @@ public class UserController {
 	}
 
 	//비밀번호 변경
-	@PatchMapping("/info/password")
+	@PatchMapping("/me/password")
 	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
 		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
 		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
