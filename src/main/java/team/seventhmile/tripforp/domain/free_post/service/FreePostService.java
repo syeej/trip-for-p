@@ -122,7 +122,7 @@ public class FreePostService {
 	@Transactional(readOnly = true)
 	public FreePost getFreePostEntity(Long id) {
 		return freePostRepository.findById(id)
-			.orElseThrow(() -> new EntityNotFoundException("데이터를 찾을 수 없습니다."));
+			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class, id));
 	}
 
 }

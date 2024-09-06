@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +46,7 @@ public class FreeCommentController {
 	public ResponseEntity<FreeCommentDto> createFreeComment(
 		@PathVariable Long postId,
 		@Valid @RequestBody FreeCommentDto commentDto,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
 		FreeCommentDto createdComment = freeCommentService.createComment(freePost, commentDto,
 			user);
@@ -57,7 +58,7 @@ public class FreeCommentController {
 		@PathVariable Long postId,
 		@PathVariable Long commentId,
 		@Valid @RequestBody FreeCommentDto commentDto,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		FreeCommentDto updatedComment = freeCommentService.updateComment(commentId, commentDto,
 			user);
 		return ResponseEntity.ok(updatedComment);
@@ -67,7 +68,7 @@ public class FreeCommentController {
 	public ResponseEntity<Void> deleteFreeComment(
 		@PathVariable Long postId,
 		@PathVariable Long commentId,
-		@AuthenticationPrincipal User user) {
+		@AuthenticationPrincipal UserDetails user) {
 		freeCommentService.deleteComment(commentId, user);
 		return ResponseEntity.noContent().build();
 	}
