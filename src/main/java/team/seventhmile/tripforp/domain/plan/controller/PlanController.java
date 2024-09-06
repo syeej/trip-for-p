@@ -88,6 +88,7 @@ public class PlanController {
         return ResponseEntity.ok(planDto);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/me")
     public ResponseEntity<Page<GetPlanListResponse>> getMyPlanList(
         @AuthenticationPrincipal UserDetails user,

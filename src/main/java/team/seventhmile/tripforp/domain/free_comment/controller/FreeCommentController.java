@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,6 +43,7 @@ public class FreeCommentController {
 		return ResponseEntity.ok(freeComments);
 	}
 
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public ResponseEntity<FreeCommentDto> createFreeComment(
 		@PathVariable Long postId,
@@ -53,6 +55,7 @@ public class FreeCommentController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
 	}
 
+	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/{commentId}")
 	public ResponseEntity<FreeCommentDto> updateFreeComment(
 		@PathVariable Long postId,
@@ -64,6 +67,7 @@ public class FreeCommentController {
 		return ResponseEntity.ok(updatedComment);
 	}
 
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{commentId}")
 	public ResponseEntity<Void> deleteFreeComment(
 		@PathVariable Long postId,

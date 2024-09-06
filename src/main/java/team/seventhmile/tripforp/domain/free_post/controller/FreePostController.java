@@ -3,6 +3,7 @@ package team.seventhmile.tripforp.domain.free_post.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ public class FreePostController {
 	private final FreePostService freePostService;
 
 	// 자유 게시글 생성
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public FreePostDto createFreePost(
 		@AuthenticationPrincipal UserDetails user,
@@ -26,6 +28,7 @@ public class FreePostController {
 	}
 
 	// 자유 게시글 수정
+	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/{id}")
 	public FreePostDto updateFreePost(@PathVariable("id") Long id,
 		@RequestBody FreePostDto freePostDto,
@@ -34,6 +37,7 @@ public class FreePostController {
 	}
 
 	// 자유 게시글 삭제
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{id}")
 	public void deleteFreePost(@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user) {

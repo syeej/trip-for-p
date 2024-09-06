@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ public class ReviewPostController {
 	private final ReviewPostService reviewPostService;
 
 	// 리뷰 게시글 작성
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public ReviewPostDto createReviewPost(
 		@AuthenticationPrincipal UserDetails user,
@@ -30,6 +32,7 @@ public class ReviewPostController {
 	}
 
 	// 리뷰 게시글 수정
+	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/{id}")
 	public ReviewPostDto updateReviewPost(@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user,
@@ -40,6 +43,7 @@ public class ReviewPostController {
 	}
 
 	// 리뷰 게시글 삭제
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{id}")
 	public void deleteReviewPost(@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user) {
