@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.review_post.controller;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,16 +24,18 @@ public class ReviewPostController {
 	public ReviewPostDto createReviewPost(
 		@AuthenticationPrincipal UserDetails user,
 		@RequestPart(value = "request") ReviewPostDto reviewPostDto,
-		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
+		@RequestPart(value = "files", required = false) List<MultipartFile> files
+	) throws IOException {
 		return reviewPostService.createReviewPost(reviewPostDto, user.getUsername(), files);
 	}
 
 	// 리뷰 게시글 수정
 	@PutMapping("/{id}")
 	public ReviewPostDto updateReviewPost(@PathVariable("id") Long id,
-		@RequestBody ReviewPostDto reviewPostDto,
 		@AuthenticationPrincipal UserDetails user,
-		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
+		@RequestPart(value = "request") ReviewPostDto reviewPostDto,
+		@RequestPart(value = "files", required = false) List<MultipartFile> files
+	) throws IOException {
 		return reviewPostService.updateReviewPost(id, reviewPostDto, user.getUsername(), files);
 	}
 

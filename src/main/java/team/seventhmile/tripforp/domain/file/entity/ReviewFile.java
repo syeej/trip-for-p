@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,39 +17,29 @@ import team.seventhmile.tripforp.domain.magazine.entity.Magazine;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 
 @Entity
-@Table(name = "files")
+@Table(name = "review_files")
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class File {
+public class ReviewFile {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	// 원본 파일명
-	@Column(nullable = false)
-	private String originalFileName;
+	@Column
+	private String fileName;
 
-	// 고유 파일명 (서버에 저장될 이름)
-	@Column(nullable = false)
-	private String uniqueFileName;
+	@Column
+	private String url;
 
-	// 파일 유형 (ex: jpeg, mp4)
-	@Column(nullable = false)
-	private String fileType;
-
-	// 파일이 저장된 경로
-	@Column(nullable = false)
-	private String filePath;
-
+	@Setter
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "review_post_id")
 	private ReviewPost reviewPost;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "magazine_post_id")
-	private Magazine magazine;
+	@Builder
+	public ReviewFile(String fileName, String url) {
+		this.fileName = fileName;
+		this.url = url;
+	}
 }
