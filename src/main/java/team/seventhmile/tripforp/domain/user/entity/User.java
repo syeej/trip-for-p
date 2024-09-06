@@ -65,4 +65,9 @@ public class User extends BaseEntity {
 	public void updatePassword(String password){
 		this.password = password;
 	}
+
+	//[마이페이지] - 회원탈퇴
+	public void withdrawalUser(){
+		this.isDeleted = true;
+	}
 }

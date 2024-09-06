@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -81,5 +82,13 @@ public class UserController {
 	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
 		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
 		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
+	}
+	//회원 탈퇴
+	@PatchMapping("/deletion")
+	public ResponseEntity<?> deleteUser(
+			@AuthenticationPrincipal UserDetails userDetails,
+			HttpServletResponse httpServletResponse){
+		userService.deleteUser(userDetails, httpServletResponse);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }
