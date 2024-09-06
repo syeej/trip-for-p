@@ -92,13 +92,13 @@ public class GlobalExceptionHandler {
     }
 
     // 모든 예외를 처리하는 핸들러 추가
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message("An unexpected error occurred")
-                .path(request.getDescription(false))
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
+//        ErrorResponse errorResponse = ErrorResponse.builder()
+//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                .message("An unexpected error occurred")
+//                .path(request.getDescription(false))
+//                .build();
+//        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 }
