@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
+import team.seventhmile.tripforp.domain.file.entity.ReviewFile;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.review_comment.entity.ReviewComment;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
@@ -39,6 +41,8 @@ public class ReviewPostDto {
 	private ZonedDateTime createdAt;
 	private ZonedDateTime updatedAt;
 
+	private List<String> fileUrls;
+
 	private List<ReviewComment> comments;
 
 	// DTO -> Entity 변환
@@ -64,6 +68,7 @@ public class ReviewPostDto {
 			.views(reviewPost.getViews())
 			.createdAt(reviewPost.getCreatedAt())
 			.updatedAt(reviewPost.getUpdatedAt())
+			.fileUrls(reviewPost.getFiles().stream().map(ReviewFile::getUrl).toList())
 			.build();
 	}
 }

@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.review_post.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -8,9 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import team.seventhmile.tripforp.domain.file.entity.File;
-import team.seventhmile.tripforp.domain.file.repository.FileRepository;
-import team.seventhmile.tripforp.domain.file.service.FileService;
+import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
+import team.seventhmile.tripforp.domain.file.entity.ReviewFile;
+import team.seventhmile.tripforp.domain.file.service.MagazineFileService;
+import team.seventhmile.tripforp.domain.file.service.ReviewFileService;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.review_post.dto.ReviewPostDto;
@@ -30,13 +32,12 @@ public class ReviewPostService {
 	private final ReviewPostRepository reviewPostRepository;
 	private final PlanRepository planRepository;
 	private final UserRepository userRepository;
-	private final FileService fileService;
-	private final FileRepository fileRepository;
+	private final ReviewFileService reviewFileService;
 
 	// 리뷰 게시글 작성
 	@Transactional
 	public ReviewPostDto createReviewPost(ReviewPostDto reviewPostDto, String userEmail,
-		List<MultipartFile> files) {
+		List<MultipartFile> files) throws IOException {
 
 		// 현재 로그인된 사용자 가져오기
 		User user = userRepository.findByEmail(userEmail)
@@ -52,9 +53,8 @@ public class ReviewPostService {
 		// 첨부 파일 처리
 		if (files != null && !files.isEmpty()) {
 			for (MultipartFile file : files) {
-				File savedFile = fileService.saveFile(file);
-				savedFile.setReviewPost(reviewPost);
-				reviewPost.getFiles().add(savedFile);
+				ReviewFile reviewFile = reviewFileService.saveFile(file);
+				reviewPost.addFile(reviewFile);
 			}
 		}
 
@@ -66,7 +66,7 @@ public class ReviewPostService {
 	// 리뷰 게시글 수정
 	@Transactional
 	public ReviewPostDto updateReviewPost(Long id,
-		ReviewPostDto reviewPostDto, String userEmail, List<MultipartFile> files) {
+		ReviewPostDto reviewPostDto, String userEmail, List<MultipartFile> files) throws IOException {
 
 		ReviewPost reviewPost = reviewPostRepository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException(ReviewPost.class));
@@ -80,20 +80,21 @@ public class ReviewPostService {
 			throw new UnauthorizedAccessException(ReviewPost.class);
 		}
 
-		// 파일 저장 로직
-		List<File> newFiles = new ArrayList<>();
-		if (files != null && !files.isEmpty()) {
-			for (MultipartFile file : files) {
-				File savedFile = fileService.saveFile(file);
-				savedFile.setReviewPost(reviewPost);
-				newFiles.add(savedFile);
+		// 업데이트
+		reviewPost.update(reviewPostDto.getTitle(), reviewPostDto.getContent());
+		if (reviewPost.getFiles() != null) {
+			for (ReviewFile file : reviewPost.getFiles()) {
+				reviewFileService.deleteFile(file.getFileName());
 			}
 		}
+		reviewPost.clearFile();
 
-		// 업데이트
-		reviewPost.update(reviewPostDto.getTitle(), reviewPostDto.getContent(), newFiles);
-
-		reviewPostRepository.save(reviewPost);
+		if (files != null && !files.isEmpty()) {
+			for (MultipartFile file : files) {
+				ReviewFile reviewFile = reviewFileService.saveFile(file);
+				reviewPost.addFile(reviewFile);
+			}
+		}
 
 		return reviewPostDto.convertToDto(reviewPost);
 	}
@@ -112,6 +113,12 @@ public class ReviewPostService {
 		// 권한 확인 (작성자 또는 ADMIN)
 		if (!reviewPost.getUser().getEmail().equals(userEmail) && user.getRole() != Role.ADMIN) {
 			throw new UnauthorizedAccessException(ReviewPost.class);
+		}
+
+		if (reviewPost.getFiles() != null) {
+			for (ReviewFile file : reviewPost.getFiles()) {
+				reviewFileService.deleteFile(file.getFileName());
+			}
 		}
 
 		reviewPostRepository.delete(reviewPost);
