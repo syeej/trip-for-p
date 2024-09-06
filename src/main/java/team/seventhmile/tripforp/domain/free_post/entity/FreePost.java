@@ -38,15 +38,26 @@ public class FreePost extends BaseEntity {
     @ColumnDefault("0")
     private Integer views;
 
-    @Column
-    @OneToMany
+    @OneToMany(mappedBy = "freePost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FreeComment> comments;
 
-    public void update(String content,
-                       Integer views) {
+    // 수정 로직
+    public void update(String content) {
+        validateField(content, "Content");
+
         this.content = content;
-        this.views = views;
     }
 
+    // 조회 수 증가 로직
+    public void incrementViews() {
+        this.views += 1;
+    }
+
+    // Not Null 예외 처리 로직
+    public static void validateField(String field, String fieldName) {
+        if (field == null || field.isEmpty()) {
+            throw new IllegalArgumentException(fieldName + "은(는) 필수 입력 항목입니다.");
+        }
+    }
 }
 
