@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 
 @Getter
 @Setter
@@ -24,4 +25,10 @@ public class FreeCommentDto {
 	private Long postId;
 	private Long authorId;
 
+	public FreeCommentDto(FreeComment freeComment) {
+		this.id = freeComment.getId();
+		this.content = freeComment.getContent();
+		this.postId = freeComment.getFreePost().getId();
+		this.authorId = freeComment.getAuthor().getId();
+	}
 }
