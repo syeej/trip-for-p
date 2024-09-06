@@ -21,7 +21,7 @@ public class FreePostController {
 	@PostMapping
 	public FreePostDto createFreePost(
 		@AuthenticationPrincipal UserDetails user,
-		@RequestPart(value = "request") FreePostDto freePostDto) {
+		@RequestBody FreePostDto freePostDto) {
 		return freePostService.createFreePost(freePostDto, user.getUsername());
 	}
 
