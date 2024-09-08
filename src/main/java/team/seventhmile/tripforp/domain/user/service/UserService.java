@@ -168,22 +168,6 @@ public class UserService {
 		return UserInfoResponse.from(updatedUser);
 	}
 
-	//회원 탈퇴
-	@Transactional
-	public void deleteUser(UserDetails userDetails, HttpServletResponse response){
-		User user = userRepository.findByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
-		user.withdrawalUser();
-		//리프레시 토큰 삭제 (클라이언트도 access 토큰 삭제)
-		tokenService.deleteRefreshToken(userDetails.getUsername());
-		//Refresh 토큰 Cookie 값 0
-		Cookie cookie = new Cookie("refresh", null);
-		cookie.setMaxAge(0);
-		cookie.setPath("/api/users");
-		response.addCookie(cookie);
-		log.info("withdrawal tkservice {}", tokenService.getRefreshToken(userDetails.getUsername()));
-	}
-
 	//비밀번호 찾기(이메일 인증 후 비밀번호 재설정)
 	@Transactional
 	public ResponseEntity<?> findPassword(String email, String newPassword) {
@@ -211,5 +195,20 @@ public class UserService {
 			log.error("비밀번호 찾기 중 예기치 못한 에러가 발생했습니다.", e);
 			throw new AuthCustomException(ErrorCode.PASSWORD_CHANGE_ERROR);
 		}
+	}
+	//회원 탈퇴
+	@Transactional
+	public void deleteUser(UserDetails userDetails, HttpServletResponse response) {
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
+		user.withdrawalUser();
+		//리프레시 토큰 삭제 (클라이언트도 access 토큰 삭제해야함)
+		tokenService.deleteRefreshToken(userDetails.getUsername());
+		//Refresh 토큰 Cookie 값 0
+		Cookie cookie = new Cookie("refresh", null);
+		cookie.setMaxAge(0);
+		cookie.setPath("/api/users");
+		response.addCookie(cookie);
+		log.info("withdrawal tkservice {}", tokenService.getRefreshToken(userDetails.getUsername()));
 	}
 }

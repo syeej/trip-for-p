@@ -95,8 +95,8 @@ public class UserController {
 	@PatchMapping("/deletion")
 	public ResponseEntity<?> deleteUser(
 			@AuthenticationPrincipal UserDetails userDetails,
-			HttpServletResponse httpServletResponse){
-		userService.deleteUser(userDetails, httpServletResponse);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-	}
+			HttpServletResponse httpServletResponse) {
+        userService.deleteUser(userDetails, httpServletResponse);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
