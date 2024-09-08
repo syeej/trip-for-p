@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
 import team.seventhmile.tripforp.domain.user.entity.User;
@@ -60,6 +61,7 @@ public class Magazine extends BaseEntity {
 	private Integer views;
 
 	// 첨부 파일
+	@BatchSize(size = 100)
 	@OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<MagazineFile> files = new ArrayList<>();
