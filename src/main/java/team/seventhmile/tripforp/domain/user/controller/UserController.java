@@ -74,7 +74,7 @@ public class UserController {
 	public ResponseEntity<UserInfoResponse> updateUser(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@RequestBody UserInfoRequest userInfoReq) {
-
+		log.info("userController : userinfoReq {}", userInfoReq);
 		return ResponseEntity.ok(userService.updateInfo(userDetails, userInfoReq));
 	}
 

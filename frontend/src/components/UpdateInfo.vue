@@ -3,7 +3,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import axios from 'axios';
 import store from '@/store/index.js';
-import { verifyNickNameAPI } from '@/api';
+import { verifyNickNameAPI} from '@/api';
 
 const password = ref('');
 const passwordCheck = ref('');
@@ -29,7 +29,7 @@ const getUserInfoAPI = async () => {
   }
 
   try {
-    const response = await axios.get('/api/mypage/info', {
+    const response = await axios.get('/api/users/me', {
       headers: {
         access: `${accessToken}`,
       },
@@ -128,13 +128,12 @@ const updateUserInfo = async () => {
     }
 
     const updateUserRequest = {
-      password: password.value,
-      passwordCheck: passwordCheck.value,
+      password: passwordCheck.value,
       nickname: nickname.value,
     };
 
     // 사용자 정보 업데이트 API 호출
-    await axios.put('/api/mypage/info', updateUserRequest, {
+    await axios.patch('/api/users/me', updateUserRequest, {
       headers: {
         access: `${store.getters.getAccessToken}`,
       },
@@ -143,6 +142,7 @@ const updateUserInfo = async () => {
   } catch (error) {
     alert(error.message || '회원 정보 수정 중 오류가 발생했습니다.');
   }
+  window.location.reload();
 };
 </script>
 
@@ -263,7 +263,14 @@ const updateUserInfo = async () => {
   text-align: left;
   width: 100%;
 }
+/* 인증 메시지 결과에 따른 색상 */
+.verification-success {
+  color: #28a745;
+}
 
+.verification-failed {
+  color: #dc3545;
+}
 /* 반응형 스타일 */
 @media (max-width: 768px) {
   .update-password,
