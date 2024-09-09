@@ -1,8 +1,11 @@
 package team.seventhmile.tripforp.domain.user.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,6 +36,7 @@ public class UserService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final JwtUtil jwtUtil;
+	private final TokenService tokenService;
 
 	// 회원가입
 	@Transactional
@@ -105,6 +109,7 @@ public class UserService {
 				.build();
 
 			userRepository.save(updatedUser);
+			log.info("사용자 '{}'의 비밀번호 변경이 완료되었습니다.", username);
 
 			return new ResponseEntity<>("비밀번호 변경이 성공적으로 완료되었습니다.", HttpStatus.OK);
 		} catch (ExpiredJwtException e) {
@@ -145,6 +150,7 @@ public class UserService {
 	//개인정보 수정
 	@Transactional
 	public UserInfoResponse updateInfo(UserDetails userDetails, UserInfoRequest userInfoReq) {
+		log.info("userService : userinfoReq {}", userInfoReq);
 		User updatedUser = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
 		// 닉네임 업데이트 (수정 요청 있는 경우)
@@ -161,5 +167,49 @@ public class UserService {
 			updatedUser.updatePassword(newPassword);
 		}
 		return UserInfoResponse.from(updatedUser);
+	}
+
+	//비밀번호 찾기(이메일 인증 후 비밀번호 재설정)
+	@Transactional
+	public ResponseEntity<?> findPassword(String email, String newPassword) {
+		try {
+			Boolean isVerified = redisTemplate.opsForValue().get("EMAIL_VERIFIED:" + email) != null;
+			log.debug("사용자 {} 의 이메일 인증 상태: {}", email, isVerified);
+			if (!isVerified) {
+				log.error("이메일 인증을 다시 시도하세요 {}", email);
+				throw new AuthCustomException(ErrorCode.EMAIL_NOT_VERIFIED);
+			}
+
+			User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> {
+					log.error("데이터베이스에서 사용자를 찾을 수 없습니다.: {}", email);
+					return new AuthCustomException(ErrorCode.USER_NOT_FOUND_IN_DATABASE);
+				});
+
+			redisTemplate.delete("EMAIL_CODE:" + email);
+
+			//비밀번호 재설정
+			return resetPassword(email, newPassword);
+		} catch (AuthCustomException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("비밀번호 찾기 중 예기치 못한 에러가 발생했습니다.", e);
+			throw new AuthCustomException(ErrorCode.PASSWORD_CHANGE_ERROR);
+		}
+	}
+	//회원 탈퇴
+	@Transactional
+	public void deleteUser(UserDetails userDetails, HttpServletResponse response) {
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
+		user.withdrawalUser();
+		//리프레시 토큰 삭제 (클라이언트도 access 토큰 삭제해야함)
+		tokenService.deleteRefreshToken(userDetails.getUsername());
+		//Refresh 토큰 Cookie 값 0
+		Cookie cookie = new Cookie("refresh", null);
+		cookie.setMaxAge(0);
+		cookie.setPath("/api/users");
+		response.addCookie(cookie);
+		log.info("withdrawal tkservice {}", tokenService.getRefreshToken(userDetails.getUsername()));
 	}
 }

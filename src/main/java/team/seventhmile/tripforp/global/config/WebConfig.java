@@ -11,6 +11,6 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
 			.allowedOrigins("*") // 모든 도메인 허용
-			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+			.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
 	}
 }

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.user.dto.ApiResponse;
+import team.seventhmile.tripforp.domain.user.dto.FindPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.ModifyPasswordRequest;
 import team.seventhmile.tripforp.domain.user.dto.UserDto;
 import team.seventhmile.tripforp.domain.user.dto.UserInfoRequest;
@@ -72,7 +74,7 @@ public class UserController {
 	public ResponseEntity<UserInfoResponse> updateUser(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@RequestBody UserInfoRequest userInfoReq) {
-
+		log.info("userController : userinfoReq {}", userInfoReq);
 		return ResponseEntity.ok(userService.updateInfo(userDetails, userInfoReq));
 	}
 
@@ -82,4 +84,19 @@ public class UserController {
 		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
 		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
 	}
+
+	//비밀번호 찾기(비밀번호 재설정)
+	@PostMapping("password/renewal")
+	public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
+		return userService.findPassword(findPasswordRequest.getEmail(),
+			findPasswordRequest.getNewPassword());
+	}
+	//회원 탈퇴
+	@PatchMapping("/deletion")
+	public ResponseEntity<?> deleteUser(
+			@AuthenticationPrincipal UserDetails userDetails,
+			HttpServletResponse httpServletResponse) {
+        userService.deleteUser(userDetails, httpServletResponse);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
