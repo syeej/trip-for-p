@@ -1,7 +1,10 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
@@ -20,19 +23,15 @@ public class PlanLikeController {
     this.planLikeService = planLikeService;
   }
 
-  // 사용자로부터 여행 코스를 좋아요하는 요청 처리
+  // 좋아요 또는 좋아요 취소를 처리하는 엔드포인트
   @PostMapping
-  public ResponseEntity<PlanLikeResponseDto> likePlan(@RequestBody PlanLikeRequestDto requestDto) {
-    PlanLikeResponseDto responseDto =
-        planLikeService.likePlan(requestDto);
-    return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-  }
+  public ResponseEntity<PlanLikeResponseDto> toggleLikePlan(
+          @AuthenticationPrincipal UserDetails userDetails,
+          @RequestBody PlanLikeRequestDto requestDto) {
 
-  // 사용자로부터 좋아요를 취소하는 요청 처리
-  @DeleteMapping("/{likeId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void unlikePlan(@PathVariable Long likeId) {
-    planLikeService.unlikePlan(likeId);
+    // userDetails에서 이메일을 추출하여 서비스에 전달
+    PlanLikeResponseDto responseDto = planLikeService.toggleLikePlan(userDetails.getUsername(), requestDto.getPlanId());
+    return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
   // 좋아요 기준 상위 5개 여행코스 반환하는 엔드포인트
