@@ -2,8 +2,9 @@
 /* global kakao */
 import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute} from "vue-router";
-import {getPlanAPI} from "@/api";
+import {checkPlanLikeAPI, getPlanAPI, likePlanAPI} from "@/api";
 import router from "@/router";
+import store from "@/store";
 
 const mapContainer = ref(null);
 const currentDateIndex = ref(0);
@@ -14,6 +15,7 @@ const infowindows = ref([]);
 const plan = ref(null);
 const route = useRoute();
 const isMapInitialized = ref(false);
+const isLiked = ref(false);
 
 const loadKakaoMapScript = () => {
     return new Promise((resolve, reject) => {
@@ -91,7 +93,10 @@ const getPlan = async function () {
 
         await loadKakaoMapScript();
         await initMap();
-        updateMap();
+        await updateMap();
+        if (store.getters.isAccessTokenValid) {
+            await checkPlanLike();
+        }
     } catch (error) {
         console.log(error);
     }
@@ -253,6 +258,34 @@ const formatDate = (dateString) => {
     return `${year}.${month}.${day} ${hours}:${minutes}`;
 };
 
+const likePlan = async function () {
+    if (!store.getters.isAccessTokenValid) {
+        if (window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+            await router.push('/login');
+        }
+    } else {
+        try {
+            const request = {
+                planId: route.params.planId
+            }
+            await likePlanAPI(request);
+            isLiked.value = !isLiked.value; // 좋아요 상태 토글
+            plan.value.likeCount += isLiked.value ? 1 : -1; // 좋아요 수 업데이트
+        } catch (error) {
+            console.log(error);
+        }
+    }
+};
+
+const checkPlanLike = async function () {
+    try {
+        const response = await checkPlanLikeAPI(route.params.planId);
+        isLiked.value = response.data; // API 응답에 따라 isLiked 상태 설정
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 onMounted(() => {
     getPlan();
 });
@@ -280,7 +313,6 @@ watch(currentDate, () => {
         <div class="plan-info">
             <span>{{ plan.writer }}</span>
             <p>
-                <span>좋아요 {{ plan.likeCount }}</span>
                 <span>조회 {{ plan.views }}</span>
             </p>
         </div>
@@ -303,6 +335,12 @@ watch(currentDate, () => {
                     <p v-if="item.memo">메모: {{ item.memo }}</p>
                 </div>
             </div>
+        </div>
+
+        <div class="like-button-container">
+            <button @click="likePlan" class="like-button" :class="{ 'liked': isLiked }">
+                {{ isLiked ? '♥' : '♡' }} 좋아요 {{ plan.likeCount }}
+            </button>
         </div>
     </div>
 </template>
@@ -402,5 +440,40 @@ watch(currentDate, () => {
 .back-button {
     margin-bottom: 1em;
     cursor: pointer;
+}
+.like-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.like-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #ff4081;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.like-button:hover {
+    background-color: #e91e63;
+    transform: scale(1.05);
+}
+
+.like-button.liked {
+    background-color: #e91e63;
+}
+
+.like-button.liked:hover {
+    background-color: #c2185b;
+}
+
+.plan-detail-view {
+    width: 100%;
+    margin-top: 2em;
 }
 </style>
