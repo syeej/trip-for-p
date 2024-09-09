@@ -3,6 +3,8 @@ package team.seventhmile.tripforp.domain.free_comment.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
+import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.service.FreeCommentService;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.free_post.service.FreePostService;
@@ -37,9 +40,12 @@ public class FreeCommentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<FreeCommentDto>> getFreeComments(@PathVariable Long postId) {
+	public ResponseEntity<Page<GetFreeCommentDto>> getFreeComments(
+		@PathVariable Long postId,
+		Pageable pageable
+	) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
-		List<FreeCommentDto> freeComments = freeCommentService.getCommentsByPost(freePost);
+		Page<GetFreeCommentDto> freeComments = freeCommentService.getCommentsByPost(freePost, pageable);
 		return ResponseEntity.ok(freeComments);
 	}
 
