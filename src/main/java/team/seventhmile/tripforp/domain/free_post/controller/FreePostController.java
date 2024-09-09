@@ -3,12 +3,15 @@ package team.seventhmile.tripforp.domain.free_post.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import team.seventhmile.tripforp.domain.free_post.dto.FreePostDto;
 import team.seventhmile.tripforp.domain.free_post.service.FreePostService;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 
 
 @RestController
@@ -62,6 +65,15 @@ public class FreePostController {
 	@GetMapping("/{id}")
 	public FreePostDto getFreePostDetail(@PathVariable("id") Long id) {
 		return freePostService.getFreePostDetail(id);
+	}
+
+	// [마이페이지] 작성한 자유게시글 목록 조회
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/me")
+	public ResponseEntity<Page<FreePostDto>> getMyFreePostList(
+			@AuthenticationPrincipal UserDetails user,
+			Pageable pageable) {
+		return ResponseEntity.ok(freePostService.getMyFreePostList(user, pageable));
 	}
 }
 
