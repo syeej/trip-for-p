@@ -24,7 +24,7 @@ public class FreePostDto {
 
 	private Long id;
 
-	private Long userId;
+	private String author;
 
 	@NotBlank
 	@Size(max = 999999, message = "내용은 999999자를 초과할 수 없습니다.")
@@ -51,7 +51,7 @@ public class FreePostDto {
 	public static FreePostDto convertToDto(FreePost freePost) {
 		return FreePostDto.builder()
 			.id(freePost.getId())
-			.userId(freePost.getUser().getId())
+			.author(freePost.getUser().getNickname())
 			.content(freePost.getContent())
 			.views(freePost.getViews())
 			.createdAt(freePost.getCreatedAt())

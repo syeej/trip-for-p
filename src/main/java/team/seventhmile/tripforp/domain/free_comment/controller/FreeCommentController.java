@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
+import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.service.FreeCommentService;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.free_post.service.FreePostService;
@@ -38,9 +39,12 @@ public class FreeCommentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<FreeCommentDto>> getFreeComments(@PathVariable("postId") Long postId) {
+	public ResponseEntity<Page<GetFreeCommentDto>> getFreeComments(
+		@PathVariable("postId") Long postId,
+		Pageable pageable
+	) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
-		List<FreeCommentDto> freeComments = freeCommentService.getCommentsByPost(freePost);
+		Page<GetFreeCommentDto> freeComments = freeCommentService.getCommentsByPost(freePost, pageable);
 		return ResponseEntity.ok(freeComments);
 	}
 

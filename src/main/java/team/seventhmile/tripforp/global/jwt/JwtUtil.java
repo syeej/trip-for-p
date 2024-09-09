@@ -46,6 +46,12 @@ public class JwtUtil {
 			.get("role", String.class);
 	}
 
+	public String getNickname(String token) {
+
+		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+			.get("nickname", String.class);
+	}
+
 	public String getCategory(String token) {
 
 		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
@@ -59,11 +65,12 @@ public class JwtUtil {
 	}
 
 	// JWT 토큰 발급
-	public String createJwt(String category, String username, String role, Long expiredMs) {
+	public String createJwt(String category, String username, String nickname, String role, Long expiredMs) {
 
 		return Jwts.builder()
 			.claim("category", category)
 			.claim("username", username)
+			.claim("nickname", nickname)
 			.claim("role", role)
 			.issuedAt(new Date(System.currentTimeMillis()))
 			.expiration(new Date(System.currentTimeMillis() + expiredMs))
@@ -90,6 +97,7 @@ public class JwtUtil {
 		// 사용자 정보 가져오기
 		String username = getUsername(refresh);
 		String role = getRole(refresh);
+		String nickname = getNickname(refresh);
 
 		// 리프레시 토큰이 유효한지 확인
 		String redisRefreshToken = tokenService.getRefreshToken(username);
@@ -99,8 +107,8 @@ public class JwtUtil {
 		}
 
 		// 새로운 JWT 생성
-		String newAccess = createJwt("access", username, role, 600000L);
-		String newRefresh = createJwt("refresh", username, role, 86400000L);
+		String newAccess = createJwt("access", username, nickname, role, 600000L);
+		String newRefresh = createJwt("refresh", username, nickname, role, 86400000L);
 
 		// Redis에 새로운 Refresh Token 저장 (기존 토큰 대체)
 		tokenService.saveRefreshToken(username, newRefresh);

@@ -1,7 +1,5 @@
 package team.seventhmile.tripforp.domain.free_comment.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,12 +7,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
+import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.free_comment.repository.FreeCommentRepository;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
-import team.seventhmile.tripforp.domain.user.entity.User;  // 올바른 User import
+import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
+import team.seventhmile.tripforp.global.exception.UnauthorizedAccessException;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,11 +31,9 @@ public class FreeCommentService {
 	}
 
 	// 자유 게시판 댓글 조회
-	public List<FreeCommentDto> getCommentsByPost(FreePost freePost) {
-		List<FreeComment> comments = freeCommentRepository.findByFreePost(freePost);
-		return comments.stream()
-			.map(this::mapToDto)
-			.collect(Collectors.toList());
+	public Page<GetFreeCommentDto> getCommentsByPost(FreePost freePost, Pageable pageable) {
+		Page<FreeComment> comments = freeCommentRepository.findByFreePost(freePost, pageable);
+		return comments.map(GetFreeCommentDto::new);
 	}
 
 	// 자유 게시판 댓글 작성
@@ -68,8 +66,12 @@ public class FreeCommentService {
 	@Transactional
 	public void deleteComment(Long id, UserDetails user) {
 		User findUser = getUser(user);
-		FreeComment freeComment = freeCommentRepository.findByIdAndAuthor(id, findUser)
-			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
+		FreeComment freeComment = freeCommentRepository.findById(id)
+			.orElseThrow(() -> new ResourceNotFoundException(FreeComment.class, id));
+		if (!freeComment.getAuthor().getId().equals(findUser.getId()) && !freeComment.getFreePost()
+			.getUser().getId().equals(findUser.getId())) {
+			throw new UnauthorizedAccessException(FreeComment.class);
+		}
 		freeCommentRepository.delete(freeComment);
 	}
 
