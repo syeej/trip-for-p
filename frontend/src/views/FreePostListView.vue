@@ -95,7 +95,10 @@ onMounted(() => {
                 <div class="post-content">{{ post.content }}</div>
                 <div class="post-date">{{ formatRelativeTime(post.createdAt) }}</div>
             </div>
-            <div class="post-views">Views: {{ post.views }}</div>
+            <div class="post-footer">
+                <span class="post-views">조회수: {{ post.views }}</span>
+                <span class="post-comments">댓글: {{ post.comments.length }}</span>
+            </div>
         </div>
 
         <div class="search-container">
@@ -225,15 +228,9 @@ body, html {
     font-size: 16px;
 }
 
-.post-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
 .post-views {
     font-size: 14px;
-    color: #f39c12;
+    color: #888;
 }
 
 .pagination {
@@ -261,4 +258,28 @@ body, html {
 .pagination span {
     margin: 0 10px;
 }
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #888;
+}
+
+.post-views, .post-comments {
+    display: flex;
+    align-items: center;
+}
+
+.post-views::before {
+    content: '\1F441'; /* 눈 이모지 */
+    margin-right: 5px;
+}
+
+.post-comments::before {
+    content: '\1F4AC'; /* 말풍선 이모지 */
+    margin-right: 5px;
+}
+
 </style>
