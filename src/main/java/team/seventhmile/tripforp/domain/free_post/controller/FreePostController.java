@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import team.seventhmile.tripforp.domain.free_post.dto.FreePostDto;
 import team.seventhmile.tripforp.domain.free_post.service.FreePostService;
-import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 
 
 @RestController
