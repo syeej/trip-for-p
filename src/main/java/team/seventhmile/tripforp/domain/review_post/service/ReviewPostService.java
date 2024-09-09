@@ -1,7 +1,6 @@
 package team.seventhmile.tripforp.domain.review_post.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,9 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
 import team.seventhmile.tripforp.domain.file.entity.ReviewFile;
-import team.seventhmile.tripforp.domain.file.service.MagazineFileService;
 import team.seventhmile.tripforp.domain.file.service.ReviewFileService;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
