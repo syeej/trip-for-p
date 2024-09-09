@@ -3,9 +3,11 @@ package team.seventhmile.tripforp.external.alan.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import team.seventhmile.tripforp.external.alan.dto.AlanApiResponse;
@@ -50,9 +52,21 @@ public class AlanApiService {
             .encode()
             .toUriString();
 
-        String getContent = restTemplate.getForObject(url, AlanApiResponse.class).getContent();
+        try {
+            String getContent = Objects.requireNonNull(
+                restTemplate.getForObject(url, AlanApiResponse.class)).getContent();
+            return convertToHtml(getContent);
+        } catch (ResourceAccessException e) {
+            // 네트워크 또는 접근 실패 시 처리
+            return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.: 네트워크 오류";
+        } catch (NullPointerException e) {
+            // 응답이 null일 경우 처리
+            return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.: 데이터 없음";
+        } catch (Exception e) {
+            // 그 외 모든 예외 처리
+            return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.";
+        }
 
-        return convertToHtml(getContent);
     }
 
     public String convertToHtml(String text) {
