@@ -1,8 +1,14 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
@@ -40,5 +46,14 @@ public class PlanLikeController {
   public ResponseEntity<List<Plan>> getTop5PlansByLikes() {
     List<Plan> topPlans = planLikeService.getTop5PlansByLikes();
     return new ResponseEntity<>(topPlans, HttpStatus.OK);
+  }
+
+  //[마이페이지]내가 좋아요한 글 목록 조회
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/me")
+  public ResponseEntity<Page<GetPlanListResponse>> getMyFavPlanList(
+          @AuthenticationPrincipal UserDetails user,
+          Pageable pageable){
+    return ResponseEntity.ok(planLikeService.getMyFavPlanList(user, pageable));
   }
 }

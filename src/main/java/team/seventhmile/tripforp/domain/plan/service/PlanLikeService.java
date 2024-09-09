@@ -1,8 +1,12 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
@@ -57,5 +61,15 @@ public class PlanLikeService {
   // 좋아요 기준 상위5개 여행코스 반환 메서드
   public List<Plan> getTop5PlansByLikes() {
     return planLikeRepository.findTop5PlansByLikes();
+
+  }
+  //[마이페이지] 좋아요한 글 목록 조회
+  @Transactional(readOnly = true)
+  public Page<GetPlanListResponse> getMyFavPlanList(UserDetails user, Pageable pageable) {
+    Page<Plan> myFavPlans = planLikeRepository.findPlansByUserEmail(user.getUsername(), pageable);
+    return myFavPlans.map(plan -> {
+      long likeCount = planLikeRepository.countByPlanId(plan.getId());
+      return new GetPlanListResponse(plan, likeCount);
+    });
   }
 }
