@@ -2,6 +2,7 @@
 import {computed, onMounted, ref} from 'vue';
 import {getMagazineListAPI, getPopularPlaceListAPI, getPopularPlanListAPI} from "@/api";
 import locationImage from '@/assets/location.png'
+import router from "@/router";
 
 const magazines = ref([]);
 const places = ref([]);
@@ -47,12 +48,8 @@ const goToMagazineDetail = (id) => {
     console.log(`매거진 ${id}의 상세 페이지로 이동`);
 };
 
-const goToPlaceDetail = (id) => {
-    console.log(`장소 ${id}의 상세 페이지로 이동`);
-};
-
 const goToPlanDetail = (id) => {
-    console.log(`여행 코스 ${id}의 상세 페이지로 이동`);
+    router.push(`/plan/${id}`)
 };
 
 onMounted(() => {
@@ -86,7 +83,7 @@ onMounted(() => {
             <div class="grid">
                 <div v-for="place in places" :key="place.place.id"
                      class="item"
-                     @click="goToPlaceDetail(place.place.id)">
+                     >
                     <div class="image-container">
                         <img :src="getImageSrc(place.place.imageUrl)"
                              :alt="place.place.placeName"
