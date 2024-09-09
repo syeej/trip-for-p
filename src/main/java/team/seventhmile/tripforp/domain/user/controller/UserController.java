@@ -86,8 +86,9 @@ public class UserController {
 	}
 
 	//비밀번호 찾기(비밀번호 재설정)
-	@PostMapping("password/renewal")
-	public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
+	@PostMapping("/password/renewal")
+	public ResponseEntity<?> resetPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
+		log.info("controller : {}", findPasswordRequest.getNewPassword());
 		return userService.findPassword(findPasswordRequest.getEmail(),
 			findPasswordRequest.getNewPassword());
 	}

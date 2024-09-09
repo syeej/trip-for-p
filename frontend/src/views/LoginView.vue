@@ -15,7 +15,10 @@ const isFormValid = computed(() => {
 const goSignup = function () {
     router.push("/signup");
 }
-
+//비밀번호 재설정 화면 이동
+const goResetPassword = function () {
+  router.push("/resetpassword");
+}
 const goHome = function () {
     router.push("/");
 }
@@ -70,10 +73,19 @@ onMounted(() => {
                 <button @click="login" :disabled="!isFormValid">로그인</button>
 
             </div>
-            <div class="go-signup-button" @click="goSignup">
+<!--            <div class="go-signup-button" @click="goSignup">
                 <img src="@/assets/signup.png" alt="">
                 <span>회원가입</span>
+            </div>-->
+          <div class="login-actions">
+            <div class="go-signup-button" @click="goSignup">
+              <img src="@/assets/signup.png" alt="">
+              <span>회원가입</span>
             </div>
+            <div class="find-password-button" @click="goResetPassword">
+              <span>비밀번호 재설정</span>
+            </div>
+          </div>
         </div>
 
     </div>
@@ -188,7 +200,30 @@ onMounted(() => {
     color: #C5CCD2;
     font-family: 'Pretendard Variable', sans-serif;
 }
+/* 회원가입과 비밀번호 찾기 버튼 컨테이너 */
+.login-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
 
+/* 회원가입 버튼과 비밀번호 찾기 버튼 공통 스타일 */
+.go-signup-button,
+.find-password-button {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  margin: 0 10px;
+}
+
+.go-signup-button span,
+.find-password-button span {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 15px;
+  color: #888888;
+  margin-left: 5px;
+  line-height: 16px;
+}
 /* 반응형 스타일 */
 @media (max-width: 768px) {
     .login-email,
@@ -203,16 +238,24 @@ onMounted(() => {
 }
 
 @media (max-width: 480px) {
-    .login-email,
-    .login-password {
+  .login-email,
+  .login-password {
         height: 45px;
         font-size: 12px;
         padding-left: 40px;
-    }
-    .login-form button {
-        height: 40px;
-        font-size: 12px;
-    }
+  }
+  .login-form button {
+    height: 40px;
+    font-size: 12px;
+  }
+  .login-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  .go-signup-button,
+  .find-password-button {
+    margin: 5px 0;
+  }
 }
 
 </style>

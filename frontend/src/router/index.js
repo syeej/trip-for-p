@@ -15,6 +15,7 @@ import store from "@/store";
 import WriteFreePostView from "@/views/WriteFreePostView.vue";
 import FreePostDetailView from "@/views/FreePostDetailView.vue";
 import EditFreePostView from "@/views/EditFreePostView.vue";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
 const routes = [
     {
@@ -94,7 +95,11 @@ const routes = [
         path: '/review-post',
         name: 'ReviewPostList',
         component: ReviewPostListView
-    },
+    }, {
+        path: '/resetpassword',
+        name: 'ResetPassword',
+        component: ResetPasswordView
+    }
 ]
 
 const router = createRouter({
