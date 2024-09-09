@@ -57,6 +57,11 @@ public class UserService {
 			throw new AuthCustomException(ErrorCode.EMAIL_ALREADY_IN_USE);
 		}
 
+		// 닉네임 중복 체크
+		if (isDuplicatedNickname(userDto.getNickname())) {
+			throw new AuthCustomException(ErrorCode.NICKNAME_ALREADY_IN_USE);
+		}
+
 		//이메일 인증 상태 확인
 		Boolean isVerified =
 			redisTemplate.opsForValue().get("EMAIL_VERIFIED:" + userDto.getEmail()) != null;
@@ -150,6 +155,7 @@ public class UserService {
 	//개인정보 수정
 	@Transactional
 	public UserInfoResponse updateInfo(UserDetails userDetails, UserInfoRequest userInfoReq) {
+		log.info("userService : userinfoReq {}", userInfoReq);
 		User updatedUser = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
 		// 닉네임 업데이트 (수정 요청 있는 경우)

@@ -7,5 +7,7 @@ import team.seventhmile.tripforp.domain.plan.entity.PlanLike;
 @Repository
 public interface PlanLikeRepository extends JpaRepository<PlanLike, Long> {
 
+    PlanLike findByUserIdAndPlanId(Long userId, Long planId);
+
     int countByPlanId(Long planId); // 좋아요 개수 계산 메서드
 }

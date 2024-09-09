@@ -74,7 +74,7 @@ public class UserController {
 	public ResponseEntity<UserInfoResponse> updateUser(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@RequestBody UserInfoRequest userInfoReq) {
-
+		log.info("userController : userinfoReq {}", userInfoReq);
 		return ResponseEntity.ok(userService.updateInfo(userDetails, userInfoReq));
 	}
 
@@ -91,13 +91,12 @@ public class UserController {
 		return userService.findPassword(findPasswordRequest.getEmail(),
 			findPasswordRequest.getNewPassword());
 	}
-
 	//회원 탈퇴
 	@PatchMapping("/deletion")
 	public ResponseEntity<?> deleteUser(
 			@AuthenticationPrincipal UserDetails userDetails,
 			HttpServletResponse httpServletResponse) {
-		userService.deleteUser(userDetails, httpServletResponse);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-	}
+        userService.deleteUser(userDetails, httpServletResponse);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

@@ -78,7 +78,7 @@ const verifyEmailAPI = async function (request) {
         }
     }
 }
-//[회원가입] 닉네임 중복 검사
+//[회원가입, 개인정보수정] 닉네임 중복 검사
 const verifyNickNameAPI = async function(request) {
     var nickname = request
     try {
