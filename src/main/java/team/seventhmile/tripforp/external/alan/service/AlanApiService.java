@@ -3,6 +3,8 @@ package team.seventhmile.tripforp.external.alan.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -32,12 +34,12 @@ public class AlanApiService {
 
     }
 
-    public AlanApiResponse getRecommendationsByArea(String clientId,
+    public String getRecommendationsByArea(String clientId,
         AreaRecsRequest request) {
         String area = request.getArea();
         String startDate = request.getStartDate().toString();
         String endDate = request.getEndDate().toString();
-        
+
         String content = URLEncoder.encode(
             startDate + "~" + endDate + "까지 " + area + " 지역 기반의 특별한 여행지 또는 체험, 축제 추천해줘",
             StandardCharsets.UTF_8);
@@ -47,7 +49,53 @@ public class AlanApiService {
             .queryParam("client_id", clientId)
             .encode()
             .toUriString();
-        return restTemplate.getForObject(url, AlanApiResponse.class);
 
+        String getContent = restTemplate.getForObject(url, AlanApiResponse.class).getContent();
+
+        return convertToHtml(getContent);
+    }
+
+    public String convertToHtml(String text) {
+        StringBuilder html = new StringBuilder();
+        html.append("<html><body>\n");
+
+        // 텍스트를 줄 단위로 분할
+        String[] lines = text.split("\n");
+
+        for (String line : lines) {
+            if (line.startsWith("###")) {
+                // ### 헤더를 h3 태그로 변환
+                html.append("<h3>").append(line.substring(4)).append("</h3>\n");
+            } else if (line.startsWith("##")) {
+                // ## 헤더를 h2 태그로 변환
+                html.append("<h2>").append(line.substring(3)).append("</h2>\n");
+            } else if (line.matches("^\\d+\\.\\s.*")) {
+                // 번호 매긴 목록을 <ol> 태그로 변환
+                if (!html.toString().endsWith("</ol>\n")) {
+                    html.append("<ol>\n");
+                }
+                html.append("<li>").append(line.replaceFirst("^\\d+\\.\\s", "")).append("</li>\n");
+            } else if (!line.trim().isEmpty()) {
+                // <ol>이 열려있다면 닫기
+                if (html.toString().endsWith("</li>\n")) {
+                    html.append("</ol>\n");
+                }
+                // 일반 텍스트를 <p> 태그로 변환
+                html.append("<p>").append(line).append("</p>\n");
+            }
+        }
+
+        // <ol>이 아직 열려있다면 닫기
+        if (html.toString().endsWith("</li>\n")) {
+            html.append("</ol>\n");
+        }
+
+        // **굵은 텍스트**를 <strong> 태그로 변환
+        Pattern boldPattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
+        Matcher boldMatcher = boldPattern.matcher(html);
+        html = new StringBuilder(boldMatcher.replaceAll("<strong>$1</strong>"));
+
+        html.append("</body></html>");
+        return html.toString();
     }
 }
