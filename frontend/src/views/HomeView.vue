@@ -107,6 +107,11 @@ onMounted(() => {
                 <div v-for="plan in plans" :key="plan.id"
                      class="item"
                      @click="goToPlanDetail(plan.id)">
+                    <div class="image-container">
+                        <img :src="getImageSrc(plan.imageUrl)"
+                             :alt="plan.title"
+                             class="item-image">
+                    </div>
                     <div class="item-content">
                         <h2 class="item-title">{{ plan.title }}</h2>
                         <p class="item-description">좋아요: {{ plan.likeCount }}</p>

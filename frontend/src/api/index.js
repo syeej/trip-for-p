@@ -104,7 +104,7 @@ const getPopularPlaceListAPI = function () {
 };
 
 const getPopularPlanListAPI = function () {
-    return instance.get(`/api/plan-likes/top6`);
+    return instance.get(`/api/plans/popular-plans`);
 };
 
 export {getPopularPlanListAPI, getPopularPlaceListAPI, processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI, getMagazineListAPI}
