@@ -94,7 +94,8 @@ public class ReviewCommentService {
 			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 	}
 
-	//[마이페이지] 내가 작성한 리뷰 댓글 목록 조회
+	//[마이페이지] 리뷰게시글 내가 작성한 댓글 목록 조회
+	@Transactional(readOnly = true)
     public Page<ReviewCommentDto> getMyreviewCommentList(UserDetails user, Pageable pageable) {
 		return reviewCommentRepository.findByAuthor_Email(user.getUsername(), pageable)
 				.map(ReviewCommentDto::convertToDto);

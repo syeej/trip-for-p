@@ -3,6 +3,8 @@ package team.seventhmile.tripforp.domain.free_comment.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,4 +95,11 @@ public class FreeCommentService {
 		return userRepository.findByEmail(user.getUsername())
 			.orElseThrow(() -> new ResourceNotFoundException(User.class));
 	}
+
+	//[마이페이지] 자유게시글 내가 작성한 댓글 목록 조회
+	@Transactional(readOnly = true)
+    public Page<FreeCommentDto> getMyFreeCommentsList(UserDetails user, Pageable pageable) {
+		return freeCommentRepository.findByAuthor_Email(user.getUsername(), pageable)
+				.map(FreeCommentDto::convertToDto);
+    }
 }

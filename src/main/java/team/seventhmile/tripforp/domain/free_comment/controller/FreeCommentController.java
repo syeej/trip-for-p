@@ -3,6 +3,8 @@ package team.seventhmile.tripforp.domain.free_comment.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +22,6 @@ import team.seventhmile.tripforp.domain.free_comment.dto.FreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.service.FreeCommentService;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.free_post.service.FreePostService;
-import team.seventhmile.tripforp.domain.user.entity.User;
 
 @RestController
 @RequestMapping("/api/free-posts/{postId}/comments")
@@ -37,7 +38,7 @@ public class FreeCommentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<FreeCommentDto>> getFreeComments(@PathVariable Long postId) {
+	public ResponseEntity<List<FreeCommentDto>> getFreeComments(@PathVariable("postId") Long postId) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
 		List<FreeCommentDto> freeComments = freeCommentService.getCommentsByPost(freePost);
 		return ResponseEntity.ok(freeComments);
@@ -46,7 +47,7 @@ public class FreeCommentController {
 	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public ResponseEntity<FreeCommentDto> createFreeComment(
-		@PathVariable Long postId,
+		@PathVariable("postId") Long postId,
 		@Valid @RequestBody FreeCommentDto commentDto,
 		@AuthenticationPrincipal UserDetails user) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
@@ -77,4 +78,13 @@ public class FreeCommentController {
 		return ResponseEntity.noContent().build();
 	}
 
+	//[마이페이지]자유게시글 내가 작성한 댓글 목록 조회
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/me")
+	public ResponseEntity<Page<FreeCommentDto>> getMyFreeComments(
+			@AuthenticationPrincipal UserDetails user,
+			Pageable pageable,
+			@PathVariable("postId") Long postId){
+		return ResponseEntity.ok(freeCommentService.getMyFreeCommentsList(user, pageable));
+	}
 }

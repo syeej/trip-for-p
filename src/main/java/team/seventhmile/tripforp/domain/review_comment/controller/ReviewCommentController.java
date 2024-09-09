@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.review_comment.dto.ReviewCommentDto;
 import team.seventhmile.tripforp.domain.review_comment.service.ReviewCommentService;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
 import team.seventhmile.tripforp.domain.review_post.service.ReviewPostService;
-import team.seventhmile.tripforp.domain.user.entity.User;
 
 @RestController
 @RequestMapping("/api/review-posts/{postId}/comments")
@@ -40,7 +38,7 @@ public class ReviewCommentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<ReviewCommentDto>> getReviewComments(@PathVariable Long postId) {
+	public ResponseEntity<List<ReviewCommentDto>> getReviewComments(@PathVariable("postId") Long postId) {
 		ReviewPost reviewPost = reviewPostService.getReviewPostEntity(postId);
 		List<ReviewCommentDto> reviewComments = reviewCommentService.getCommentsByPost(reviewPost);
 		return ResponseEntity.ok(reviewComments);
