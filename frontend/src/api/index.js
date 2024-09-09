@@ -11,7 +11,8 @@ const createAuthInstance = function () {
 const authInstance = createAuthInstance();
 
 const getPlanListAPI = function (request) {
-    return instance.get(`/api/plans?area=${request.area}&size=${request.size}&page=${request.page}`)
+    return instance.get(
+        `/api/plans?area=${request.area}&size=${request.size}&page=${request.page}`)
 }
 
 const processAlanAPI = function (request) {
@@ -30,14 +31,15 @@ const createPlanAPI = function (request) {
 const createUserAPI = async function (request) {
     //return instance.post(`/api/users/registration`, request);
     try {
-        const response = await instance.post(`/api/users/registration`, request);
+        const response = await instance.post(`/api/users/registration`,
+            request);
         return response.data;
     } catch (error) {
         console.log("회원가입", error);
         if (error.response) {
             throw error.response.data;
         } else {
-            throw { message: "네트워크 오류가 발생했습니다." };
+            throw {message: "네트워크 오류가 발생했습니다."};
         }
     }
 }
@@ -54,13 +56,14 @@ const loginAPI = function (formData) {
 //[회원가입] 인증코드 이메일 전송
 const sendVerificationEmailAPI = async function (request) {
     try {
-        const response = await instance.post(`/api/mails/send-verification`, request);
+        const response = await instance.post(`/api/mails/send-verification`,
+            request);
         return response.data;
     } catch (error) {
         if (error.response) {
             throw error.response.data;
         } else {
-            throw { message: "네트워크 오류가 발생했습니다." };
+            throw {message: "네트워크 오류가 발생했습니다."};
         }
     }
 }
@@ -68,35 +71,38 @@ const sendVerificationEmailAPI = async function (request) {
 //[회원가입] 인증코드 검증
 const verifyEmailAPI = async function (request) {
     try {
-        const response = await instance.post(`/api/mails/verification`, request);
+        const response = await instance.post(`/api/mails/verification`,
+            request);
         return response.data;
     } catch (error) {
         if (error.response) {
             throw error.response.data;
         } else {
-            throw { message: "네트워크 오류가 발생했습니다." };
+            throw {message: "네트워크 오류가 발생했습니다."};
         }
     }
 }
 //[회원가입, 개인정보수정] 닉네임 중복 검사
-const verifyNickNameAPI = async function(request) {
+const verifyNickNameAPI = async function (request) {
     var nickname = request
     try {
-        const response = await instance.get(`/api/users/nickname-verification`, {
-            params: { nickname }
-        });
+        const response = await instance.get(`/api/users/nickname-verification`,
+            {
+                params: {nickname}
+            });
         return response.data;
     } catch (error) {
         if (error.response) {
             throw error.response.data;
         } else {
-            throw { message: "네트워크 오류가 발생했습니다." };
+            throw {message: "네트워크 오류가 발생했습니다."};
         }
     }
 }
 
 const getMagazineListAPI = function (request) {
-    return instance.get(`/api/magazines?size=${request.size}&page=${request.page}`);
+    return instance.get(
+        `/api/magazines?size=${request.size}&page=${request.page}`);
 }
 
 const getPopularPlaceListAPI = function () {
@@ -107,4 +113,67 @@ const getPopularPlanListAPI = function () {
     return instance.get(`/api/plans/popular-plans`);
 };
 
-export {getPopularPlanListAPI, getPopularPlaceListAPI, processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI, getMagazineListAPI}
+const getFreePostListAPI = function (request) {
+    return instance.get(
+        `/api/free-posts?keyword=${request.keyword}&size=${request.size}&page=${request.page}`);
+}
+
+const createFreePostAPI = function (request) {
+    return authInstance.post(`/api/free-posts`, request);
+};
+
+const updateFreePostAPI = function (id, request) {
+    return authInstance.put(`/api/free-posts/${id}`, request)
+};
+
+const deleteFreePostAPI = function (id) {
+    return authInstance.delete(`/api/free-posts/${id}`);
+};
+
+const createFreeCommentAPI = function (request) {
+    return authInstance.post(`/api/free-posts/${request.postId}/comments`,
+        request);
+};
+
+const updateFreeCommentAPI = function (id, request) {
+    return authInstance.put(
+        `/api/free-posts/${request.postId}/comments/${id}`,
+        request);
+};
+
+const deleteFreeCommentAPI = function (id, postId) {
+    return authInstance.delete(`/api/free-posts/${postId}/comments/${id}`);
+};
+
+const getFreePostAPI = function (id) {
+    return instance.get(`/api/free-posts/${id}`);
+};
+
+const getFreeCommentListAPI = function (request) {
+    return instance.get(`/api/free-posts/${request.postId}/comments?&sort=createdAt,desc&size=${request.size}&page=${request.page}`)
+}
+
+
+export {
+    getPopularPlanListAPI,
+    getPopularPlaceListAPI,
+    processAlanAPI,
+    createPlanAPI,
+    createUserAPI,
+    loginAPI,
+    getPlanAPI,
+    getPlanListAPI,
+    sendVerificationEmailAPI,
+    verifyEmailAPI,
+    verifyNickNameAPI,
+    getMagazineListAPI,
+    getFreePostListAPI,
+    createFreePostAPI,
+    getFreePostAPI,
+    getFreeCommentListAPI,
+    createFreeCommentAPI,
+    updateFreeCommentAPI,
+    deleteFreeCommentAPI,
+    updateFreePostAPI,
+    deleteFreePostAPI
+}

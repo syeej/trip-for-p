@@ -12,6 +12,9 @@ import MypageView from "@/views/MypageView.vue";
 import PlanListView from "@/views/PlanListView.vue";
 import ReviewPostListView from "@/views/ReviewPostListView.vue";
 import store from "@/store";
+import WriteFreePostView from "@/views/WriteFreePostView.vue";
+import FreePostDetailView from "@/views/FreePostDetailView.vue";
+import EditFreePostView from "@/views/EditFreePostView.vue";
 
 const routes = [
     {
@@ -69,6 +72,21 @@ const routes = [
         path: '/free-post',
         name: 'FreePostList',
         component: FreePostListView
+    },
+    {
+        path: '/free-post/write',
+        name: 'WriteFreePost',
+        component: WriteFreePostView
+    },
+    {
+        path: '/free-post/:postId/edit',
+        name: 'EditFreePost',
+        component: EditFreePostView
+    },
+    {
+        path: '/free-post/:postId',
+        name: 'FreePostDetail',
+        component: FreePostDetailView
     },
     {
         path: '/review-post',
