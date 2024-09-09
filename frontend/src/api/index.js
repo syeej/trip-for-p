@@ -95,4 +95,8 @@ const verifyNickNameAPI = async function(request) {
     }
 }
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI}
+const getMagazineListAPI = function (request) {
+    return instance.get(`api/magazines?size=${request.size}&page=${request.page}`);
+}
+
+export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI, getMagazineListAPI}
