@@ -1,8 +1,6 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
@@ -12,8 +10,6 @@ import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,10 +43,5 @@ public class PlanLikeService {
       planLikeRepository.save(newLike);
       return new PlanLikeResponseDto(true, "좋아요 완료");
     }
-  }
-
-  // 좋아요 기준 상위5개 여행코스 반환 메서드
-  public List<Plan> getTop5PlansByLikes() {
-    return planLikeRepository.findTop5PlansByLikes();
   }
 }

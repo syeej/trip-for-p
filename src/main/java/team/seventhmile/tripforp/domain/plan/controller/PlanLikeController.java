@@ -1,6 +1,5 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,10 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
-import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.service.PlanLikeService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/plan-likes")
@@ -32,12 +28,5 @@ public class PlanLikeController {
     // userDetails에서 이메일을 추출하여 서비스에 전달
     PlanLikeResponseDto responseDto = planLikeService.toggleLikePlan(userDetails.getUsername(), requestDto.getPlanId());
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
-  }
-
-  // 좋아요 기준 상위 5개 여행코스 반환하는 엔드포인트
-  @GetMapping("/top5")
-  public ResponseEntity<List<Plan>> getTop5PlansByLikes() {
-    List<Plan> topPlans = planLikeService.getTop5PlansByLikes();
-    return new ResponseEntity<>(topPlans, HttpStatus.OK);
   }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
@@ -139,5 +141,9 @@ public class PlanService {
                 planItemDtos
             );
         }).collect(Collectors.toList());
+    }
+
+    public List<GetPopularPlanResponse> getPopularPlanList() {
+        return planRepository.getPopularPlans(PageRequest.of(0, 6));
     }
 }
