@@ -18,6 +18,7 @@ public class MagazineFileService {
 
 	@Autowired
 	private AmazonS3 s3Client;
+
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
@@ -30,7 +31,6 @@ public class MagazineFileService {
 		s3Client.putObject(
 			new PutObjectRequest(bucket, fileName, file.getInputStream(), metaData));
 		String url = s3Client.getUrl(bucket, fileName).toString();
-
 
 		return MagazineFile.builder()
 			.fileName(fileName)

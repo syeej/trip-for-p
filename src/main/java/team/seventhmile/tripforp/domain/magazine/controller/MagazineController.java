@@ -3,6 +3,7 @@ package team.seventhmile.tripforp.domain.magazine.controller;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,8 @@ import team.seventhmile.tripforp.domain.magazine.service.MagazineService;
 @RequestMapping("/api/magazines")
 public class MagazineController {
 
-	private final MagazineService magazineService;
+	@Autowired
+	private MagazineService magazineService;
 
 	/**
 	 * 매거진 게시글을 작성합니다.

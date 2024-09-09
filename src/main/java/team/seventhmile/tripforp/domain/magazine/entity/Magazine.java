@@ -73,7 +73,7 @@ public class Magazine extends BaseEntity {
 	 * @param content 수정할 내용
 	 * @param files 첨부할 파일 목록
 	 */
-	public void update(String title, String content) {
+	public void update(String title, String content, List<MagazineFile> files) {
 		// 필드 유효성 검사
 		ValidationUtils.validateField(title, "Title");
 		ValidationUtils.validateField(content, "Content");
@@ -81,6 +81,9 @@ public class Magazine extends BaseEntity {
 		// 제목, 내용 및 파일 목록 업데이트
 		this.title = title;
 		this.content = content;
+		this.files.clear();
+		this.files.addAll(files);
+		files.forEach(file -> file.setMagazine(this));
 	}
 
 	/**

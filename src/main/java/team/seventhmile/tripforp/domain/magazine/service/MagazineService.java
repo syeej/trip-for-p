@@ -1,5 +1,6 @@
 package team.seventhmile.tripforp.domain.magazine.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import team.seventhmile.tripforp.domain.file.entity.File;
-import team.seventhmile.tripforp.domain.file.service.FileService;
+import team.seventhmile.tripforp.domain.file.entity.MagazineFile;
+import team.seventhmile.tripforp.domain.file.service.MagazineFileService;
 import team.seventhmile.tripforp.domain.magazine.dto.MagazineDto;
 import team.seventhmile.tripforp.domain.magazine.entity.Magazine;
 import team.seventhmile.tripforp.domain.magazine.repository.MagazineRepository;
@@ -26,13 +27,14 @@ public class MagazineService {
 
 	private final MagazineRepository magazineRepository;
 	private final UserRepository userRepository;
-	private final FileService fileService;
+	private final MagazineFileService fileService;
 
 
 	// 매거진 글 작성하기
 	@Transactional
 	public MagazineDto createMagazinePost(MagazineDto magazineDto, String userEmail,
 		List<MultipartFile> files) {
+
 		// 현재 로그인된 사용자 가져오기
 		User user = userRepository.findByEmail(userEmail)
 			.orElseThrow(() -> new ResourceNotFoundException(User.class));
@@ -47,9 +49,13 @@ public class MagazineService {
 		// 첨부 파일 처리
 		if (files != null && !files.isEmpty()) {
 			for (MultipartFile file : files) {
-				File savedFile = fileService.saveFile(file);
-				savedFile.setMagazine(magazine);
-				magazine.getFiles().add(savedFile);
+				try {
+					MagazineFile savedFile = fileService.saveFile(file);
+					savedFile.setMagazine(magazine);
+					magazine.getFiles().add(savedFile);
+				} catch (IOException e) {
+					throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
+				}
 			}
 		}
 
@@ -73,12 +79,16 @@ public class MagazineService {
 		Magazine magazine = magazineRepository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException(Magazine.class));
 
-		List<File> newFiles = new ArrayList<>();
+		List<MagazineFile> newFiles = new ArrayList<>();
 		if (files != null && !files.isEmpty()) {
 			for (MultipartFile file : files) {
-				File savedFile = fileService.saveFile(file);
-				savedFile.setMagazine(magazine);
-				newFiles.add(savedFile);
+				try {
+					MagazineFile savedFile = fileService.saveFile(file);
+					savedFile.setMagazine(magazine);
+					newFiles.add(savedFile);
+				} catch (IOException e) {
+					throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
+				}
 			}
 		}
 
@@ -89,6 +99,7 @@ public class MagazineService {
 
 		return MagazineDto.convertToDto(magazine);
 	}
+
 
 	// 매거진 글 삭제
 	@Transactional
@@ -107,8 +118,8 @@ public class MagazineService {
 		}
 
 		if (magazine.getFiles() != null && !magazine.getFiles().isEmpty()) {
-			for (File file : magazine.getFiles()) {
-				fileService.deleteFile(file.getId());
+			for (MagazineFile file : magazine.getFiles()) {
+				fileService.deleteFile(file.getFileName());
 			}
 		}
 
@@ -146,6 +157,5 @@ public class MagazineService {
 		Page<Magazine> magazines = magazineRepository.getMagazineKeywordContaining(
 			keyword.trim(), pageable);
 		return magazines.map(MagazineDto::convertToDto);
-
 	}
 }
