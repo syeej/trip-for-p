@@ -13,8 +13,6 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class PlanLikeService {
@@ -52,10 +50,5 @@ public class PlanLikeService {
   @Transactional
   public void unlikePlan(Long likeId) {
     planLikeRepository.deleteById(likeId);
-  }
-
-  // 좋아요 기준 상위5개 여행코스 반환 메서드
-  public List<Plan> getTop5PlansByLikes() {
-    return planLikeRepository.findTop5PlansByLikes();
   }
 }

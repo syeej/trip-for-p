@@ -24,6 +24,7 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlaceCountResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.service.PlanItemService;
@@ -104,5 +105,10 @@ public class PlanController {
     @GetMapping("/popular-places")
     public ResponseEntity<List<GetPlaceCountResponse>> getPopularPlaces() {
         return ResponseEntity.ok(planItemService.getPlaceCount());
+    }
+
+    @GetMapping("/popular-plans")
+    public ResponseEntity<List<GetPopularPlanResponse>> getPopularPlans() {
+        return ResponseEntity.ok(planService.getPopularPlanList());
     }
 }

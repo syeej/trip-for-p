@@ -2,13 +2,16 @@ package team.seventhmile.tripforp.domain.plan.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
-import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.service.PlanLikeService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/plan-likes")
@@ -33,12 +36,5 @@ public class PlanLikeController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void unlikePlan(@PathVariable Long likeId) {
     planLikeService.unlikePlan(likeId);
-  }
-
-  // 좋아요 기준 상위 5개 여행코스 반환하는 엔드포인트
-  @GetMapping("/top5")
-  public ResponseEntity<List<Plan>> getTop5PlansByLikes() {
-    List<Plan> topPlans = planLikeService.getTop5PlansByLikes();
-    return new ResponseEntity<>(topPlans, HttpStatus.OK);
   }
 }
