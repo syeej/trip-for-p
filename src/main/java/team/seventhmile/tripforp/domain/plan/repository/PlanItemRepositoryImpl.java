@@ -21,7 +21,7 @@ public class PlanItemRepositoryImpl implements PlanItemRepositoryCustom {
     public List<GetPlaceCountResponse> getPlaceCount(Pageable pageable) {
         return queryFactory
             .select(new QGetPlaceCountResponse(
-                qPlanItem.place.id.as("placeId"),
+                qPlanItem.place,
                 qPlanItem.count().as("count")
             ))
             .from(qPlanItem)

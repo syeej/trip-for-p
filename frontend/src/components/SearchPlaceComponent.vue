@@ -1,26 +1,60 @@
 <script setup>
-/* global kakao */
-import {defineEmits, onMounted, ref} from 'vue';
+import {defineEmits, ref} from 'vue';
+import axios from "axios";
 
 const searchQuery = ref('');
 const searchResults = ref([]);
 const searchInputRef = ref(null);
-const isKakaoMapsLoaded = ref(false);
 const emit = defineEmits(['place-selected']);
 
-const searchPlace = () => {
-    if (!searchQuery.value) return;
-    if (!isKakaoMapsLoaded.value) {
-        console.error('Kakao Maps SDK is not loaded yet');
-        return;
+const getCategoryName = (contentTypeId) => {
+    switch (contentTypeId) {
+        case '12': return '관광지';
+        case '14': return '문화시설';
+        case '15': return '축제공연행사';
+        case '25': return '여행코스';
+        case '28': return '레포츠';
+        case '32': return '숙박';
+        case '38': return '쇼핑';
+        case '39': return '음식점';
+        default: return '기타';
     }
+};
 
-    const places = new kakao.maps.services.Places();
-    places.keywordSearch(searchQuery.value, (result, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-            searchResults.value = result;
+const searchPlace = async () => {
+    if (!searchQuery.value) return;
+
+    try {
+        const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/searchKeyword1', {
+            params: {
+                serviceKey: 'F/sLTLlpPGmlONOSmj+M4GwQ+U8R74pgGnRGKPC5NaRolK/ubpOQ84pcC6UmTSbEoAeBmK6Ndc+beaNrHs7zLw==',
+                numOfRows: 10,
+                pageNo: 1,
+                MobileOS: 'ETC',
+                MobileApp: 'AppTest',
+                _type: 'json',
+                listYN: 'Y',
+                arrange: 'A',
+                keyword: searchQuery.value
+            }
+        });
+
+        if (response.data.response.header.resultCode === '0000') {
+            searchResults.value = response.data.response.body.items.item.map(item => ({
+                id: item.contentid,
+                address_name: item.addr1,
+                category_name: getCategoryName(item.contenttypeid),
+                place_name: item.title,
+                x: item.mapx,
+                y: item.mapy,
+                image_url: item.firstimage || ''
+            }));
+        } else {
+            console.error('API 오류:', response.data.response.header.resultMsg);
         }
-    });
+    } catch (error) {
+        console.error('검색 중 오류 발생:', error);
+    }
 };
 
 const selectPlace = (place) => {
@@ -34,18 +68,6 @@ const scrollToInput = () => {
         searchInputRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 };
-
-onMounted(() => {
-    const checkKakaoMaps = () => {
-        if (window.kakao && window.kakao.maps) {
-            isKakaoMapsLoaded.value = true;
-        } else {
-            setTimeout(checkKakaoMaps, 300);
-        }
-    };
-
-    checkKakaoMaps();
-});
 </script>
 
 <template>

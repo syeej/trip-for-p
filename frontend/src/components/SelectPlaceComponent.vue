@@ -324,9 +324,9 @@ const generatePlan = async () => {
             places.map(item => ({
                 place: {
                     addressName: item.place.address_name,
-                    categoryName: item.place.category_name.split(' > ')[0] === '음식점' ? '음식점' : item.place.category_name.split(' > ')[1],
+                    categoryName: item.place.category_name,
                     placeName: item.place.place_name,
-                    placeUrl: item.place.place_url,
+                    imageUrl: item.place.image_url,
                     x: item.place.x,
                     y: item.place.y
                 },

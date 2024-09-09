@@ -96,7 +96,11 @@ const verifyNickNameAPI = async function(request) {
 }
 
 const getMagazineListAPI = function (request) {
-    return instance.get(`api/magazines?size=${request.size}&page=${request.page}`);
+    return instance.get(`/api/magazines?size=${request.size}&page=${request.page}`);
 }
 
-export {processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI, getMagazineListAPI}
+const getPopularPlaceListAPI = function () {
+    return instance.get(`/api/plans/popular-places`);
+};
+
+export {getPopularPlaceListAPI, processAlanAPI, createPlanAPI, createUserAPI, loginAPI, getPlanAPI, getPlanListAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI, getMagazineListAPI}
