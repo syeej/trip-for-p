@@ -53,17 +53,25 @@ const getFreeCommentList = async function () {
 };
 
 const submitComment = async () => {
-    try {
-        const request = {
-            postId: route.params.postId,
-            content: newComment.value
-        };
-        await createFreeCommentAPI(request);
-        newComment.value = '';
-        await getFreeCommentList();
-    } catch (error) {
-        console.log(error);
+    if (!store.getters.isAccessTokenValid) {
+        if (window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+            await router.push('/login');
+        }
+    } else {
+        try {
+
+            const request = {
+                postId: route.params.postId,
+                content: newComment.value
+            };
+            await createFreeCommentAPI(request);
+            newComment.value = '';
+            await getFreeCommentList();
+        } catch (error) {
+            console.log(error);
+        }
     }
+
 };
 
 // 상대적 시간 포맷팅 함수 추가

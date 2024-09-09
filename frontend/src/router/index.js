@@ -76,12 +76,14 @@ const routes = [
     {
         path: '/free-post/write',
         name: 'WriteFreePost',
-        component: WriteFreePostView
+        component: WriteFreePostView,
+        meta: { requiresAuth: true }
     },
     {
         path: '/free-post/:postId/edit',
         name: 'EditFreePost',
-        component: EditFreePostView
+        component: EditFreePostView,
+        meta: { requiresAuth: true }
     },
     {
         path: '/free-post/:postId',
