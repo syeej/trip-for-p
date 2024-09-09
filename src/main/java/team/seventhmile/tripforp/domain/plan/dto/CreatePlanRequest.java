@@ -2,7 +2,6 @@ package team.seventhmile.tripforp.domain.plan.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -24,7 +23,7 @@ public class CreatePlanRequest {
     private LocalDate startDate;
 
     @NotNull(message = "도착 날짜는 필수입니다.")
-    @Future(message = "도착 날짜는 미래의 날짜여야 합니다.")
+    @FutureOrPresent(message = "도착 날짜는 현재 또는 미래의 날짜여야 합니다.")
     private LocalDate endDate;
 
     @NotBlank(message = "제목은 필수입니다.")
