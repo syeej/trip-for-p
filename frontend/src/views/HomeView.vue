@@ -127,7 +127,7 @@ onMounted(() => {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 5rem 1rem 0 1rem;
 }
 
 .section-title {
