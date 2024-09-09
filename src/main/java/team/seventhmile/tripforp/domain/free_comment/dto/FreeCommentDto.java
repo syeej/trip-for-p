@@ -31,4 +31,14 @@ public class FreeCommentDto {
 		this.postId = freeComment.getFreePost().getId();
 		this.authorId = freeComment.getAuthor().getId();
 	}
+	// Entity -> Dto 변환
+	public static FreeCommentDto convertToDto(FreeComment freeComment) {
+		return FreeCommentDto.builder()
+				.id(freeComment.getId())
+				.content(freeComment.getContent())
+				.postId(freeComment.getFreePost().getId())
+				.authorId(freeComment.getAuthor().getId())
+				.build();
+	}
+
 }

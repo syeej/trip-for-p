@@ -23,7 +23,6 @@ import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.service.FreeCommentService;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
 import team.seventhmile.tripforp.domain.free_post.service.FreePostService;
-import team.seventhmile.tripforp.domain.user.entity.User;
 
 @RestController
 @RequestMapping("/api/free-posts/{postId}/comments")
@@ -41,7 +40,7 @@ public class FreeCommentController {
 
 	@GetMapping
 	public ResponseEntity<Page<GetFreeCommentDto>> getFreeComments(
-		@PathVariable Long postId,
+		@PathVariable("postId") Long postId,
 		Pageable pageable
 	) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
@@ -52,7 +51,7 @@ public class FreeCommentController {
 	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public ResponseEntity<FreeCommentDto> createFreeComment(
-		@PathVariable Long postId,
+		@PathVariable("postId") Long postId,
 		@Valid @RequestBody FreeCommentDto commentDto,
 		@AuthenticationPrincipal UserDetails user) {
 		FreePost freePost = freePostService.getFreePostEntity(postId);
@@ -83,4 +82,13 @@ public class FreeCommentController {
 		return ResponseEntity.noContent().build();
 	}
 
+	//[마이페이지]자유게시글 내가 작성한 댓글 목록 조회
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/me")
+	public ResponseEntity<Page<FreeCommentDto>> getMyFreeComments(
+			@AuthenticationPrincipal UserDetails user,
+			Pageable pageable,
+			@PathVariable("postId") Long postId){
+		return ResponseEntity.ok(freeCommentService.getMyFreeCommentsList(user, pageable));
+	}
 }
