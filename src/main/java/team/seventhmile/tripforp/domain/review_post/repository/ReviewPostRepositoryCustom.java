@@ -17,4 +17,6 @@ public interface ReviewPostRepositoryCustom {
 	// 사용자가 작성한 Plan 조회
 	List<Plan> findUserPlans(User user);
 
+	//[마이페이지] 내가 작성한 리뷰 게시글 목록 조회
+	Page<ReviewPost> getMyReviews(String email, Pageable pageable);
 }

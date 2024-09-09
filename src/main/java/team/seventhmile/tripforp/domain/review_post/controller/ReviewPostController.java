@@ -5,6 +5,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -68,5 +70,13 @@ public class ReviewPostController {
 	@GetMapping("/{id}")
 	public ReviewPostDto getReviewPostDetail(@PathVariable("id") Long id) {
 		return reviewPostService.getReviewPostDetail(id);
+	}
+
+	//마이페이지 - 사용자가 작성한 리뷰 게시글 목록 조회
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/me")
+	public ResponseEntity<Page<ReviewPostDto>> getMyReviewPostList(@AuthenticationPrincipal UserDetails user,
+																   Pageable pageable){
+		return ResponseEntity.ok(reviewPostService.getMyReviewList(user, pageable));
 	}
 }
