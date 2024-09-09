@@ -10,18 +10,20 @@ import team.seventhmile.tripforp.domain.plan.entity.Place;
 @Getter
 public class PlaceDto {
 
+    private Long id;
     private String addressName;
     private String categoryName;
     private String placeName;
-    private String placeUrl;
+    private String imageUrl;
     private double x;
     private double y;
 
     public PlaceDto(Place place) {
+        this.id = place.getId();
         this.addressName = place.getAddressName();
         this.categoryName = place.getCategoryName();
         this.placeName = place.getPlaceName();
-        this.placeUrl = place.getPlaceUrl();
+        this.imageUrl = place.getImageUrl();
         this.x = place.getX();
         this.y = place.getY();
     }

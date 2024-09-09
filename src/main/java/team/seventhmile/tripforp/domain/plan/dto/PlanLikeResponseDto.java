@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class PlanLikeResponseDto {
-    private Long id;
-    private Long userId;
-    private Long planId;
+    private boolean liked;
+    private String message;
 }

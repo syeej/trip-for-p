@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.QGetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.QGetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 import team.seventhmile.tripforp.domain.plan.entity.QPlan;
@@ -90,6 +92,38 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
             .leftJoin(qPlanItem.place).fetchJoin()
             .where(qPlan.id.eq(id))
             .fetchOne();
+    }
+
+    @Override
+    public List<GetPopularPlanResponse> getPopularPlans(Pageable pageable) {
+
+        QPlanItem subPlanItem = new QPlanItem("subPlanItem");
+
+        return queryFactory
+            .select(new QGetPopularPlanResponse(
+                qPlan,
+                qPlanLike.count(),
+                JPAExpressions
+                    .select(subPlanItem.place.imageUrl)
+                    .from(subPlanItem)
+                    .where(subPlanItem.plan.eq(qPlan)
+                        .and(subPlanItem.place.imageUrl.isNotEmpty())
+                        .and(subPlanItem.sequence.eq(
+                            JPAExpressions
+                                .select(subPlanItem.sequence.min())
+                                .from(subPlanItem)
+                                .where(subPlanItem.plan.eq(qPlan)
+                                    .and(subPlanItem.place.imageUrl.isNotEmpty()))
+                        )))
+                    .limit(1)
+            ))
+            .from(qPlan)
+            .leftJoin(qPlan.planLikes, qPlanLike)
+            .groupBy(qPlan.id)
+            .orderBy(qPlanLike.count().desc(), qPlan.id.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     private BooleanExpression equalArea(String area) {
