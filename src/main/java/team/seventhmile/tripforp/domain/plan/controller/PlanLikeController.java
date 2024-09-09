@@ -8,7 +8,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import team.seventhmile.tripforp.domain.plan.dto.CheckPlanLikeRequest;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeRequestDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanLikeResponseDto;
@@ -49,8 +48,8 @@ public class PlanLikeController {
   @GetMapping("/check")
   public ResponseEntity<Boolean> checkPlanLike(
       @AuthenticationPrincipal UserDetails user,
-      @RequestBody CheckPlanLikeRequest request
+      @RequestParam(name = "planId") Long planId
   ) {
-    return ResponseEntity.ok(planLikeService.checkPlanLike(user.getUsername(), request.getPlanId()));
+    return ResponseEntity.ok(planLikeService.checkPlanLike(user.getUsername(), planId));
   }
 }
