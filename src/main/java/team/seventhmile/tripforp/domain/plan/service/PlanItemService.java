@@ -61,7 +61,7 @@ public class PlanItemService {
     }
 
     public List<GetPlaceCountResponse> getPlaceCount() {
-        return planItemRepository.getPlaceCount(PageRequest.of(0, 5));
+        return planItemRepository.getPlaceCount(PageRequest.of(0, 6));
     }
 
 }

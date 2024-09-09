@@ -1,10 +1,11 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue';
-import {getMagazineListAPI, getPopularPlaceListAPI} from "@/api";
+import {getMagazineListAPI, getPopularPlaceListAPI, getPopularPlanListAPI} from "@/api";
 import locationImage from '@/assets/location.png'
 
 const magazines = ref([]);
 const places = ref([]);
+const plans = ref([]);
 
 const getMagazineList = async function() {
     try {
@@ -29,6 +30,15 @@ const getPopularPlaceList = async function () {
     }
 };
 
+const getPopularPlanList = async function () {
+    try {
+        const response = await getPopularPlanListAPI();
+        plans.value = response.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const getImageSrc = computed(() => (imageUrl) => {
     return imageUrl && imageUrl.trim() !== '' ? imageUrl : locationImage;
 });
@@ -41,9 +51,14 @@ const goToPlaceDetail = (id) => {
     console.log(`장소 ${id}의 상세 페이지로 이동`);
 };
 
+const goToPlanDetail = (id) => {
+    console.log(`여행 코스 ${id}의 상세 페이지로 이동`);
+};
+
 onMounted(() => {
     getMagazineList();
     getPopularPlaceList();
+    getPopularPlanList();
 })
 </script>
 
@@ -55,7 +70,9 @@ onMounted(() => {
                 <div v-for="magazine in magazines" :key="magazine.id"
                      class="item"
                      @click="goToMagazineDetail(magazine.id)">
-                    <img :src="magazine.fileUrls[0]" :alt="magazine.title" class="item-image">
+                    <div class="image-container">
+                        <img :src="magazine.fileUrls[0]" :alt="magazine.title" class="item-image">
+                    </div>
                     <div class="item-content">
                         <h2 class="item-title">{{ magazine.title }}</h2>
                         <p class="item-description">{{ magazine.description }}</p>
@@ -70,12 +87,29 @@ onMounted(() => {
                 <div v-for="place in places" :key="place.place.id"
                      class="item"
                      @click="goToPlaceDetail(place.place.id)">
-                    <img :src="getImageSrc(place.place.imageUrl)"
-                         :alt="place.place.placeName"
-                         class="item-image">
+                    <div class="image-container">
+                        <img :src="getImageSrc(place.place.imageUrl)"
+                             :alt="place.place.placeName"
+                             class="item-image">
+                    </div>
                     <div class="item-content">
                         <h2 class="item-title">{{ place.place.placeName }}</h2>
+                        <p class="item-address">{{ place.place.addressName }}</p>
                         <p class="item-description">방문 횟수: {{ place.count }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="popular-plans-section">
+            <h1 class="section-title">인기 여행 코스</h1>
+            <div class="grid">
+                <div v-for="plan in plans" :key="plan.id"
+                     class="item"
+                     @click="goToPlanDetail(plan.id)">
+                    <div class="item-content">
+                        <h2 class="item-title">{{ plan.title }}</h2>
+                        <p class="item-description">좋아요: {{ plan.likeCount }}</p>
                     </div>
                 </div>
             </div>
@@ -120,24 +154,62 @@ onMounted(() => {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.item-image {
+.image-container {
     width: 100%;
-    height: 200px;
+    height: 0;
+    padding-bottom: 66.67%; /* 3:2 비율 */
+    position: relative;
+    overflow: hidden;
+}
+
+.item-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    object-position: center;
 }
 
 .item-content {
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .item-title {
     font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
     color: #222;
+    margin: 0;
+}
+
+.item-address {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
 }
 
 .item-description {
+    font-size: 0.9rem;
+    color: #444;
+    margin: 0.5rem 0 0 0;
+}
+.popular-plans-section .item {
+    padding: 1.5rem;
+}
+
+.popular-plans-section .item-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 0.5rem;
+}
+
+.popular-plans-section .item-description {
     font-size: 0.9rem;
     color: #666;
 }
