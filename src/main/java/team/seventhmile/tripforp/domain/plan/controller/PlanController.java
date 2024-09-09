@@ -1,6 +1,7 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlaceCountResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.service.PlanItemService;
 import team.seventhmile.tripforp.domain.plan.service.PlanService;
 
 @RestController
@@ -32,6 +35,7 @@ import team.seventhmile.tripforp.domain.plan.service.PlanService;
 public class PlanController {
 
     private final PlanService planService;
+    private final PlanItemService planItemService;
 
     /**
      * 여행 코스를 등록합니다.
@@ -95,5 +99,10 @@ public class PlanController {
         Pageable pageable
     ) {
         return ResponseEntity.ok(planService.getMyPlanList(user, pageable));
+    }
+
+    @GetMapping("/popular-places")
+    public ResponseEntity<List<GetPlaceCountResponse>> getPopularPlaces() {
+        return ResponseEntity.ok(planItemService.getPlaceCount());
     }
 }

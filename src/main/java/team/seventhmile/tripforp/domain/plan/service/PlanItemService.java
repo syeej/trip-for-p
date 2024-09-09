@@ -1,9 +1,13 @@
 package team.seventhmile.tripforp.domain.plan.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlaceCountResponse;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.entity.Place;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
@@ -54,6 +58,10 @@ public class PlanItemService {
                 .build();
             plan.addPlanItem(planItem);
         }
+    }
+
+    public List<GetPlaceCountResponse> getPlaceCount() {
+        return planItemRepository.getPlaceCount(PageRequest.of(0, 5));
     }
 
 }
