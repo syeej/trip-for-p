@@ -197,7 +197,7 @@ onMounted(() => {
             ]">
           {{ verificationMessage }}
         </p>
-        <input type="password" class="signup-password" placeholder="비밀번호" v-model="password">
+        <input type="password" class="signup-password" placeholder="비밀번호 (영문 대/소문자, 숫자 조합 8~16자)" v-model="password">
         <input type="password" class="signup-password-check" placeholder="비밀번호 확인" v-model="passwordCheck">
 <!--        <input type="text" class="signup-nickname" placeholder="닉네임" v-model="nickname">-->
         <!-- 닉네임 입력 및 중복 검사 -->
@@ -380,7 +380,7 @@ onMounted(() => {
 .signup-password-check::placeholder,
 .signup-nickname::placeholder,
 .signup-verification::placeholder {
-  font-size: 15px;
+  font-size: 14px;
   color: #C5CCD2;
   font-family: 'Pretendard Variable', sans-serif;
 }
@@ -436,6 +436,13 @@ onMounted(() => {
     font-size: 12px;
     padding-left: 40px;
   }
+    .signup-email::placeholder,
+    .signup-password::placeholder,
+    .signup-password-check::placeholder,
+    .signup-nickname::placeholder,
+    .signup-verification::placeholder {
+        font-size: 11px;
+    }
   .verification-button,
   .verify-button,
   .signup-form button {
