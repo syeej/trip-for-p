@@ -18,6 +18,9 @@ import AdminView from "@/views/AdminView.vue";
 import WriteMagazineView from "@/views/WriteMagazineView.vue";
 import MagazineDetailView from "@/views/MagazineDetailView.vue";
 import EditMagazineView from "@/views/EditMagazineView.vue";
+import WriteReviewPostView from "@/views/WriteReviewPostView.vue";
+import ReviewPostDetailView from "@/views/ReviewPostDetailView.vue";
+import EditReviewPostView from "@/views/EditReviewPostView.vue";
 
 const routes = [
     {
@@ -89,6 +92,23 @@ const routes = [
         path: '/review-post',
         name: 'ReviewPostList',
         component: ReviewPostListView
+    },
+    {
+        path: '/review-post/write',
+        name: 'WriteReviewPost',
+        component: WriteReviewPostView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/review-post/:postId/edit',
+        name: 'EditReviewPost',
+        component: EditReviewPostView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/review-post/:postId',
+        name: 'ReviewPostDetail',
+        component: ReviewPostDetailView
     },
     {
         path: '/resetpassword',

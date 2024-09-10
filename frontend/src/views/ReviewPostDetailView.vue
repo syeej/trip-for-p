@@ -2,10 +2,10 @@
 import {computed, onMounted, ref} from "vue";
 import { useRoute } from "vue-router";
 import {
-    getFreeCommentListAPI,
-    getFreePostAPI,
-    createFreeCommentAPI,
-    updateFreeCommentAPI, deleteFreeCommentAPI, deleteFreePostAPI
+    getReviewCommentListAPI,
+    getReviewPostAPI,
+    createReviewCommentAPI,
+    updateReviewCommentAPI, deleteReviewCommentAPI, deleteReviewPostAPI
 } from "@/api";
 import store from "@/store";
 import router from "@/router";
@@ -27,25 +27,25 @@ const currentUserNickname = computed(() => store.getters.getNickname);
 const isPostAuthor = computed(() => currentUserNickname.value === post.value.author);
 const isAdmin = computed(() => store.getters.getRole==='ADMIN')
 
-const getFreePost = async function () {
+const getReviewPost = async function () {
     try {
         const postId = route.params.postId;
-        const response = await getFreePostAPI(postId);
+        const response = await getReviewPostAPI(postId);
         post.value = response.data;
-        await getFreeCommentList();
+        await getReviewCommentList();
     } catch (error) {
         console.log(error);
     }
 };
 
-const getFreeCommentList = async function () {
+const getReviewCommentList = async function () {
     try {
         const request = {
             postId: route.params.postId,
             size: pageSize.value,
             page: currentPage.value - 1,
         }
-        const response = await getFreeCommentListAPI(request);
+        const response = await getReviewCommentListAPI(request);
         comments.value = response.data.content;
         totalPages.value = response.data.totalPages === 0 ? 1 : response.data.totalPages;
     } catch (error) {
@@ -60,19 +60,17 @@ const submitComment = async () => {
         }
     } else {
         try {
-
             const request = {
                 postId: route.params.postId,
                 content: newComment.value
             };
-            await createFreeCommentAPI(request);
+            await createReviewCommentAPI(request);
             newComment.value = '';
-            await getFreeCommentList();
+            await getReviewCommentList();
         } catch (error) {
             console.log(error);
         }
     }
-
 };
 
 // 상대적 시간 포맷팅 함수 추가
@@ -118,7 +116,7 @@ const formatDateFull = (dateString) => {
 
 const changePage = async (page) => {
     currentPage.value = page;
-    await getFreeCommentList();
+    await getReviewCommentList();
 };
 
 const startEditComment = (comment) => {
@@ -137,8 +135,8 @@ const saveEditComment = async (id) => {
             postId: route.params.postId,
             content: editingCommentContent.value,
         }
-        await updateFreeCommentAPI(id, request);
-        await getFreeCommentList(); // 댓글 목록 새로고침
+        await updateReviewCommentAPI(id, request);
+        await getReviewCommentList(); // 댓글 목록 새로고침
         cancelEditComment();
     } catch (error) {
         console.error('댓글 수정 실패:', error);
@@ -148,8 +146,8 @@ const saveEditComment = async (id) => {
 const deleteComment = async (id) => {
     if (window.confirm('댓글을 삭제하시겠습니까?')) {
         try {
-            await deleteFreeCommentAPI(id, route.params.postId);
-            await getFreeCommentList();
+            await deleteReviewCommentAPI(id, route.params.postId);
+            await getReviewCommentList();
         } catch (error) {
             console.log(error);
         }
@@ -157,37 +155,50 @@ const deleteComment = async (id) => {
 };
 
 const editPost = () => {
-    router.push(`/free-post/${route.params.postId}/edit`);
+    router.push(`/review-post/${route.params.postId}/edit`);
 };
 
 const deletePost = async (id) => {
-    if (window.confirm("게시글을 삭제하시겠습니까?")) {
+    if (window.confirm("리뷰를 삭제하시겠습니까?")) {
         try {
-            await deleteFreePostAPI(id);
-            await router.push(`/free-post`)
+            await deleteReviewPostAPI(id);
+            await router.push(`/review-post`)
         } catch (error) {
             console.log(error);
         }
     }
 };
 
-
+const goToPlan = () => {
+    if (post.value.planId) {
+        router.push(`/plan/${post.value.planId}`);
+    }
+};
 
 onMounted(() => {
-    getFreePost();
+    getReviewPost();
 });
 </script>
 
 <template>
-    <div class="post-detail-container">
-        <div class="post-content">
-            <p class="post-info">
+    <div class="review-detail-container">
+        <div class="review-content">
+            <h2 class="review-title">{{ post.title }}</h2>
+            <p class="review-info">
                 <span>작성자: {{ post.author }}</span>
                 <span>작성일: {{ formatDateFull(post.createdAt) }}</span>
                 <span>조회수: {{ post.views }}</span>
             </p>
-            <pre class="post-body">{{ post.content }}</pre>
-            <div v-if="isPostAuthor || isAdmin" class="post-actions">
+            <div class="review-body">
+                <pre class="review-content-text">{{ post.content }}</pre>
+                <div v-if="post.fileUrls && post.fileUrls.length > 0" class="review-images">
+                    <img v-for="(image, index) in post.fileUrls" :key="index" :src="image" :alt="`Review image ${index + 1}`">
+                </div>
+                <div v-if="post.planId" class="plan-link-container">
+                    <button @click="goToPlan" class="plan-link">이 리뷰와 관련된 여행 코스 보기</button>
+                </div>
+            </div>
+            <div v-if="isPostAuthor || isAdmin" class="review-actions">
                 <button v-if="isPostAuthor" @click="editPost" class="edit-btn">수정</button>
                 <button @click="deletePost(post.id)" class="delete-btn">삭제</button>
             </div>
@@ -227,13 +238,20 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.post-detail-container {
+.review-detail-container {
     width: 100%;
     padding: 20px;
     margin-top: 50px;
 }
 
-.post-content {
+.review-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.review-content {
     background-color: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -243,31 +261,80 @@ onMounted(() => {
     position: relative;
 }
 
-.post-actions {
+.review-actions {
     position: absolute;
     bottom: 20px;
     right: 20px;
 }
-
-h2 {
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.post-info {
+.review-info {
     color: #666;
     font-size: 14px;
     margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.post-info span {
+.review-info span {
     margin-right: 15px;
+    margin-bottom: 5px;
 }
-
-.post-body {
+.review-body {
     line-height: 1.6;
     color: #333;
-    margin-bottom: 40px; /* 버튼을 위한 여백 */
+    margin-bottom: 40px;
+}
+
+.review-content-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: left;
+    margin: 30px 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: 20px;
+    line-height: inherit;
+    max-width: 100%;
+    overflow-x: auto;
+
+}
+
+.review-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;  /* 이미지와 plan-link 사이의 간격 */
+}
+
+.review-images img {
+    max-width: 300px;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.plan-link-container {
+    margin-top: 20px;  /* plan-link 위의 간격 */
+    width: 100%;
+}
+
+.plan-link {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #0066cc;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.plan-link:hover {
+    background-color: #004499;
 }
 
 .comments-section {
@@ -359,7 +426,7 @@ h3 {
     margin: 0 10px;
 }
 
-.post-actions, .comment-actions {
+.review-actions, .comment-actions {
     margin-top: 10px;
 }
 
@@ -385,6 +452,7 @@ h3 {
 .edit-btn:hover, .delete-btn:hover {
     opacity: 0.8;
 }
+
 .edit-comment-textarea {
     width: 100%;
     min-height: 60px;

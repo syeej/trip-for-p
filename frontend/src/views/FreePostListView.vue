@@ -81,7 +81,7 @@ onMounted(() => {
 
 <template>
     <div class="post-board-container">
-        <h2>게시글 목록</h2>
+        <h2>자유게시판</h2>
 
         <div class="board-header">
             <button @click="createPost" class="create-post-btn">게시글 작성</button>
@@ -90,10 +90,11 @@ onMounted(() => {
         <div v-for="post in posts" :key="post.id" class="post" @click="goToPostDetail(post.id)">
             <div class="post-header">
                 <span class="post-author">{{ post.author }}</span>
+                <div class="post-date">{{ formatRelativeTime(post.createdAt) }}</div>
             </div>
             <div class="post-content-container">
                 <div class="post-content">{{ post.content }}</div>
-                <div class="post-date">{{ formatRelativeTime(post.createdAt) }}</div>
+
             </div>
             <div class="post-footer">
                 <span class="post-views">조회수: {{ post.views }}</span>
