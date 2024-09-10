@@ -1,6 +1,7 @@
 import store from "@/store";
 import router from "@/router";
 import jwtDecoder from 'vue-jwt-decode';
+import {refreshTokenAPI} from "@/api/index";
 
 const setInterceptors = function (instance) {
     instance.interceptors.request.use(
@@ -12,16 +13,23 @@ const setInterceptors = function (instance) {
 
                 // 토큰 만료 시간 확인
                 if (decodedToken.exp < currentTime) {
-                    // 토큰이 만료된 경우: 로그아웃하거나 토큰 갱신
-                    store.commit('clearData');
-                    alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-                    await router.push('/login');
-                    // 추가적으로, 토큰 갱신 로직을 넣을 수 있음
-                    return Promise.reject('Token expired');
+                    try {
+                        const response = await refreshTokenAPI();
+                        const newToken = response.headers.access;
+                        console.log(newToken)
+                        store.commit('setAccessToken', newToken);
+                        config.headers.access = newToken;
+                    } catch (error) {
+                        // 리프레시 토큰도 만료된 경우
+                        store.commit('clearData');
+                        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+                        await router.push('/login');
+                        return Promise.reject('Token expired');
+                    }
+                } else {
+                    // 토큰이 유효하면 Authorization 헤더에 추가
+                    config.headers.access = token;
                 }
-
-                // 토큰이 유효하면 Authorization 헤더에 추가
-                config.headers.access = token;
             }
 
             return config;
@@ -33,19 +41,32 @@ const setInterceptors = function (instance) {
 
     instance.interceptors.response.use(
         (response) => {
-            return response
+            return response;
         },
         async (error) => {
-            // 인증 실패 처리 (401 에러 처리)
-            if (error.response && error.response.status === 401) {
-                store.commit('clearData');  // 토큰 삭제
-                alert('인증에 실패했습니다. 다시 로그인해주세요.');
-                await router.push('/login');
+            const originalRequest = error.config;
+            console.log(error.response.status)
+            // 액세스 토큰 만료로 인한 401 에러 && 재시도하지 않은 요청
+            if (error.response.status === 401) {
+
+                try {
+                    const response = await refreshTokenAPI();
+                    const newToken = response.headers.access;
+                    store.commit('setAccessToken', newToken);
+                    instance.defaults.headers.common['access'] = newToken;
+                    return instance(originalRequest);
+                } catch (refreshError) {
+                    // 리프레시 토큰도 만료된 경우
+                    store.commit('clearData');
+                    alert('인증에 실패했습니다. 다시 로그인해주세요.');
+                    await router.push('/login');
+                    return Promise.reject(refreshError);
+                }
             }
 
             return Promise.reject(error);
         }
-    )
+    );
     return instance
 }
 
