@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 
+import java.time.ZonedDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,11 +26,24 @@ public class FreeCommentDto {
 
 	private Long postId;
 	private Long authorId;
+	private ZonedDateTime createdAt;
 
 	public FreeCommentDto(FreeComment freeComment) {
 		this.id = freeComment.getId();
 		this.content = freeComment.getContent();
 		this.postId = freeComment.getFreePost().getId();
 		this.authorId = freeComment.getAuthor().getId();
+		this.createdAt = freeComment.getCreatedAt();
 	}
+	// Entity -> Dto 변환
+	public static FreeCommentDto convertToDto(FreeComment freeComment) {
+		return FreeCommentDto.builder()
+				.id(freeComment.getId())
+				.content(freeComment.getContent())
+				.postId(freeComment.getFreePost().getId())
+				.authorId(freeComment.getAuthor().getId())
+				.createdAt(freeComment.getCreatedAt())
+				.build();
+	}
+
 }

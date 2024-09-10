@@ -1,9 +1,9 @@
 package team.seventhmile.tripforp.domain.free_post.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.free_post.dto.FreePostDto;
@@ -123,6 +123,13 @@ public class FreePostService {
 	public FreePost getFreePostEntity(Long id) {
 		return freePostRepository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException(FreePost.class, id));
+	}
+
+	// 내가 작성한 자유게시글 조회
+	@Transactional(readOnly = true)
+	public Page<FreePostDto> getMyFreePostList(UserDetails user, Pageable pageable) {
+		return freePostRepository.findByUserEmailOrderByCreatedAtDesc(user.getUsername(), pageable)
+				.map(FreePostDto::convertToDto);
 	}
 
 }

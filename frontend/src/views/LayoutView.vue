@@ -8,7 +8,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <div v-if="route.path !== '/signup' && route.path !== '/login'" class="app-header" :key="$route.path">
+    <div v-if="route.path !== '/signup' && route.path !== '/login' && route.path !== '/resetpassword'" class="app-header" :key="$route.path">
         <HeaderComponent/>
     </div>
     <div class="app-content">
@@ -41,7 +41,7 @@ const route = useRoute();
     width: 100%;
     height: 100px;
     flex-shrink: 0;
-    margin-top: 100px;
+    margin-top: 50px;
     border-top: 1px solid #ccc; /* 테스트용 경계선 */
 }
 @media (max-width: 1024px) {

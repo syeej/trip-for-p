@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import team.seventhmile.tripforp.domain.review_comment.entity.ReviewComment;
+
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -23,4 +26,16 @@ public class ReviewCommentDto {
 
 	private Long postId;
 	private Long authorId;
+	private ZonedDateTime createdAt;
+
+	// Entity -> Dto 변환
+	public static ReviewCommentDto convertToDto(ReviewComment reviewComment) {
+		return ReviewCommentDto.builder()
+				.id(reviewComment.getId())
+				.content(reviewComment.getContent())
+				.postId(reviewComment.getReviewPost().getId())
+				.authorId(reviewComment.getAuthor().getId())
+				.createdAt(reviewComment.getCreatedAt())
+				.build();
+	}
 }

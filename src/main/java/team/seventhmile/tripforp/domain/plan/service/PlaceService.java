@@ -24,7 +24,7 @@ public class PlaceService {
                     .addressName(request.getAddressName())
                     .categoryName(request.getCategoryName())
                     .placeName(request.getPlaceName())
-                    .placeUrl(request.getPlaceUrl())
+                    .imageUrl(request.getImageUrl())
                     .x(request.getX())
                     .y(request.getY())
                     .build();

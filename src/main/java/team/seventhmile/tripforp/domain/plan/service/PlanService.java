@@ -3,7 +3,9 @@ package team.seventhmile.tripforp.domain.plan.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
@@ -27,6 +30,7 @@ import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 import team.seventhmile.tripforp.global.exception.UnauthorizedAccessException;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -139,5 +143,9 @@ public class PlanService {
                 planItemDtos
             );
         }).collect(Collectors.toList());
+    }
+
+    public List<GetPopularPlanResponse> getPopularPlanList() {
+        return planRepository.findPopularPlans(PageRequest.of(0, 6));
     }
 }

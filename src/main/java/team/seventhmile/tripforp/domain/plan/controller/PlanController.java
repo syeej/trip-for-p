@@ -1,7 +1,9 @@
 package team.seventhmile.tripforp.domain.plan.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,18 +22,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlaceCountResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
+import team.seventhmile.tripforp.domain.plan.service.PlanItemService;
 import team.seventhmile.tripforp.domain.plan.service.PlanService;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/plans")
 public class PlanController {
 
     private final PlanService planService;
+    private final PlanItemService planItemService;
 
     /**
      * 여행 코스를 등록합니다.
@@ -82,7 +89,7 @@ public class PlanController {
 
     @GetMapping("/{id}")
     public ResponseEntity<GetPlanResponse> getPlanDetail(
-        @PathVariable Long id
+        @PathVariable("id") Long id
     ) {
         GetPlanResponse planDto = planService.getPlanById(id);
         return ResponseEntity.ok(planDto);
@@ -92,8 +99,17 @@ public class PlanController {
     @GetMapping("/me")
     public ResponseEntity<Page<GetPlanListResponse>> getMyPlanList(
         @AuthenticationPrincipal UserDetails user,
-        Pageable pageable
-    ) {
+        Pageable pageable) {
         return ResponseEntity.ok(planService.getMyPlanList(user, pageable));
+    }
+
+    @GetMapping("/popular-places")
+    public ResponseEntity<List<GetPlaceCountResponse>> getPopularPlaces() {
+        return ResponseEntity.ok(planItemService.getPlaceCount());
+    }
+
+    @GetMapping("/popular-plans")
+    public ResponseEntity<List<GetPopularPlanResponse>> getPopularPlans() {
+        return ResponseEntity.ok(planService.getPopularPlanList());
     }
 }

@@ -6,16 +6,21 @@ import MyReviewPosts from '@/components/MyReviewPosts.vue';
 import MyFreePosts from '@/components/MyFreePosts.vue';
 import MyReviewComments from '@/components/MyReviewComments.vue';
 import MyFreeComments from '@/components/MyFreeComments.vue';
-import LikedReviewPosts from '@/components/LikedReviewPosts.vue';
-import LikedFreePosts from '@/components/LikedFreePosts.vue';
 import DeleteAccount from '@/components/DeleteAccount.vue';
+import LikedPlans from "@/components/LikedPlans.vue";
 
 const currentPage = ref('updateInfo');
 const subPage = ref(null);
 
 const navigate = (page) => {
   currentPage.value = page;
-  subPage.value = null;
+  if (page === 'myPosts') {
+    subPage.value = 'myReviewPosts';
+  } else if (page === 'myComments') {
+    subPage.value = 'myReviewComments';
+  } else {
+    subPage.value = null;
+  }
 };
 
 const navigateSubPage = (page) => {
@@ -51,13 +56,7 @@ const isSubActive = (page) => {
           <button @click="navigateSubPage('myFreeComments')" :class="{'nav-button': true, 'active': isSubActive('myFreeComments')}"><img src="@/assets/dot.png" alt="점" class="dot-icon" />자유 게시판</button>
         </div>
       </div>
-      <div>
-        <button @click="navigate('likedPosts')" :class="{'nav-button': true, 'active': isActive('likedPosts')}">좋아요한 게시글</button>
-        <div v-if="currentPage === 'likedPosts'" class="sub-menu">
-          <button @click="navigateSubPage('likedReviewPosts')" :class="{'nav-button': true, 'active': isSubActive('likedReviewPosts')}"> <img src="@/assets/dot.png" alt="점" class="dot-icon" />리뷰 게시판</button>
-          <button @click="navigateSubPage('likedFreePosts')" :class="{'nav-button': true, 'active': isSubActive('likedFreePosts')}"><img src="@/assets/dot.png" alt="점" class="dot-icon" />자유 게시판</button>
-        </div>
-      </div>
+      <button @click="navigate('likedPosts')" :class="{'nav-button': true, 'active': isActive('likedPosts')}">좋아요한 여행코스</button>
       <!-- 회원탈퇴 버튼 -->
       <button @click="navigate('deleteAccount')" :class="{'nav-button delete-account-button': true, 'active': isActive('deleteAccount')}">회원탈퇴</button>
     </nav>
@@ -69,8 +68,7 @@ const isSubActive = (page) => {
       <MyFreePosts v-if="currentPage === 'myPosts' && subPage === 'myFreePosts'" />
       <MyReviewComments v-if="currentPage === 'myComments' && subPage === 'myReviewComments'" />
       <MyFreeComments v-if="currentPage === 'myComments' && subPage === 'myFreeComments'" />
-      <LikedReviewPosts v-if="currentPage === 'likedPosts' && subPage === 'likedReviewPosts'" />
-      <LikedFreePosts v-if="currentPage === 'likedPosts' && subPage === 'likedFreePosts'" />
+      <LikedPlans v-if="currentPage === 'likedPosts'" />
       <DeleteAccount v-else-if="currentPage === 'deleteAccount'" />
     </div>
   </div>
@@ -78,10 +76,13 @@ const isSubActive = (page) => {
 
 <style scoped>
 .page-container {
+  width: 100%; /* 새로 추가 */
   display: flex;
   margin-top: 60px;
 }
-
+.content{
+  width: 100%;
+}
 .sidebar {
   width: 200px;
   background-color: #f8f8f8;

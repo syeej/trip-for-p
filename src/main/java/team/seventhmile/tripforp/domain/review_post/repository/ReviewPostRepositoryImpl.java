@@ -27,13 +27,14 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
     @Override
     public Page<ReviewPost> getReviewPosts(Pageable pageable) {
         List<ReviewPost> reviewPosts = queryFactory.selectFrom(qReviewPost)
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+            .orderBy(qReviewPost.createdAt.desc())
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
 
         JPAQuery<Long> count = queryFactory
-                .select(qReviewPost.count())
-                .from(qReviewPost);
+            .select(qReviewPost.count())
+            .from(qReviewPost);
 
         return PageableExecutionUtils.getPage(reviewPosts, pageable, count::fetchOne);
 
@@ -42,18 +43,19 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
     @Override
     public Page<ReviewPost> getReviewPostKeywordContaining(String keyword, Pageable pageable) {
         BooleanExpression searchKeyword = qReviewPost.title.containsIgnoreCase(keyword)
-                .or(qReviewPost.content.containsIgnoreCase(keyword));
+            .or(qReviewPost.content.containsIgnoreCase(keyword));
 
         List<ReviewPost> reviewPosts = queryFactory.selectFrom(qReviewPost)
-                .where(searchKeyword)
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+            .where(searchKeyword)
+            .orderBy(qReviewPost.createdAt.desc())
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
 
         JPAQuery<Long> count = queryFactory
-                .select(qReviewPost.count())
-                .from(qReviewPost)
-                .where(searchKeyword);
+            .select(qReviewPost.count())
+            .from(qReviewPost)
+            .where(searchKeyword);
 
         return PageableExecutionUtils.getPage(reviewPosts, pageable, count::fetchOne);
     }
@@ -64,5 +66,22 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
         return queryFactory.selectFrom(qPlan)
             .where(qPlan.user.eq(user))
             .fetch();
+    }
+
+    //[마이페이지] 내가 작성한 게시글 목록 조회
+    @Override
+    public Page<ReviewPost> getMyReviews(String email, Pageable pageable) {
+        List<ReviewPost> myReview = queryFactory
+            .selectFrom(qReviewPost)
+            .where(qReviewPost.user.email.eq(email))
+            .orderBy(qReviewPost.createdAt.desc())
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
+        JPAQuery<Long> countQuery = queryFactory
+            .select(qReviewPost.count())
+            .from(qReviewPost)
+            .where(qReviewPost.user.email.eq(email));
+        return PageableExecutionUtils.getPage(myReview, pageable, countQuery::fetchOne);
     }
 }

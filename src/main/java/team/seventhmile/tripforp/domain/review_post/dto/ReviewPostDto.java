@@ -29,7 +29,7 @@ public class ReviewPostDto {
 
 	private Long planId;
 
-	private Long userId;
+	private String author;
 
 	@NotBlank
 	@Size(max = 255, message = "제목은 255자를 초과할 수 없습니다.")
@@ -65,7 +65,7 @@ public class ReviewPostDto {
 		return ReviewPostDto.builder()
 			.id(reviewPost.getId())
 			.planId(reviewPost.getPlan().getId())
-			.userId(reviewPost.getUser().getId())
+			.author(reviewPost.getUser().getNickname())
 			.title(reviewPost.getTitle())
 			.content(reviewPost.getContent())
 			.views(reviewPost.getViews())

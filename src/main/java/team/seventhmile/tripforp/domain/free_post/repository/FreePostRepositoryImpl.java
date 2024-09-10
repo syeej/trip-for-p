@@ -23,13 +23,14 @@ public class FreePostRepositoryImpl implements FreePostRepositoryCustom {
     @Override
     public Page<FreePost> getFreePosts(Pageable pageable) {
         List<FreePost> freePosts = queryFactory.selectFrom(qFreePost)
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+            .orderBy(qFreePost.createdAt.desc())
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
 
         JPAQuery<Long> count = queryFactory
-                .select(qFreePost.count())
-                .from(qFreePost);
+            .select(qFreePost.count())
+            .from(qFreePost);
 
         return PageableExecutionUtils.getPage(freePosts, pageable, count::fetchOne);
 
@@ -40,15 +41,16 @@ public class FreePostRepositoryImpl implements FreePostRepositoryCustom {
         BooleanExpression searchKeyword = qFreePost.content.containsIgnoreCase(keyword);
 
         List<FreePost> freePosts = queryFactory.selectFrom(qFreePost)
-                .where(searchKeyword)
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+            .where(searchKeyword)
+            .orderBy(qFreePost.createdAt.desc())
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
 
         JPAQuery<Long> count = queryFactory
-                .select(qFreePost.count())
-                .from(qFreePost)
-                .where(searchKeyword);
+            .select(qFreePost.count())
+            .from(qFreePost)
+            .where(searchKeyword);
 
         return PageableExecutionUtils.getPage(freePosts, pageable, count::fetchOne);
     }

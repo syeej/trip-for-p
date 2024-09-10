@@ -2,11 +2,16 @@ package team.seventhmile.tripforp.external.alan.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import team.seventhmile.tripforp.domain.user.dto.UserIdResponse;
+import team.seventhmile.tripforp.domain.user.dto.UserInfoResponse;
 import team.seventhmile.tripforp.external.alan.dto.AlanApiResponse;
 import team.seventhmile.tripforp.external.alan.dto.AreaRecsRequest;
 import team.seventhmile.tripforp.external.alan.service.AlanApiService;
@@ -32,5 +37,17 @@ public class AlanApiController {
         @Valid @RequestBody AreaRecsRequest request) {
 
         return alanApiService.getRecommendationsByArea(clientId, request);
+    }
+
+    //개인맞춤형 ai 여행코스추천서비스
+    @GetMapping("/user")
+    public AlanApiResponse userprocess(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(name = "client_id", required = true) String clientId
+    ) {
+        if (userDetails == null) {
+            throw new IllegalArgumentException("User is not authenticated.");
+        }
+        return alanApiService.userprocessAlanApiRequest(clientId, userDetails);
     }
 }
