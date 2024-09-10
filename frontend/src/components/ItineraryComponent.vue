@@ -34,6 +34,7 @@ const deletePlace = (index) => {
         >
             <template #item="{ element, index }">
                 <div class="itinerary-item">
+                    <div class="sequence-number">{{ index + 1 }}</div>
                     <div class="drag-handle">&#8942;</div>
                     <div class="content-wrapper">
                         <div class="place-info">
@@ -72,6 +73,15 @@ const deletePlace = (index) => {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.sequence-number {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    width: 30px;
+    text-align: center;
+    margin-right: 10px;
+}
+
 .drag-handle {
     cursor: move;
     padding: 0 10px;
@@ -88,7 +98,7 @@ const deletePlace = (index) => {
 
 .place-info {
     flex-grow: 1;
-    min-width: 0; /* 이를 통해 flex item이 내용에 따라 축소될 수 있음 */
+    min-width: 0;
     margin-right: 10px;
 }
 
@@ -108,16 +118,16 @@ const deletePlace = (index) => {
 }
 
 .memo-wrapper {
-    width: 250px; /* 메모 영역의 너비 제한 */
+    width: 250px;
     flex-shrink: 0;
 }
 
 textarea {
     width: 100%;
-    height: 60px; /* 높이 제한 */
+    height: 60px;
     padding: 5px;
-    resize: vertical; /* 세로 방향으로만 크기 조절 가능 */
-    overflow-y: auto; /* 내용이 넘칠 경우 스크롤 표시 */
+    resize: vertical;
+    overflow-y: auto;
 }
 
 .delete-btn {

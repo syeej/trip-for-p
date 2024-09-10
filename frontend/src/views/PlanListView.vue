@@ -246,7 +246,11 @@ th {
 .col-title {
     width: 40%;
 }
-
+.col-title, col-author {
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
 .col-author, .col-date {
     width: 15%;
 }

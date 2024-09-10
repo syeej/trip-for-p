@@ -12,6 +12,11 @@ import MypageView from "@/views/MypageView.vue";
 import PlanListView from "@/views/PlanListView.vue";
 import ReviewPostListView from "@/views/ReviewPostListView.vue";
 import store from "@/store";
+import WriteFreePostView from "@/views/WriteFreePostView.vue";
+import FreePostDetailView from "@/views/FreePostDetailView.vue";
+import EditFreePostView from "@/views/EditFreePostView.vue";
+import EditPlanView from "@/views/EditPlanView.vue";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
 const routes = [
     {
@@ -61,6 +66,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/plan/:planId/edit',
+        name: 'EditPlan',
+        component: EditPlanView,
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/plan/:planId',
         name: 'PlanDetail',
         component: PlanDetailView
@@ -71,10 +82,31 @@ const routes = [
         component: FreePostListView
     },
     {
+        path: '/free-post/write',
+        name: 'WriteFreePost',
+        component: WriteFreePostView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/free-post/:postId/edit',
+        name: 'EditFreePost',
+        component: EditFreePostView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/free-post/:postId',
+        name: 'FreePostDetail',
+        component: FreePostDetailView
+    },
+    {
         path: '/review-post',
         name: 'ReviewPostList',
         component: ReviewPostListView
-    },
+    }, {
+        path: '/resetpassword',
+        name: 'ResetPassword',
+        component: ResetPasswordView
+    }
 ]
 
 const router = createRouter({

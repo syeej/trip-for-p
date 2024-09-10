@@ -8,7 +8,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <div v-if="route.path !== '/signup' && route.path !== '/login'" class="app-header" :key="$route.path">
+    <div v-if="route.path !== '/signup' && route.path !== '/login' && route.path !== '/resetpassword'" class="app-header" :key="$route.path">
         <HeaderComponent/>
     </div>
     <div class="app-content">

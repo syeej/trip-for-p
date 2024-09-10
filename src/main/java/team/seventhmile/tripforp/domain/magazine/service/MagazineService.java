@@ -117,7 +117,7 @@ public class MagazineService {
     @Transactional(readOnly = true)
     public Page<MagazineDto> getAllMagazineList(Pageable pageable) {
 
-        return magazineRepository.findAll(pageable)
+        return magazineRepository.findAllByOrderByCreatedAtDesc(pageable)
             .map(MagazineDto::convertToDto);
     }
 

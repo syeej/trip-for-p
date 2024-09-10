@@ -40,7 +40,8 @@ public class MagazineRepositoryImpl implements MagazineRepositoryCustom {
 		BooleanExpression searchKeyword = qMagazine.title.containsIgnoreCase(keyword)
 			.or(qMagazine.content.containsIgnoreCase(keyword));
 
-		List<Magazine> magazines = queryFactory.selectFrom(qMagazine)
+		List<Magazine> magazines = queryFactory.select(qMagazine)
+			.from(qMagazine)
 			.where(searchKeyword)
 			.limit(pageable.getPageSize())
 			.offset(pageable.getOffset())

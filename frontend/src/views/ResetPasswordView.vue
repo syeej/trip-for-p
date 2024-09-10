@@ -1,12 +1,11 @@
 <script setup>
 import router from "@/router";
-import {computed, onMounted, ref, watch} from "vue";
-import {createUserAPI, sendVerificationEmailAPI, verifyEmailAPI, verifyNickNameAPI} from "@/api";
+import {computed, onMounted, ref} from "vue";
+import {sendPasswordResetEmailAPI, verifyEmailAPI, resetPasswordAPI} from "@/api";
 
 const email = ref("");
 const password = ref("");
 const passwordCheck = ref("");
-const nickname = ref("");
 //이메일 인증코드
 const verificationCode = ref("");
 //이메일 인증여부
@@ -16,15 +15,11 @@ const showVerificationInput = ref(false);
 //인증 결과
 const verificationMessage = ref("");
 const isVerificationFailed = ref(false);
-// 닉네임 중복 검사 관련 상태
-const isNicknameVerified = ref(false);
-const nicknameVerificationMessage = ref("");
-const isNicknameVerificationFailed = ref(false);
 
 //이메일 인증코드 전송
-const sendVerificationEmail = async () => {
+const sendPasswordResetEmail = async () => {
   try {
-    await sendVerificationEmailAPI({ email: email.value });
+    await sendPasswordResetEmailAPI({ email: email.value });
     alert("인증 이메일이 전송되었습니다.");
     showVerificationInput.value = true;
   } catch (error) {
@@ -45,37 +40,10 @@ const verifyEmail = async () => {
     isVerificationFailed.value = true;
   }
 };
-// 닉네임 중복 검사
-const verifyNickname = async () => {
-    try {
-        const isDuplicated = await verifyNickNameAPI(nickname.value);
-        if (isDuplicated.status !== 'success') {
-            isNicknameVerified.value = false;
-            nicknameVerificationMessage.value = "이미 사용 중인 닉네임입니다.";
-            isNicknameVerificationFailed.value = true;
-        } else {
-            isNicknameVerified.value = true;
-            nicknameVerificationMessage.value = "사용 가능한 닉네임입니다.";
-            isNicknameVerificationFailed.value = false;
-        }
-    } catch (error) {
-        isNicknameVerified.value = false;
-        nicknameVerificationMessage.value = error.message || "닉네임 중복 검사 중 오류가 발생했습니다.";
-        isNicknameVerificationFailed.value = true;
-    }
-};
-// 닉네임 입력 필드에 대한 감시
-watch(nickname, (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-        isNicknameVerified.value = false;
-        nicknameVerificationMessage.value = "닉네임 중복 확인이 필요합니다.";
-        isNicknameVerificationFailed.value = false;
-    }
-});
 
 // 버튼 활성화 여부를 computed로 계산
 const isFormValid = computed(() => {
-    return email.value && password.value && passwordCheck.value && nickname.value && isEmailVerified.value && isNicknameVerified.value;
+    return email.value && password.value && passwordCheck.value && isEmailVerified.value;
 });
 
 const goLogin = function () {
@@ -86,37 +54,27 @@ const goHome = function () {
     router.push("/");
 }
 
-const signup = async function () {
+const resetpw = async function () {
     try {
-        const createUserRequest = {
+        const findPasswordRequest = {
             email: email.value,
-            password: password.value,
-            passwordCheck: passwordCheck.value,
-            nickname: nickname.value
+            newPassword: password.value,
         }
         if (!email.value) {
-            document.querySelector('.signup-email').focus();
+            document.querySelector('.resetpw-email').focus();
             return;
         }
         if (!password.value) {
-            document.querySelector('.signup-password').focus();
+            document.querySelector('.resetpw-password').focus();
             return;
         }
         if (!passwordCheck.value) {
-            document.querySelector('.signup-password-check').focus();
-            return;
-        }
-        if (!nickname.value) {
-            document.querySelector('.signup-nickname').focus();
+            document.querySelector('.resetpw-password-check').focus();
             return;
         }
         if (!isEmailVerified.value) {
           alert("이메일 인증이 필요합니다.");
           return;
-        }
-        if (!isNicknameVerified.value) {
-            alert("닉네임 중복 확인이 필요합니다.");
-            return;
         }
         if (!validateEmail()) {
             alert("올바르지 않은 이메일 형식입니다.")
@@ -128,8 +86,8 @@ const signup = async function () {
             alert("비밀번호가 다릅니다.")
             return;
         }
-        await createUserAPI(createUserRequest);
-        alert("가입이 완료되었습니다.");
+        await resetPasswordAPI(findPasswordRequest);
+        alert("비밀번호가 재설정되었습니다.");
         await router.replace('/login');
     } catch (error) {
         console.log(error.response.data);
@@ -155,7 +113,7 @@ const validatePassword = function () {
 
 onMounted(() => {
     const inputs = document.querySelectorAll(
-        '.signup-email, .signup-password, .signup-password-check, .signup-nickname');
+        '.resetpw-email, .resetpw-password, .resetpw-password-check, .resetpw-nickname');
 
     inputs.forEach(input => {
         input.addEventListener('focus', () => {
@@ -174,20 +132,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="signup-wrap">
-    <div class="signup-title">
+  <div class="resetpw-wrap">
+    <div class="resetpw-title">
       <img src="@/assets/biglogo.png" alt="흠으로 이동" @click="goHome">
     </div>
-    <div class="signup-content">
-      <div class="signup-form" @keyup.enter="signup">
+    <div class="resetpw-content">
+      <div class="resetpw-form" @keyup.enter="resetpw">
         <!-- 이메일 입력 -->
         <div class="email-verification-container">
-          <input type="email" class="signup-email" placeholder="이메일" v-model="email">
-          <button @click="sendVerificationEmail" :disabled="!email" class="verification-button">인증</button>
+          <input type="email" class="resetpw-email" placeholder="이메일" v-model="email">
+          <button @click="sendPasswordResetEmail" :disabled="!email" class="verification-button">인증</button>
         </div>
         <!-- 이메일 인증코드 확인(검증) -->
         <div v-if="showVerificationInput" class="verification-code-container">
-          <input type="text" class="signup-verification" placeholder="인증 코드" v-model="verificationCode">
+          <input type="text" class="resetpw-verification" placeholder="인증 코드" v-model="verificationCode">
           <button @click="verifyEmail" :disabled="!verificationCode" class="verify-button">확인</button>
         </div>
         <!-- 인증 메시지 -->
@@ -197,27 +155,14 @@ onMounted(() => {
             ]">
           {{ verificationMessage }}
         </p>
-        <input type="password" class="signup-password" placeholder="비밀번호 (영문 대/소문자, 숫자 조합 8~16자)" v-model="password">
-        <input type="password" class="signup-password-check" placeholder="비밀번호 확인" v-model="passwordCheck">
-<!--        <input type="text" class="signup-nickname" placeholder="닉네임" v-model="nickname">-->
-        <!-- 닉네임 입력 및 중복 검사 -->
-        <div class="nickname-verification-container">
-          <input type="text" class="signup-nickname" placeholder="닉네임" v-model="nickname">
-          <button @click="verifyNickname" :disabled="!nickname" class="verification-button">중복 확인</button>
-        </div>
-        <!-- 닉네임 중복 검사 메시지 -->
-        <p v-if="nicknameVerificationMessage" :class="[
-        'verification-message',
-        { 'verification-success': isNicknameVerified, 'verification-failed': isNicknameVerificationFailed }
-      ]">
-          {{ nicknameVerificationMessage }}
-        </p>
-        <button @click="signup" :disabled="!isFormValid" class="signup-button">가입하기</button>
+        <input type="password" class="resetpw-password" placeholder="비밀번호" v-model="password">
+        <input type="password" class="resetpw-password-check" placeholder="비밀번호 확인" v-model="passwordCheck">
+        <button @click="resetpw" :disabled="!isFormValid" class="resetpw-button">비밀번호 재설정</button>
       </div>
 
       <div class="go-login-button" @click="goLogin">
         <img src="@/assets/signup.png" alt="">
-        <span>이미 계정이 있으신가요?</span>
+        <span>로그인으로 이동</span>
       </div>
     </div>
   </div>
@@ -225,21 +170,21 @@ onMounted(() => {
 
 <style scoped>
 /* 공통 스타일 */
-.signup-wrap {
+.resetpw-wrap {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.signup-title img {
+.resetpw-title img {
     width: 100%;
     max-width: 450px; /* 최대 크기 제한 */
     height: auto; /* 높이 자동 조절 */
     cursor: pointer;
 }
 
-.signup-content {
+.resetpw-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -248,7 +193,7 @@ onMounted(() => {
     margin-bottom: 100px;
 }
 
-.signup-form {
+.resetpw-form {
   width: 100%;
   max-width: 450px;
   display: flex;
@@ -257,11 +202,10 @@ onMounted(() => {
 }
 
 /* 입력 필드 공통 스타일 */
-.signup-email,
-.signup-password,
-.signup-password-check,
-.signup-nickname,
-.signup-verification {
+.resetpw-email,
+.resetpw-password,
+.resetpw-password-check,
+.resetpw-verification {
   width: 100%;
   height: 60px;
   border: 1px solid #C5CCD2;
@@ -275,37 +219,30 @@ onMounted(() => {
 }
 
 /* 특정 입력 필드 스타일 */
-.signup-email {
+.resetpw-email {
   background-image: url("@/assets/email.png");
   margin-top: 0;
 }
-
-.signup-password,
-.signup-password-check {
+.resetpw-password,
+.resetpw-password-check {
   background-image: url("@/assets/password.png");
 }
-
-.signup-nickname {
-  background-image: url("@/assets/nickname.png");
-}
-
-.signup-verification {
+.resetpw-verification {
   background-image: url("@/assets/email.png");
 }
 
 /* 포커스 스타일 */
-.signup-email:focus,
-.signup-password:focus,
-.signup-password-check:focus,
-.signup-nickname:focus,
-.signup-verification:focus {
+.resetpw-email:focus,
+.resetpw-password:focus,
+.resetpw-password-check:focus,
+.resetpw-verification:focus {
   outline: none;
     border: 2px solid #333333;
     box-shadow: 0 0 5px rgba(51, 51, 51, 0.5);
 }
 
 /* 버튼 스타일 */
-.signup-form button {
+.resetpw-form button {
   background-color: #000000;
   width: 100%;
   height: 50px;
@@ -317,7 +254,7 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.signup-form button:disabled {
+.resetpw-form button:disabled {
   background-color: #D9D9D9;
   border: 1px solid #D9D9D9;
   cursor: not-allowed;
@@ -325,8 +262,7 @@ onMounted(() => {
 
 /* 이메일 인증 컨테이너 */
 .email-verification-container,
-.verification-code-container,
-.nickname-verification-container{
+.verification-code-container{
   display: flex;
   width: 100%;
   max-width: 450px;
@@ -334,16 +270,15 @@ onMounted(() => {
   gap: 10px;
   margin-top: 10px;
 }
-.signup-email, .signup-verification, .signup-nickname {
+.resetpw-email, .resetpw-verification {
     flex: 7;
 }
 .verification-button, .verify-button {
     flex: 3;
 }
-.signup-verification, .signup-nickname {
+.resetpw-verification {
     margin-top: 0;
 }
-
 
 /* 이메일 인증 전송, 확인 버튼 */
 .verification-button,
@@ -354,7 +289,7 @@ onMounted(() => {
   margin: 0;
 }
 
-.signup-button {
+.resetpw-button {
     margin: 25px 0;
 }
 
@@ -375,12 +310,11 @@ onMounted(() => {
 }
 
 /* 플레이스홀더 스타일 */
-.signup-email::placeholder,
-.signup-password::placeholder,
-.signup-password-check::placeholder,
-.signup-nickname::placeholder,
-.signup-verification::placeholder {
-  font-size: 14px;
+.resetpw-email::placeholder,
+.resetpw-password::placeholder,
+.resetpw-password-check::placeholder,
+.resetpw-verification::placeholder {
+  font-size: 15px;
   color: #C5CCD2;
   font-family: 'Pretendard Variable', sans-serif;
 }
@@ -410,42 +344,33 @@ onMounted(() => {
 
 /* 반응형 스타일 */
 @media (max-width: 768px) {
-  .signup-email,
-  .signup-password,
-  .signup-password-check,
-  .signup-nickname,
-  .signup-verification {
+  .resetpw-email,
+  .resetpw-password,
+  .resetpw-password-check,
+  .resetpw-verification {
     height: 50px;
     font-size: 14px;
   }
   .verification-button,
   .verify-button,
-  .signup-form button {
+  .resetpw-form button {
     height: 45px;
     font-size: 14px;
   }
 }
 
 @media (max-width: 480px) {
-  .signup-email,
-  .signup-password,
-  .signup-password-check,
-  .signup-nickname,
-  .signup-verification {
+  .resetpw-email,
+  .resetpw-password,
+  .resetpw-password-check,
+  .resetpw-verification {
     height: 45px;
     font-size: 12px;
     padding-left: 40px;
   }
-    .signup-email::placeholder,
-    .signup-password::placeholder,
-    .signup-password-check::placeholder,
-    .signup-nickname::placeholder,
-    .signup-verification::placeholder {
-        font-size: 11px;
-    }
   .verification-button,
   .verify-button,
-  .signup-form button {
+  .resetpw-form button {
     height: 40px;
     font-size: 12px;
   }

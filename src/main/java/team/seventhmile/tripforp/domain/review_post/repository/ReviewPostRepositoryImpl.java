@@ -65,4 +65,21 @@ public class ReviewPostRepositoryImpl implements ReviewPostRepositoryCustom {
             .where(qPlan.user.eq(user))
             .fetch();
     }
+
+    //[마이페이지] 내가 작성한 게시글 목록 조회
+    @Override
+    public Page<ReviewPost> getMyReviews(String email, Pageable pageable) {
+        List<ReviewPost> myReview = queryFactory
+                .selectFrom(qReviewPost)
+                .where(qReviewPost.user.email.eq(email))
+                .orderBy(qReviewPost.createdAt.desc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+        JPAQuery<Long> countQuery = queryFactory
+                .select(qReviewPost.count())
+                .from(qReviewPost)
+                .where(qReviewPost.user.email.eq(email));
+        return PageableExecutionUtils.getPage(myReview, pageable, countQuery::fetchOne);
+    }
 }

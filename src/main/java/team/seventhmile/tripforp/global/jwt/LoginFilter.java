@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import team.seventhmile.tripforp.domain.user.service.CustomUserDetails;
 import team.seventhmile.tripforp.domain.user.service.TokenService;
 
 @RequiredArgsConstructor
@@ -58,9 +59,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		// ROLE_USER 중 뒷 부분 USER만 가져옴
 		String role = auth.getAuthority().split("_")[1];
 
+		//닉네임
+		String nickname = ((CustomUserDetails) authentication.getPrincipal()).getNickname();
+
 		//토큰 생성
-		String access = jwtUtil.createJwt("access", username, role, 600000L);
-		String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+		String access = jwtUtil.createJwt("access", username, nickname, role, 600000L);
+		String refresh = jwtUtil.createJwt("refresh", username, nickname, role, 86400000L);
 
 		// Redis에 Refresh Token 저장
 		tokenService.saveRefreshToken(username, refresh);

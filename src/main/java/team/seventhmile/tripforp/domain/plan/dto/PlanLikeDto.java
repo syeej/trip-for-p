@@ -13,6 +13,6 @@ import team.seventhmile.tripforp.domain.user.entity.User;
 @AllArgsConstructor
 public class PlanLikeDto {
     private Long id; // 좋아요의 ID
-    private User user; // 좋아요한 사용자의 ID
-    private Plan plan; // 좋아요된 여행 코스의 ID
+    private User userId; // 좋아요한 사용자의 ID
+    private Plan planId; // 좋아요된 여행 코스의 ID
 }
