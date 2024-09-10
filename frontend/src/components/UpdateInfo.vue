@@ -3,7 +3,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import axios from 'axios';
 import store from '@/store/index.js';
-import { verifyNickNameAPI} from '@/api';
+import {getUserInfoAPI, verifyNickNameAPI} from '@/api';
 
 const password = ref('');
 const passwordCheck = ref('');
@@ -21,19 +21,9 @@ const isPasswordValid = ref(true);
 const passwordVerificationMessage = ref('');
 
 // 사용자 정보 가져오기
-const getUserInfoAPI = async () => {
-  const accessToken = store.getters.getAccessToken;
-
-  if (!store.getters.isAccessTokenValid) {
-    throw new Error('Invalid or expired token');
-  }
-
+const getUserInfo = async () => {
   try {
-    const response = await axios.get('/api/users/me', {
-      headers: {
-        access: `${accessToken}`,
-      },
-    });
+    const response = await getUserInfoAPI();
     console.log(response); // 응답을 확인
     return response.data;
   } catch (error) {
@@ -44,7 +34,7 @@ const getUserInfoAPI = async () => {
 
 onMounted(async () => {
   try {
-    const data = await getUserInfoAPI();
+    const data = await getUserInfo();
     userInfo.value = data;
     nickname.value = data.nickname; // 사용자 정보로 초기화
   } catch (error) {

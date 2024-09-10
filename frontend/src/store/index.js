@@ -1,12 +1,13 @@
 import { createStore } from "vuex";
 import createPersistedState from 'vuex-persistedstate';
 import jwtDecoder from 'vue-jwt-decode';
+import {refreshTokenAPI} from "@/api";
 
 
 
 const store = createStore({
     state: {
-        accessToken: ""
+        accessToken: null
     },
     getters: {
         getAccessToken: function (state) {
@@ -19,8 +20,17 @@ const store = createStore({
             try {
                 const decodedToken = jwtDecoder.decode(state.accessToken)
                 const currentTime = Date.now() / 1000;
-                return decodedToken.exp > currentTime;
+                if (decodedToken.exp > currentTime) {
+                    return true;
+                }
+                refreshTokenAPI().then(response => {
+                    const newToken = response.headers.access
+                    store.commit('setAccessToken', newToken);
+                });
+
+                return true;
             } catch (error) {
+                console.log(error);
                 return false;
             }
         },
@@ -45,7 +55,6 @@ const store = createStore({
             }
             try {
                 const decodedToken = jwtDecoder.decode(state.accessToken)
-                console.log(decodedToken.role)
                 return decodedToken.role
             } catch (error) {
                 return false;
