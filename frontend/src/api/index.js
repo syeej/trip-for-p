@@ -117,6 +117,15 @@ const getFreePostListAPI = function (request) {
     return instance.get(
         `/api/free-posts?keyword=${request.keyword}&size=${request.size}&page=${request.page}`);
 }
+//[마이페이지]작성한 여행코스 글 목록 조회
+const getMyPlanCourseListAPI = function(request){
+    return authInstance.get(`/api/plans/me`, {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
 //[마이페이지]작성한 자유게시글 목록 조회
 const getMyFreePostListAPI = function(request){
     return authInstance.get(`/api/free-posts/me`, {
@@ -134,6 +143,37 @@ const getMyReviewListAPI = function(request){
             page: request.page
         }
     });
+}
+//[마이페이지]작성한 댓글-자유게시글 목록 조회
+const getMyFreePostCommentListAPI = function(request){
+    return authInstance.get(`/api/free-posts/1/comments/me`, {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
+//[마이페이지]작성한 댓글-리뷰게시글 목록 조회
+const getMyReviewCommentListAPI = function(request){
+    return authInstance.get('/api/review-posts/1/comments/me', {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
+//[마이페이지]좋아요 여행코스 목록 조회
+const getMyLikedPlansAPI = function(request){
+    return authInstance.get('/api/plan-likes/me', {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
+//[마이페이지]회원 탈퇴
+const withdrawalUserAPI = function(){
+    return authInstance.patch('/api/users/deletion');
 }
 const createFreePostAPI = function (request) {
     return authInstance.post(`/api/free-posts`, request);
@@ -342,13 +382,18 @@ export {
     deleteMagazineAPI,
     updateMagazineAPI,
     getMyFreePostListAPI,
-    getMyReviewListAPI,
     getReviewPostAPI,
     createReviewPostAPI,
     updateReviewPostAPI,
     getReviewPostListAPI,
     deleteReviewPostAPI,
     getMyPlanListAPI,
+    getMyPlanCourseListAPI,
+    getMyReviewListAPI,
+    getMyFreePostCommentListAPI,
+    getMyReviewCommentListAPI,
+    getMyLikedPlansAPI,
+    withdrawalUserAPI,
     refreshTokenAPI,
     getUserInfoAPI
 }
