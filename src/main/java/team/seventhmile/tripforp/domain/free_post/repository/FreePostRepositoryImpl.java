@@ -42,6 +42,7 @@ public class FreePostRepositoryImpl implements FreePostRepositoryCustom {
 
         List<FreePost> freePosts = queryFactory.selectFrom(qFreePost)
             .where(searchKeyword)
+            .orderBy(qFreePost.createdAt.desc())
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();

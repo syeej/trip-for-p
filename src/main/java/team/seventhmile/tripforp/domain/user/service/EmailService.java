@@ -23,7 +23,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    //이메일 인증 코드 전송(회원가입시)
+    //이메일  코드 전송(회원가입시)
     public void sendVerificationEmail(String recipient) {
         // 이메일 중복 체크, 탈퇴된 이메일 확인
         Optional<User> existingUser = userRepository.findByEmail(recipient);

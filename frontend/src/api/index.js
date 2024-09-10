@@ -187,6 +187,10 @@ const deleteFreePostAPI = function (id) {
     return authInstance.delete(`/api/free-posts/${id}`);
 };
 
+const getFreePostAPI = function (id) {
+    return instance.get(`/api/free-posts/${id}`);
+};
+
 const createFreeCommentAPI = function (request) {
     return authInstance.post(`/api/free-posts/${request.postId}/comments`,
         request);
@@ -202,13 +206,29 @@ const deleteFreeCommentAPI = function (id, postId) {
     return authInstance.delete(`/api/free-posts/${postId}/comments/${id}`);
 };
 
-const getFreePostAPI = function (id) {
-    return instance.get(`/api/free-posts/${id}`);
-};
-
 const getFreeCommentListAPI = function (request) {
     return instance.get(
         `/api/free-posts/${request.postId}/comments?&sort=createdAt,desc&size=${request.size}&page=${request.page}`)
+}
+
+const createReviewCommentAPI = function (request) {
+    return authInstance.post(`/api/review-posts/${request.postId}/comments`,
+        request);
+};
+
+const updateReviewCommentAPI = function (id, request) {
+    return authInstance.put(
+        `/api/review-posts/${request.postId}/comments/${id}`,
+        request);
+};
+
+const deleteReviewCommentAPI = function (id, postId) {
+    return authInstance.delete(`/api/review-posts/${postId}/comments/${id}`);
+};
+
+const getReviewCommentListAPI = function (request) {
+    return instance.get(
+        `/api/review-posts/${request.postId}/comments?&sort=createdAt,desc&size=${request.size}&page=${request.page}`)
 }
 
 const likePlanAPI = function (request) {
@@ -283,6 +303,40 @@ const deleteMagazineAPI = function (id) {
     return authInstance.delete(`/api/magazines/${id}`);
 };
 
+const getReviewPostListAPI = function (request) {
+    return instance.get(`/api/review-posts?keyword=${request.keyword}&size=${request.size}&page=${request.page}`);
+};
+
+const getReviewPostAPI = function (id) {
+    return instance.get(`/api/review-posts/${id}`);
+};
+
+const createReviewPostAPI = function (formData) {
+    return authInstance.post(`/api/review-posts`, formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+}
+
+const updateReviewPostAPI = function (id, formData) {
+    return authInstance.put(`/api/review-posts/${id}`, formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+}
+
+const deleteReviewPostAPI = function (id) {
+    return authInstance.delete(`/api/review-posts/${id}`);
+};
+
+const getMyPlanListAPI = function (request) {
+    return authInstance.get(`/api/plans/me?size=${request.size}&page=${request.page}`);
+};
+
 export {
     getPopularPlanListAPI,
     getPopularPlaceListAPI,
@@ -303,6 +357,10 @@ export {
     createFreeCommentAPI,
     updateFreeCommentAPI,
     deleteFreeCommentAPI,
+    getReviewCommentListAPI,
+    createReviewCommentAPI,
+    updateReviewCommentAPI,
+    deleteReviewCommentAPI,
     updateFreePostAPI,
     deleteFreePostAPI,
     likePlanAPI,
@@ -315,8 +373,13 @@ export {
     getMagazineAPI,
     deleteMagazineAPI,
     updateMagazineAPI,
-    getMyPlanListAPI,
     getMyFreePostListAPI,
+    getReviewPostAPI,
+    createReviewPostAPI,
+    updateReviewPostAPI,
+    getReviewPostListAPI,
+    deleteReviewPostAPI,
+    getMyPlanListAPI,
     getMyReviewListAPI,
     getMyFreePostCommentListAPI,
     getMyReviewCommentListAPI,

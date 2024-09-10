@@ -53,7 +53,6 @@ onMounted(() => {
 <style scoped>
 .post-edit-container {
     width: 100%;
-    max-width: 800px;
     background-color: #ffffff;
     border-radius: 8px;
     padding: 20px;

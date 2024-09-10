@@ -11,6 +11,7 @@ import team.seventhmile.tripforp.domain.free_comment.dto.GetFreeCommentDto;
 import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
 import team.seventhmile.tripforp.domain.free_comment.repository.FreeCommentRepository;
 import team.seventhmile.tripforp.domain.free_post.entity.FreePost;
+import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
@@ -54,11 +55,14 @@ public class FreeCommentService {
 	@Transactional
 	public FreeCommentDto updateComment(Long id, FreeCommentDto updatedCommentDto, UserDetails user) {
 		User findUser = getUser(user);
-		FreeComment existingComment = freeCommentRepository.findByIdAndAuthor(id, findUser)
-			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
+		FreeComment freeComment = freeCommentRepository.findById(id)
+			.orElseThrow(() -> new ResourceNotFoundException(FreeComment.class, id));
+		if (!freeComment.getAuthor().getId().equals(findUser.getId())) {
+			throw new UnauthorizedAccessException(FreeComment.class);
+		}
 
-		existingComment.setContent(updatedCommentDto.getContent());
-		FreeComment updatedComment = freeCommentRepository.save(existingComment);
+		freeComment.setContent(updatedCommentDto.getContent());
+		FreeComment updatedComment = freeCommentRepository.save(freeComment);
 		return mapToDto(updatedComment);
 	}
 
@@ -69,7 +73,7 @@ public class FreeCommentService {
 		FreeComment freeComment = freeCommentRepository.findById(id)
 			.orElseThrow(() -> new ResourceNotFoundException(FreeComment.class, id));
 		if (!freeComment.getAuthor().getId().equals(findUser.getId()) && !freeComment.getFreePost()
-			.getUser().getId().equals(findUser.getId())) {
+			.getUser().getId().equals(findUser.getId()) && findUser.getRole() != Role.ADMIN) {
 			throw new UnauthorizedAccessException(FreeComment.class);
 		}
 		freeCommentRepository.delete(freeComment);

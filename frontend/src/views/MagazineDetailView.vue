@@ -70,8 +70,9 @@ onMounted(() => {
             <pre class="content">{{ magazine.content }}</pre>
             <div v-if="magazine.fileUrls && magazine.fileUrls.length > 0" class="attachments">
                 <div class="image-gallery">
-                    <img v-for="fileUrl in magazine.fileUrls" :key="fileUrl" :src="fileUrl"
-                         alt="첨부 이미지">
+                    <div v-for="fileUrl in magazine.fileUrls" :key="fileUrl" class="image-container">
+                        <img :src="fileUrl" alt="첨부 이미지">
+                    </div>
                 </div>
             </div>
             <div class="admin-controls" v-if="isAdmin">
@@ -110,19 +111,30 @@ h1 {
 
 .attachments {
     margin-top: 20px;
+    width: 100%;
 }
 
 .image-gallery {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 50px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
 }
 
-.image-gallery img {
-    width: 40%;
-    height: auto;
-    transition: transform 0.3s ease;
+.image-container {
+    width: 100%;
+    padding-top: 75%; /* 4:3 비율 */
+    position: relative;
+    overflow: hidden;
+}
+
+.image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .loading, .error {
@@ -139,12 +151,12 @@ h1 {
     margin-top: 50px;
     display: flex;
     width: 100%;
-    justify-content: end;
+    justify-content: flex-end;
 }
 
 .edit-btn, .delete-btn {
     padding: 10px 20px;
-    margin-right: 10px;
+    margin-left: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -163,5 +175,11 @@ h1 {
 
 .edit-btn:hover, .delete-btn:hover {
     opacity: 0.8;
+}
+
+@media (max-width: 600px) {
+    .image-gallery {
+        grid-template-columns: 1fr;
+    }
 }
 </style>

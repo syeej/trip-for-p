@@ -8,13 +8,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.seventhmile.tripforp.domain.free_comment.entity.FreeComment;
+import team.seventhmile.tripforp.domain.review_comment.dto.GetReviewCommentDto;
 import team.seventhmile.tripforp.domain.review_comment.dto.ReviewCommentDto;
 import team.seventhmile.tripforp.domain.review_comment.entity.ReviewComment;
 import team.seventhmile.tripforp.domain.review_comment.repository.ReviewCommentRepository;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
+import team.seventhmile.tripforp.domain.user.entity.Role;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
+import team.seventhmile.tripforp.global.exception.UnauthorizedAccessException;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,11 +35,9 @@ public class ReviewCommentService {
 	}
 
 	// 리뷰 게시판 댓글 조회
-	public List<ReviewCommentDto> getCommentsByPost(ReviewPost reviewPost) {
-		List<ReviewComment> comments = reviewCommentRepository.findByReviewPost(reviewPost);
-		return comments.stream()
-			.map(this::mapToDto)
-			.collect(Collectors.toList());
+	public Page<GetReviewCommentDto> getCommentsByPost(ReviewPost reviewPost, Pageable pageable) {
+		Page<ReviewComment> comments = reviewCommentRepository.findByReviewPost(reviewPost, pageable);
+		return comments.map(GetReviewCommentDto::new);
 	}
 
 	// 리뷰 게시판 댓글 작성
@@ -54,11 +56,14 @@ public class ReviewCommentService {
 	@Transactional
 	public ReviewCommentDto updateComment(Long id, ReviewCommentDto updatedCommentDto, UserDetails user) {
 		User findUser = getUser(user);
-		ReviewComment existingComment = reviewCommentRepository.findByIdAndAuthor(id, findUser)
-			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
+		ReviewComment reviewComment = reviewCommentRepository.findById(id)
+			.orElseThrow(() -> new ResourceNotFoundException(ReviewComment.class, id));
 
-		existingComment.setContent(updatedCommentDto.getContent());
-		ReviewComment updatedComment = reviewCommentRepository.save(existingComment);
+		if (!reviewComment.getAuthor().getId().equals(findUser.getId())) {
+			throw new UnauthorizedAccessException(FreeComment.class);
+		}
+		reviewComment.setContent(updatedCommentDto.getContent());
+		ReviewComment updatedComment = reviewCommentRepository.save(reviewComment);
 		return mapToDto(updatedComment);
 	}
 
@@ -66,8 +71,13 @@ public class ReviewCommentService {
 	@Transactional
 	public void deleteComment(Long id, UserDetails user) {
 		User findUser = getUser(user);
-		ReviewComment reviewComment = reviewCommentRepository.findByIdAndAuthor(id, findUser)
-			.orElseThrow(() -> new RuntimeException("Comment not found or not owned by user"));
+		ReviewComment reviewComment = reviewCommentRepository.findById(id)
+			.orElseThrow(() -> new ResourceNotFoundException(ReviewComment.class, id));
+
+		if (!reviewComment.getAuthor().getId().equals(findUser.getId()) && !reviewComment.getReviewPost()
+			.getUser().getId().equals(findUser.getId()) && findUser.getRole() != Role.ADMIN) {
+			throw new UnauthorizedAccessException(FreeComment.class);
+		}
 		reviewCommentRepository.delete(reviewComment);
 	}
 

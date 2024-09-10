@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import team.seventhmile.tripforp.domain.review_comment.dto.GetReviewCommentDto;
 import team.seventhmile.tripforp.domain.review_comment.dto.ReviewCommentDto;
 import team.seventhmile.tripforp.domain.review_comment.service.ReviewCommentService;
 import team.seventhmile.tripforp.domain.review_post.entity.ReviewPost;
@@ -38,9 +39,9 @@ public class ReviewCommentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<ReviewCommentDto>> getReviewComments(@PathVariable("postId") Long postId) {
+	public ResponseEntity<Page<GetReviewCommentDto>> getReviewComments(@PathVariable("postId") Long postId, Pageable pageable) {
 		ReviewPost reviewPost = reviewPostService.getReviewPostEntity(postId);
-		List<ReviewCommentDto> reviewComments = reviewCommentService.getCommentsByPost(reviewPost);
+		Page<GetReviewCommentDto> reviewComments = reviewCommentService.getCommentsByPost(reviewPost, pageable);
 		return ResponseEntity.ok(reviewComments);
 	}
 
