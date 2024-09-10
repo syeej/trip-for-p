@@ -16,6 +16,27 @@ const plan = ref(null);
 const route = useRoute();
 const isMapInitialized = ref(false);
 const isLiked = ref(false);
+const routeData = ref(null);
+
+const formatDuration = (durationInSeconds) => {
+    if (durationInSeconds < 60) {
+        return `${durationInSeconds}초`;
+    }
+
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+
+    const parts = [];
+
+    if (hours > 0) {
+        parts.push(`${hours}시간`);
+    }
+    if (minutes > 0) {
+        parts.push(`${minutes}분`);
+    }
+
+    return parts.join(' ');
+};
 
 const loadKakaoMapScript = () => {
     return new Promise((resolve, reject) => {
@@ -211,11 +232,11 @@ const updateMap = async () => {
         const waypoints = places.slice(1, -1).map(item => ({ x: item.place.x, y: item.place.y }));
 
         try {
-            const routeData = await getRouteData(origin, destination, waypoints);
+            routeData.value = await getRouteData(origin, destination, waypoints);
 
-            if (routeData && routeData.routes && routeData.routes.length > 0) {
+            if (routeData.value && routeData.value.routes && routeData.value.routes.length > 0) {
                 const path = [];
-                routeData.routes[0].sections.forEach(section => {
+                routeData.value.routes[0].sections.forEach(section => {
                     section.roads.forEach(road => {
                         for (let i = 0; i < road.vertexes.length; i += 2) {
                             path.push(new kakao.maps.LatLng(road.vertexes[i + 1], road.vertexes[i]));
@@ -246,6 +267,13 @@ const updateMap = async () => {
 const goBackToSelection = () => {
     router.push(`/plan/list/${plan.value.area}`);
 };
+
+const totalDuration = computed(() => {
+    if (!routeData.value || !routeData.value.routes || routeData.value.routes.length === 0) {
+        return 0;
+    }
+    return routeData.value.routes[0].summary.duration;
+});
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -352,13 +380,25 @@ watch(currentDate, () => {
 
         <div class="itinerary">
             <h2>일정</h2>
-            <div v-for="item in currentDatePlans" :key="item.sequence" class="itinerary-item">
-                <div class="sequence">{{ item.sequence }}</div>
-                <div class="place-info">
-                    <h3>{{ item.place.placeName }}</h3>
-                    <p>{{ item.place.addressName }}</p>
-                    <p v-if="item.memo">메모: {{ item.memo }}</p>
+            <div v-for="(item, index) in currentDatePlans" :key="item.sequence" class="itinerary-container">
+                <div class="itinerary-item">
+                    <div class="sequence">{{ item.sequence }}</div>
+                    <div class="place-info">
+                        <h3>{{ item.place.placeName }}</h3>
+                        <p>{{ item.place.addressName }}</p>
+                        <p v-if="item.memo">메모: {{ item.memo }}</p>
+                    </div>
                 </div>
+                <div v-if="index < currentDatePlans.length - 1 && routeData && routeData.routes" class="duration-info">
+                    <div class="duration-line"></div>
+                    <div class="duration-text">
+                        {{ formatDuration(routeData.routes[0].sections[index].duration) }}
+                    </div>
+                    <div class="duration-line"></div>
+                </div>
+            </div>
+            <div v-if="totalDuration > 0" class="total-duration">
+                총 예상 소요 시간: {{ formatDuration(totalDuration) }}
             </div>
         </div>
 
@@ -436,12 +476,40 @@ watch(currentDate, () => {
     margin-bottom: 20px;
 }
 
+.itinerary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
 .itinerary-item {
     display: flex;
     margin-bottom: 15px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+.duration-info {
+    display: flex;
+    align-items: center;
+    margin: -5px 0 15px 0;
+    padding: 0 10px;
+}
+
+.duration-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.duration-text {
+    margin: 0 10px;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    font-size: 14px;
+    color: #666;
 }
 
 .sequence {
@@ -461,6 +529,12 @@ watch(currentDate, () => {
 .place-info p {
     margin: 0;
     color: #666;
+}
+
+.total-duration {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: right;
 }
 .back-button {
     margin-bottom: 1em;

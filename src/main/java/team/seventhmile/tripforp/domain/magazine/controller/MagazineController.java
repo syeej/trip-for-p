@@ -35,7 +35,7 @@ public class MagazineController {
 	public MagazineDto createMagazinePost(
 		@AuthenticationPrincipal UserDetails user,
 		@RequestPart(value = "request") MagazineDto magazineDto,
-		@RequestPart(value = "files", required = false) List<MultipartFile> files
+		@RequestPart(value = "files") List<MultipartFile> files
 	) throws IOException {
 		return magazineService.createMagazinePost(magazineDto, user.getUsername(), files);
 	}
@@ -47,7 +47,7 @@ public class MagazineController {
 		@PathVariable("id") Long id,
 		@AuthenticationPrincipal UserDetails user,
 		@RequestPart(value = "request") MagazineDto magazineDto,
-		@RequestPart(value = "files", required = false) List<MultipartFile> files
+		@RequestPart(value = "files") List<MultipartFile> files
 	) throws IOException {
 		return magazineService.updateMagazinePost(id, magazineDto, user.getUsername(), files);
 	}

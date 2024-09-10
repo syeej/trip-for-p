@@ -1,147 +1,180 @@
 <script setup>
-import { defineProps, defineEmits, toRefs } from 'vue';
+import { ref, computed, defineProps, defineEmits } from 'vue';
 import draggable from 'vuedraggable';
 
 const props = defineProps({
     places: {
         type: Array,
         required: true
+    },
+    routeInfo: {
+        type: Object,
+        default: () => ({})
+    },
+    currentDate: {
+        type: String,
+        required: true
     }
 });
 
-// props의 반응성을 유지하면서 places를 추출
-const { places } = toRefs(props);
-
 const emit = defineEmits(['update:memo', 'reorder', 'delete']);
 
+const formatDuration = (durationInSeconds) => {
+    if (durationInSeconds == null) return 'N/A';
 
-const onDragEnd = () => {
-    emit('reorder');
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+
+    const parts = [];
+
+    if (hours > 0) {
+        parts.push(`${hours}시간`);
+    }
+    if (minutes > 0) {
+        parts.push(`${minutes}분`);
+    }
+    if (seconds > 0 || parts.length === 0) {
+        parts.push(`${seconds}초`);
+    }
+
+    return parts.join(' ');
+};
+
+const dragOptions = ref({
+    animation: 200,
+    group: "description",
+    disabled: false,
+    ghostClass: "ghost"
+});
+
+const updateMemo = (index, event) => {
+    emit('update:memo', index, event.target.value);
 };
 
 const deletePlace = (index) => {
     emit('delete', index);
 };
+
+const onEnd = (event) => {
+    emit('reorder', props.currentDate, event.oldIndex, event.newIndex);
+};
+
+const totalDuration = computed(() => {
+    return props.routeInfo?.summary?.duration ?? 0;
+});
+
+const getSectionDuration = (index) => {
+    return props.routeInfo?.sections?.[index]?.duration ?? null;
+};
+
 </script>
 
 <template>
     <div class="itinerary">
         <draggable
             :list="places"
-            item-key="sequence"
-            @end="onDragEnd"
+            v-bind="dragOptions"
+            @end="onEnd"
+            item-key="id"
             handle=".drag-handle"
         >
             <template #item="{ element, index }">
                 <div class="itinerary-item">
-                    <div class="sequence-number">{{ index + 1 }}</div>
-                    <div class="drag-handle">&#8942;</div>
-                    <div class="content-wrapper">
+                    <div class="place-item">
+                        <div class="drag-handle">&#9776;</div>
                         <div class="place-info">
-                            <div class="place-name">{{ element.place.place_name }}</div>
-                            <div class="place-address">{{ element.place.address_name }}</div>
+                            <span class="sequence">{{ index + 1 }}</span>
+                            <div>
+                                <h3>{{ element.place.place_name }}</h3>
+                                <p>{{ element.place.address_name }}</p>
+                            </div>
                         </div>
-                        <div class="memo-wrapper">
-                            <textarea
-                                v-model="element.memo"
-                                @input="emit('update:memo', index, $event.target.value)"
-                                placeholder="메모를 입력하세요"
-                            ></textarea>
-                        </div>
+                        <textarea
+                            :value="element.memo"
+                            @input="updateMemo(index, $event)"
+                            placeholder="메모를 입력하세요"
+                        ></textarea>
+                        <button @click="deletePlace(index)" class="delete-btn">삭제</button>
                     </div>
-                    <button @click="deletePlace(index)" class="delete-btn">삭제</button>
+                    <div v-if="index < places.length - 1" class="duration-info">
+                        예상 소요 시간: {{ formatDuration(getSectionDuration(index)) }}
+                    </div>
                 </div>
             </template>
         </draggable>
+        <div v-if="totalDuration > 0" class="total-duration">
+            총 예상 소요 시간: {{ formatDuration(totalDuration) }}
+        </div>
     </div>
 </template>
 
 <style scoped>
 .itinerary {
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
+    margin-top: 20px;
 }
 
 .itinerary-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
 }
 
-.sequence-number {
-    font-weight: bold;
-    font-size: 18px;
-    color: #333;
-    width: 30px;
-    text-align: center;
-    margin-right: 10px;
+.place-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
 }
 
 .drag-handle {
     cursor: move;
-    padding: 0 10px;
-    font-size: 20px;
+    padding: 5px;
+    margin-right: 10px;
     color: #888;
-}
-
-.content-wrapper {
-    display: flex;
-    flex-grow: 1;
-    align-items: center;
-    overflow: hidden;
 }
 
 .place-info {
     flex-grow: 1;
-    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sequence {
+    font-size: 18px;
+    font-weight: bold;
     margin-right: 10px;
 }
 
-.place-name {
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.place-address {
-    font-size: 0.9em;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.memo-wrapper {
-    width: 250px;
-    flex-shrink: 0;
-}
-
 textarea {
-    width: 100%;
+    width: 200px;
     height: 60px;
-    padding: 5px;
-    resize: vertical;
-    overflow-y: auto;
+    margin: 0 10px;
 }
 
 .delete-btn {
-    background-color: #ff4d4d;
+    padding: 5px 10px;
+    background-color: #ff4444;
     color: white;
     border: none;
-    padding: 5px 10px;
     border-radius: 3px;
     cursor: pointer;
-    margin-left: 10px;
-    flex-shrink: 0;
 }
 
-.delete-btn:hover {
-    background-color: #ff3333;
+.duration-info {
+    margin: 10px 0;
+    padding: 5px;
+    background-color: #e6f7ff;
+    border-radius: 3px;
+}
+
+.total-duration {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
 }
 </style>

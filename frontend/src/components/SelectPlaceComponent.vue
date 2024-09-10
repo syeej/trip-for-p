@@ -25,6 +25,7 @@ const selectedPlaces = ref({});
 const maps = ref({});
 const currentDateIndex = ref(0);
 const deletedPlaces = ref([]);
+const kakaoRouteInfo = ref({});
 
 const polylines = ref({});
 const markers = ref({});
@@ -71,25 +72,25 @@ const addPlace = (place, date) => {
     }
 };
 
-const initPlace = (itemId, place, date) => {
+const initPlace = (item, date) => {
     const dateString = date.toISOString().split('T')[0];
 
     // 중복 여부 확인
     const isPlaceAlreadyAdded = selectedPlaces.value[dateString].some(
-        selectedPlace => selectedPlace.place.id === place.id
+        selectedPlace => selectedPlace.place.id === item.place.id
     );
 
     if (!isPlaceAlreadyAdded) {
         selectedPlaces.value[dateString].push({
-            id: itemId,
-            place: place,
-            memo: '',
+            id: item.id,
+            place: item.place,
+            memo: item.memo,
             sequence: selectedPlaces.value[dateString].length + 1
         });
-        console.log(`Place added for ${dateString}:`, place);
+        console.log(`Place added for ${dateString}:`, item.place);
         updateRoute(dateString);
     } else {
-        console.log(`Place already added for ${dateString}:`, place);
+        console.log(`Place already added for ${dateString}:`, item.place);
     }
 };
 
@@ -160,7 +161,6 @@ const shouldShowMap = (date) => {
 };
 
 const initMap = (dateString) => {
-    console.log(`Initializing map for ${dateString}`);
     const container = document.getElementById(`map-${dateString}`);
     if (!container) {
         console.error(`Map container not found for ${dateString}`);
@@ -184,10 +184,9 @@ const initMap = (dateString) => {
 };
 
 const updateRoute = (dateString) => {
-    console.log(`Updating route for ${dateString}`);
     const map = maps.value[dateString];
     if (!map) {
-        console.error(`Map not found for ${dateString}`);
+        console.log(`Map not found for ${dateString}`);
         return;
     }
 
@@ -235,7 +234,6 @@ const updateRoute = (dateString) => {
             y: item.place.y
         }));
 
-        console.log('Fetching route data...');
         fetch('https://apis-navi.kakaomobility.com/v1/waypoints/directions', {
             method: 'POST',
             headers: {
@@ -253,6 +251,7 @@ const updateRoute = (dateString) => {
             console.log('Route data received:', data);
             if (data.routes && data.routes.length > 0) {
                 const path = [];
+                kakaoRouteInfo.value = data.routes[0];
                 data.routes[0].sections.forEach(section => {
                     section.roads.forEach(road => {
                         for (let i = 0; i < road.vertexes.length; i += 2) {
@@ -281,6 +280,9 @@ const updateRoute = (dateString) => {
         .catch(error => {
             console.error('경로 검색 오류:', error);
         });
+    } else {
+        // 장소가 2개 미만일 때 kakaoRouteInfo 초기화
+        kakaoRouteInfo.value = {};
     }
 
     // 지도 범위 설정 및 레벨 조정
@@ -292,8 +294,6 @@ const updateRoute = (dateString) => {
         currentLevel--;
         map.setLevel(currentLevel);
     }
-
-    console.log(`Route updated for ${dateString}`);
 };
 
 // 모든 마커가 지도에 보이는지 확인하는 함수
@@ -307,10 +307,30 @@ const updateMemo = (date, index, memo) => {
     selectedPlaces.value[date][index].memo = memo;
 };
 
-const reorderPlaces = (date) => {
+const reorderPlaces = async (date, oldIndex, newIndex) => {
+    console.log(`Reordering places for date ${date}: ${oldIndex} -> ${newIndex}`);
+
+    if (!selectedPlaces.value[date] || !Array.isArray(selectedPlaces.value[date])) {
+        console.error(`Invalid data for date ${date}`);
+        return;
+    }
+
+    const items = [...selectedPlaces.value[date]];
+    const [reorderedItem] = items.splice(oldIndex, 1);
+    items.splice(newIndex, 0, reorderedItem);
+
+    // 새 배열을 할당하여 반응성 트리거
+    selectedPlaces.value = {
+        ...selectedPlaces.value,
+        [date]: items
+    };
+
+    // sequence 재정렬
     selectedPlaces.value[date].forEach((item, index) => {
         item.sequence = index + 1;
     });
+
+    await nextTick();
     updateRoute(date);
 };
 
@@ -339,7 +359,7 @@ onMounted(() => {
     if (props.planItems) {
         console.log(props.planItems)
         props.planItems.forEach(item => {
-            initPlace(item.id, item.place, new Date(item.tripDate))
+            initPlace(item , new Date(item.tripDate))
         })
     }
     const script = document.createElement('script');
@@ -377,6 +397,11 @@ watch(() => {
         });
     }
 }, { deep: true });
+
+const currentDate = computed(() => {
+    if (dates.value.length === 0) return null;
+    return dates.value[currentDateIndex.value].toISOString().split('T')[0];
+});
 
 const generatePlan = async () => {
     try {
@@ -455,7 +480,11 @@ const updatePlan = async () => {
 const emit = defineEmits(['back-to-day']);
 
 const handleBack = () => {
-    emit('back-to-day');
+    if (props.mode === 'create') {
+        emit('back-to-day');
+    } else {
+        router.go(-1);
+    }
 };
 const isSaveButtonEnabled = computed(() => {
     return Object.values(selectedPlaces.value).every(places => places.length > 0);
@@ -479,10 +508,12 @@ const isSaveButtonEnabled = computed(() => {
             </div>
             <SearchPlaceComponent @place-selected="place => addPlace(place, dates[currentDateIndex])"/>
             <ItineraryComponent
-                :places="selectedPlaces[dates[currentDateIndex].toISOString().split('T')[0]]"
-                @update:memo="(index, memo) => updateMemo(dates[currentDateIndex].toISOString().split('T')[0], index, memo)"
-                @reorder="reorderPlaces(dates[currentDateIndex].toISOString().split('T')[0])"
-                @delete="index => deletePlace(dates[currentDateIndex].toISOString().split('T')[0], index)"
+                :places="selectedPlaces[currentDate]"
+                :routeInfo="kakaoRouteInfo"
+                :currentDate="currentDate"
+                @update:memo="(index, memo) => updateMemo(currentDate, index, memo)"
+                @reorder="reorderPlaces"
+                @delete="index => deletePlace(currentDate, index)"
             />
         </div>
         <div class="button-container">
