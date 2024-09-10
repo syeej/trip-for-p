@@ -6,14 +6,25 @@ import router from "@/router";
 
 const title = ref('');
 const content = ref('');
-const files = ref([]);
+const newFiles = ref([]);
 const route = useRoute();
 const existingFiles = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const previewUrls = ref([]);
 
 const handleFileChange = (event) => {
-    files.value = Array.from(event.target.files);
+    previewUrls.value = []
+    const addedFiles = Array.from(event.target.files);
+    newFiles.value = [...newFiles.value, ...addedFiles];
+
+    addedFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewUrls.value.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
 };
 
 const updateMagazine = async function () {
@@ -29,7 +40,7 @@ const updateMagazine = async function () {
             type: 'application/json'
         }));
 
-        files.value.forEach((file) => {
+        newFiles.value.forEach((file) => {
             formData.append(`files`, file);
         });
 
@@ -47,6 +58,7 @@ const loadMagazine = async () => {
         title.value = response.data.title;
         content.value = response.data.content;
         existingFiles.value = response.data.fileUrls || [];
+        previewUrls.value = [...existingFiles.value];
     } catch (err) {
         console.error('매거진 데이터 로딩 중 오류 발생:', err);
         error.value = "매거진 데이터를 불러오는 데 실패했습니다.";
@@ -75,19 +87,13 @@ onMounted(loadMagazine);
             </div>
 
             <div class="form-group">
-                <label>기존 파일:</label>
-                <div v-if="existingFiles.length > 0" class="existing-files">
-                    <div v-for="fileUrl in existingFiles" :key="fileUrl" class="existing-file">
-                        <img :src="fileUrl" alt="기존 첨부 파일">
-                    </div>
-                </div>
-                <p v-else>기존 첨부 파일이 없습니다.</p>
-            </div>
-
-            <div class="form-group">
-                <label for="files">새 파일 첨부:</label>
+                <label for="files">파일 첨부</label>
                 <input type="file" id="files" @change="handleFileChange" multiple>
-                <p v-if="files.length > 0">선택된 파일: {{ files.map(f => f.name).join(', ') }}</p>
+            </div>
+            <div class="file-preview" v-if="previewUrls.length > 0">
+                <div v-for="(url, index) in previewUrls" :key="index" class="preview-item">
+                    <img :src="url" alt="File preview"/>
+                </div>
             </div>
 
             <button type="submit" class="submit-btn">수정 완료</button>
@@ -123,6 +129,7 @@ label {
     margin-bottom: 5px;
     font-weight: bold;
 }
+
 input, textarea {
     padding: 10px;
     border: 1px solid #ddd;
@@ -134,18 +141,45 @@ textarea {
     height: 200px;
 }
 
-.existing-files {
+.file-preview {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
 }
 
-.existing-file img {
+.preview-item {
+    position: relative;
     width: 100px;
     height: 100px;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     border-radius: 4px;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-btn:hover {
+    background-color: rgba(255, 0, 0, 0.9);
 }
 
 .submit-btn {
