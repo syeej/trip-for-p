@@ -71,25 +71,25 @@ const addPlace = (place, date) => {
     }
 };
 
-const initPlace = (itemId, place, date) => {
+const initPlace = (item, date) => {
     const dateString = date.toISOString().split('T')[0];
 
     // 중복 여부 확인
     const isPlaceAlreadyAdded = selectedPlaces.value[dateString].some(
-        selectedPlace => selectedPlace.place.id === place.id
+        selectedPlace => selectedPlace.place.id === item.place.id
     );
 
     if (!isPlaceAlreadyAdded) {
         selectedPlaces.value[dateString].push({
-            id: itemId,
-            place: place,
-            memo: '',
+            id: item.id,
+            place: item.place,
+            memo: item.memo,
             sequence: selectedPlaces.value[dateString].length + 1
         });
-        console.log(`Place added for ${dateString}:`, place);
+        console.log(`Place added for ${dateString}:`, item.place);
         updateRoute(dateString);
     } else {
-        console.log(`Place already added for ${dateString}:`, place);
+        console.log(`Place already added for ${dateString}:`, item.place);
     }
 };
 
@@ -339,7 +339,7 @@ onMounted(() => {
     if (props.planItems) {
         console.log(props.planItems)
         props.planItems.forEach(item => {
-            initPlace(item.id, item.place, new Date(item.tripDate))
+            initPlace(item , new Date(item.tripDate))
         })
     }
     const script = document.createElement('script');
@@ -455,7 +455,11 @@ const updatePlan = async () => {
 const emit = defineEmits(['back-to-day']);
 
 const handleBack = () => {
-    emit('back-to-day');
+    if (props.mode === 'create') {
+        emit('back-to-day');
+    } else {
+        router.go(-1);
+    }
 };
 const isSaveButtonEnabled = computed(() => {
     return Object.values(selectedPlaces.value).every(places => places.length > 0);
