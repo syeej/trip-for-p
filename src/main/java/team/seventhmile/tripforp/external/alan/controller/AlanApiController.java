@@ -27,7 +27,7 @@ public class AlanApiController {
     }
 
     // 여행 지역 기반의 특별한 여행지 또는 체험 추천 서비스
-    @GetMapping("area")
+    @GetMapping("/area")
     public String processArea(@RequestParam(name = "client_id") String clientId,
         @Valid @RequestBody AreaRecsRequest request) {
 

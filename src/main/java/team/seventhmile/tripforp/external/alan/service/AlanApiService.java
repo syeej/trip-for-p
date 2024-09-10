@@ -39,12 +39,15 @@ public class AlanApiService {
     public String getRecommendationsByArea(String clientId,
         AreaRecsRequest request) {
         String area = request.getArea();
-        String startDate = request.getStartDate().toString();
-        String endDate = request.getEndDate().toString();
 
-        String content = URLEncoder.encode(
-            startDate + "~" + endDate + "까지 " + area + " 지역 기반의 특별한 여행지 또는 체험, 축제 추천해줘",
+        String totalDate = request.getStartDate().toString() + " - " + request.getEndDate().toString();
+
+        String content = URLEncoder.encode("답변을 html 형식으로 한번만 출력해주면 좋겠어." +
+                totalDate + "기간동안 " + area + " 지역을 여행할거야." +
+                "이 기간동안 최고온도 최저온도 강수량을 한 문장으로 알려주고, " +
+                area + " 지역 안에서 여행기간동안 열리는 체험행사와 축제 그리고 여행지를 추천해줘.",
             StandardCharsets.UTF_8);
+        System.out.println("content: "+content);
         String url = UriComponentsBuilder.fromHttpUrl(
                 "https://kdt-api-function.azurewebsites.net" + "/api/v1/question")
             .queryParam("content", content)
@@ -55,7 +58,9 @@ public class AlanApiService {
         try {
             String getContent = Objects.requireNonNull(
                 restTemplate.getForObject(url, AlanApiResponse.class)).getContent();
-            return convertToHtml(getContent);
+
+            return getContent;
+            //return convertToHtml(getContent);
         } catch (ResourceAccessException e) {
             // 네트워크 또는 접근 실패 시 처리
             return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.: 네트워크 오류";
@@ -69,6 +74,7 @@ public class AlanApiService {
 
     }
 
+    // 사용할지 고민해봐야함
     public String convertToHtml(String text) {
         StringBuilder html = new StringBuilder();
         html.append("<html><body>\n");
