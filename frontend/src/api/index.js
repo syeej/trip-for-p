@@ -171,6 +171,10 @@ const getMyLikedPlansAPI = function(request){
         }
     });
 }
+//[마이페이지]회원 탈퇴
+const withdrawalUserAPI = function(){
+    return authInstance.patch('/api/users/deletion');
+}
 const createFreePostAPI = function (request) {
     return authInstance.post(`/api/free-posts`, request);
 };
@@ -316,5 +320,6 @@ export {
     getMyReviewListAPI,
     getMyFreePostCommentListAPI,
     getMyReviewCommentListAPI,
-    getMyLikedPlansAPI
+    getMyLikedPlansAPI,
+    withdrawalUserAPI
 }
