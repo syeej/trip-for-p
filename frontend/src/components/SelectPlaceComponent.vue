@@ -3,19 +3,28 @@
 import {computed, defineEmits, defineProps, nextTick, onMounted, ref, watch} from "vue";
 import ItineraryComponent from "@/components/ItineraryComponent.vue";
 import SearchPlaceComponent from "@/components/SearchPlaceComponent.vue";
-import {createPlanAPI} from "@/api";
+import {createPlanAPI, updatePlanAPI} from "@/api";
 import router from "@/router";
+import {useRoute} from "vue-router";
+
+const route = useRoute();
 
 const props = defineProps({
     startDate: String,
     endDate: String,
-    selectedRegion: String
+    selectedRegion: String,
+    planItems: Array,
+    mode: {
+        type: String,
+        default: 'create'
+    },
 });
 
 const title = ref(`${props.selectedRegion} 여행`);
 const selectedPlaces = ref({});
 const maps = ref({});
 const currentDateIndex = ref(0);
+const deletedPlaces = ref([]);
 
 const polylines = ref({});
 const markers = ref({});
@@ -62,8 +71,49 @@ const addPlace = (place, date) => {
     }
 };
 
+const initPlace = (itemId, place, date) => {
+    const dateString = date.toISOString().split('T')[0];
+
+    // 중복 여부 확인
+    const isPlaceAlreadyAdded = selectedPlaces.value[dateString].some(
+        selectedPlace => selectedPlace.place.id === place.id
+    );
+
+    if (!isPlaceAlreadyAdded) {
+        selectedPlaces.value[dateString].push({
+            id: itemId,
+            place: place,
+            memo: '',
+            sequence: selectedPlaces.value[dateString].length + 1
+        });
+        console.log(`Place added for ${dateString}:`, place);
+        updateRoute(dateString);
+    } else {
+        console.log(`Place already added for ${dateString}:`, place);
+    }
+};
+
 
 const deletePlace = (dateString, index) => {
+    const deletedItem = selectedPlaces.value[dateString][index];
+    console.log(deletedItem)
+    if (deletedItem.id) {
+        deletedPlaces.value.push({
+            id: deletedItem.id,
+            action: 'delete',
+            place: {
+                addressName: deletedItem.place.address_name,
+                categoryName: deletedItem.place.category_name,
+                placeName: deletedItem.place.place_name,
+                imageUrl: deletedItem.place.image_url,
+                x: deletedItem.place.x,
+                y: deletedItem.place.y
+            },
+            tripDate: dateString,
+            sequence: deletedItem.sequence,
+            memo: deletedItem.memo
+        });
+    }
     selectedPlaces.value[dateString].splice(index, 1);
     selectedPlaces.value[dateString].forEach((item, i) => {
         item.sequence = i + 1;
@@ -286,6 +336,12 @@ const goToNextDate = () => {
 };
 
 onMounted(() => {
+    if (props.planItems) {
+        console.log(props.planItems)
+        props.planItems.forEach(item => {
+            initPlace(item.id, item.place, new Date(item.tripDate))
+        })
+    }
     const script = document.createElement('script');
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.VUE_APP_KAKAO_MAP_API_KEY_JAVASCRIPT}&autoload=false&libraries=services`;
     document.head.appendChild(script);
@@ -298,6 +354,8 @@ onMounted(() => {
             });
         });
     };
+
+
 });
 
 // selectedPlaces의 변경을 감지하는 watch 함수 (메모 변경 제외)
@@ -354,6 +412,46 @@ const generatePlan = async () => {
     }
 
 };
+const updatePlan = async () => {
+    try {
+        const planItems = [
+            ...deletedPlaces.value.map(item => JSON.parse(JSON.stringify(item))),
+            ...Object.entries(selectedPlaces.value).flatMap(([date, places]) =>
+                places.map(item => ({
+                    id: item.id || null,
+                    action: item.id ? 'update' : 'create',
+                    place: {
+                        addressName: item.place.address_name,
+                        categoryName: item.place.category_name,
+                        placeName: item.place.place_name,
+                        imageUrl: item.place.image_url,
+                        x: item.place.x,
+                        y: item.place.y
+                    },
+                    tripDate: date,
+                    sequence: item.sequence,
+                    memo: item.memo
+                }))
+            )
+        ];
+
+        const updatePlanRequest = {
+            startDate: props.startDate,
+            endDate: props.endDate,
+            title: title.value,
+            area: props.selectedRegion,
+            planItems: planItems
+        };
+
+        console.log(updatePlanRequest)
+
+        const response = await updatePlanAPI(route.params.planId, updatePlanRequest);
+        const planId = response.data.id;
+        await router.push(`/plan/${planId}`);
+    } catch (error) {
+        console.log(error);
+    }
+};
 const emit = defineEmits(['back-to-day']);
 
 const handleBack = () => {
@@ -389,7 +487,8 @@ const isSaveButtonEnabled = computed(() => {
         </div>
         <div class="button-container">
             <button @click="handleBack" class="back-button">이전</button>
-            <button @click="generatePlan" class="save-plan-button" :disabled="!isSaveButtonEnabled">일정 저장</button>
+            <button v-if="props.mode==='create'" @click="generatePlan" class="save-plan-button" :disabled="!isSaveButtonEnabled">일정 저장</button>
+            <button v-else-if="props.mode==='update'" @click="updatePlan" class="save-plan-button" :disabled="!isSaveButtonEnabled">일정 수정</button>
         </div>
     </div>
 </template>
