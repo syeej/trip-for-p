@@ -117,6 +117,15 @@ const getFreePostListAPI = function (request) {
     return instance.get(
         `/api/free-posts?keyword=${request.keyword}&size=${request.size}&page=${request.page}`);
 }
+//[마이페이지]작성한 여행코스 글 목록 조회
+const getMyPlanListAPI = function(request){
+    return authInstance.get(`/api/plans/me`, {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
 //[마이페이지]작성한 자유게시글 목록 조회
 const getMyFreePostListAPI = function(request){
     return authInstance.get(`/api/free-posts/me`, {
@@ -128,6 +137,24 @@ const getMyFreePostListAPI = function(request){
 }
 //[마이페이지]작성한 리뷰게시글 목록 조회
 const getMyReviewListAPI = function(request){
+    return authInstance.get('/api/review-posts/me', {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
+//[마이페이지]작성한 댓글-자유게시글 목록 조회
+const getMyFreePostCommentListAPI = function(request){
+    return authInstance.get(`/api/free-posts/me`, {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
+//[마이페이지]작성한 댓글-리뷰게시글 목록 조회
+const getMyReviewCommentListAPI = function(request){
     return authInstance.get('/api/review-posts/me', {
         params: {
             size: request.size,
@@ -275,6 +302,9 @@ export {
     getMagazineAPI,
     deleteMagazineAPI,
     updateMagazineAPI,
+    getMyPlanListAPI,
     getMyFreePostListAPI,
-    getMyReviewListAPI
+    getMyReviewListAPI,
+    getMyFreePostCommentListAPI,
+    getMyReviewCommentListAPI
 }
