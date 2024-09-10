@@ -45,7 +45,7 @@ const getImageSrc = computed(() => (imageUrl) => {
 });
 
 const goToMagazineDetail = (id) => {
-    console.log(`매거진 ${id}의 상세 페이지로 이동`);
+    router.push(`/magazine/${id}`)
 };
 
 const goToPlanDetail = (id) => {

@@ -3,6 +3,7 @@ import {computed} from "vue";
 import store from "@/store";
 
 const isAccessTokenValid = computed(() => store.getters.isAccessTokenValid);
+const isAdmin = computed(() => store.getters.getRole==='ADMIN')
 
 const logout = function () {
     store.commit('clearData');
@@ -28,8 +29,11 @@ const logout = function () {
                     </li>
                 </template>
                 <template v-else>
-                    <li>
+                    <li v-if="!isAdmin">
                         <router-link to="/mypage">마이페이지</router-link>
+                    </li>
+                    <li v-else>
+                        <router-link to="/admin">관리자페이지</router-link>
                     </li>
                     <li>|</li>
                     <li>

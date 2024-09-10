@@ -14,6 +14,7 @@ import team.seventhmile.tripforp.domain.plan.repository.PlanLikeRepository;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
+import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +58,11 @@ public class PlanLikeService {
       long likeCount = planLikeRepository.countByPlanId(plan.getId());
       return new GetPlanListResponse(plan, likeCount);
     });
+  }
+
+  public Boolean checkPlanLike(String email, Long planId) {
+    User findUser = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException(User.class));
+    return planLikeRepository.existsPlanLikeByUserIdAndPlanId(findUser.getId(), planId);
   }
 }

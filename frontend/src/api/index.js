@@ -102,7 +102,7 @@ const verifyNickNameAPI = async function (request) {
 
 const getMagazineListAPI = function (request) {
     return instance.get(
-        `/api/magazines?size=${request.size}&page=${request.page}`);
+        `/api/magazines?keyword=&size=${request.size}&page=${request.page}`);
 }
 
 const getPopularPlaceListAPI = function () {
@@ -167,12 +167,31 @@ const getFreePostAPI = function (id) {
 };
 
 const getFreeCommentListAPI = function (request) {
-    return instance.get(`/api/free-posts/${request.postId}/comments?&sort=createdAt,desc&size=${request.size}&page=${request.page}`)
+    return instance.get(
+        `/api/free-posts/${request.postId}/comments?&sort=createdAt,desc&size=${request.size}&page=${request.page}`)
 }
+
+const likePlanAPI = function (request) {
+    return authInstance.post(`/api/plan-likes`, request);
+};
+
+const checkPlanLikeAPI = function (planId) {
+    return authInstance.get(`/api/plan-likes/check?planId=${planId}`);
+};
+
+const updatePlanAPI = function (id, request) {
+    return authInstance.put(`/api/plans/${id}`, request);
+};
+
+const deletePlanAPI = function (id) {
+    return authInstance.delete(`/api/plans/${id}`);
+};
+
 //[비밀번호 재설정]이메일 인증코드 전송
 const sendPasswordResetEmailAPI = async function (request) {
     try {
-        const response = await instance.post(`/api/mails/password-reset-request`,
+        const response = await instance.post(
+            `/api/mails/password-reset-request`,
             request);
         return response.data;
     } catch (error) {
@@ -198,6 +217,32 @@ const resetPasswordAPI = async function (request) {
     }
 }
 
+const createMagazineAPI = function (formData) {
+    return authInstance.post(`/api/magazines`, formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+}
+
+const updateMagazineAPI = function (id, formData) {
+    return authInstance.put(`/api/magazines/${id}`, formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+}
+
+const getMagazineAPI = function (id) {
+    return instance.get(`/api/magazines/${id}`);
+}
+
+const deleteMagazineAPI = function (id) {
+    return authInstance.delete(`/api/magazines/${id}`);
+};
+
 export {
     getPopularPlanListAPI,
     getPopularPlaceListAPI,
@@ -220,8 +265,16 @@ export {
     deleteFreeCommentAPI,
     updateFreePostAPI,
     deleteFreePostAPI,
+    likePlanAPI,
+    checkPlanLikeAPI,
+    updatePlanAPI,
+    deletePlanAPI,
     sendPasswordResetEmailAPI,
     resetPasswordAPI,
+    createMagazineAPI,
+    getMagazineAPI,
+    deleteMagazineAPI,
+    updateMagazineAPI,
     getMyFreePostListAPI,
     getMyReviewListAPI
 }

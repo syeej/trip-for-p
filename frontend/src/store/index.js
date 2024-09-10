@@ -26,7 +26,6 @@ const store = createStore({
         },
         getNickname: function (state) {
             if (!state.accessToken) {
-                console.log("여기")
                 return false;
             }
             try {
@@ -37,6 +36,18 @@ const store = createStore({
                 return decodedToken.nickname;
             } catch (error) {
                 console.error('Error decoding nickname:', error);
+                return false;
+            }
+        },
+        getRole: function (state) {
+            if (!state.accessToken) {
+                return false;
+            }
+            try {
+                const decodedToken = jwtDecoder.decode(state.accessToken)
+                console.log(decodedToken.role)
+                return decodedToken.role
+            } catch (error) {
                 return false;
             }
         }

@@ -1,10 +1,12 @@
 package team.seventhmile.tripforp.domain.plan.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.seventhmile.tripforp.domain.plan.entity.Plan;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class GetPopularPlanResponse {
