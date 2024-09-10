@@ -98,6 +98,7 @@ public class UserService {
 
 	// 비밀번호 재설정 로직
 	public ResponseEntity<?> resetPassword(String username, String newPassword) {
+		log.info("재설정 service 2차: {}", newPassword);
 
 		try {
 			User currentUser = userRepository.findByEmail(username)
