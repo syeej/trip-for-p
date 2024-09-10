@@ -223,7 +223,7 @@ export {
     likePlanAPI,
     checkPlanLikeAPI,
     updatePlanAPI,
-    deletePlanAPI
+    deletePlanAPI,
     sendPasswordResetEmailAPI,
     resetPasswordAPI
 }
