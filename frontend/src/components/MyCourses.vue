@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import {getMyPlanListAPI} from "@/api";
+import {getMyPlanCourseListAPI} from "@/api";
 
 const router = useRouter();
 const courses = ref([]);
@@ -13,7 +13,7 @@ const loading = ref(false);
 const fetchCourses = async (page) => {
   loading.value = true;
   try {
-    const response = await getMyPlanListAPI({
+    const response = await getMyPlanCourseListAPI({
       page: page,
       size: pageSize.value,
     });

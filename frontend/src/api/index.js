@@ -118,7 +118,7 @@ const getFreePostListAPI = function (request) {
         `/api/free-posts?keyword=${request.keyword}&size=${request.size}&page=${request.page}`);
 }
 //[마이페이지]작성한 여행코스 글 목록 조회
-const getMyPlanListAPI = function(request){
+const getMyPlanCourseListAPI = function(request){
     return authInstance.get(`/api/plans/me`, {
         params: {
             size: request.size,
@@ -380,6 +380,7 @@ export {
     getReviewPostListAPI,
     deleteReviewPostAPI,
     getMyPlanListAPI,
+    getMyPlanCourseListAPI,
     getMyReviewListAPI,
     getMyFreePostCommentListAPI,
     getMyReviewCommentListAPI,

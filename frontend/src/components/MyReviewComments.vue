@@ -61,7 +61,7 @@ const formatDate = (dateString) => {
 };
 /* 리뷰 상세 글 이동(수정 필요)*/
 const goToReviewDetail = (postId) => {
-  router.push(`/free-post/${postId}`);
+  router.push(`/review-post/${postId}`);
 };
 
 onMounted(() => {
