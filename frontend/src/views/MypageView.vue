@@ -15,7 +15,15 @@ const subPage = ref(null);
 
 const navigate = (page) => {
   currentPage.value = page;
-  subPage.value = null;
+  if (page === 'myPosts') {
+    subPage.value = 'myReviewPosts';
+  } else if (page === 'myComments') {
+    subPage.value = 'myReviewComments';
+  } else if (page === 'likedPosts') {
+    subPage.value = 'likedReviewPosts';
+  } else {
+    subPage.value = null;
+  }
 };
 
 const navigateSubPage = (page) => {
@@ -78,10 +86,13 @@ const isSubActive = (page) => {
 
 <style scoped>
 .page-container {
+  width: 100%; /* 새로 추가 */
   display: flex;
   margin-top: 60px;
 }
-
+.content{
+  width: 100%;
+}
 .sidebar {
   width: 200px;
   background-color: #f8f8f8;

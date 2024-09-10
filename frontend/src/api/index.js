@@ -117,7 +117,24 @@ const getFreePostListAPI = function (request) {
     return instance.get(
         `/api/free-posts?keyword=${request.keyword}&size=${request.size}&page=${request.page}`);
 }
-
+//[마이페이지]작성한 자유게시글 목록 조회
+const getMyFreePostListAPI = function(request){
+    return authInstance.get(`/api/free-posts/me`, {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
+//[마이페이지]작성한 리뷰게시글 목록 조회
+const getMyReviewListAPI = function(request){
+    return authInstance.get('/api/review-posts/me', {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
 const createFreePostAPI = function (request) {
     return authInstance.post(`/api/free-posts`, request);
 };
@@ -257,5 +274,7 @@ export {
     createMagazineAPI,
     getMagazineAPI,
     deleteMagazineAPI,
-    updateMagazineAPI
+    updateMagazineAPI,
+    getMyFreePostListAPI,
+    getMyReviewListAPI
 }

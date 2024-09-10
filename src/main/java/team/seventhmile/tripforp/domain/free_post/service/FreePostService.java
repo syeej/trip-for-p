@@ -128,7 +128,7 @@ public class FreePostService {
 	// 내가 작성한 자유게시글 조회
 	@Transactional(readOnly = true)
 	public Page<FreePostDto> getMyFreePostList(UserDetails user, Pageable pageable) {
-		return freePostRepository.findByUserEmail(user.getUsername(), pageable)
+		return freePostRepository.findByUserEmailOrderByCreatedAtDesc(user.getUsername(), pageable)
 				.map(FreePostDto::convertToDto);
 	}
 
