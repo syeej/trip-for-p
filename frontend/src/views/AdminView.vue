@@ -23,6 +23,38 @@ const getMagazineList = async function () {
     }
 };
 
+// 상대적 시간 포맷팅 함수 추가
+const formatRelativeTime = (dateString) => {
+
+    const now = new Date().toISOString();
+    const cleanDateString = dateString.replace(/\[.*\]$/, '');
+    const past = new Date(cleanDateString).toISOString();
+    const diffInMilliseconds = new Date(now) - new Date(past);
+    const diffInSeconds = Math.floor(diffInMilliseconds / 1000);
+    console.log(diffInSeconds)
+
+    if (diffInSeconds < 60) {
+        return '방금 전';
+    } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `${minutes}분 전`;
+    } else if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours}시간 전`;
+    } else {
+        return formatDate(dateString);
+    }
+};
+
+// 날짜 포맷팅 함수 추가
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 const changePage = async (page) => {
     currentPage.value = page;
     await getMagazineList();
@@ -59,7 +91,7 @@ onMounted(getMagazineList);
                     @click="navigateToDetail(magazine.id)" class="clickable-row">
                     <td>{{ magazine.id }}</td>
                     <td>{{ magazine.title }}</td>
-                    <td>{{ new Date(magazine.createdAt).toLocaleDateString() }}</td>
+                    <td>{{ formatRelativeTime(magazine.createdAt) }}</td>
                 </tr>
                 </tbody>
             </table>

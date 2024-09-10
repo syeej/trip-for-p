@@ -42,6 +42,16 @@ const deleteMagazine = async () => {
     }
 };
 
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
+};
+
 onMounted(() => {
     getMagazine();
 });
@@ -54,7 +64,7 @@ onMounted(() => {
         <div v-else>
             <h1>{{ magazine.title }}</h1>
             <div class="meta-info">
-                <p>작성일: {{ new Date(magazine.createdAt).toLocaleDateString() }}</p>
+                <p>작성일: {{ formatDate(magazine.createdAt) }}</p>
                 <p>조회수: {{ magazine.views }}</p>
             </div>
             <pre class="content">{{ magazine.content }}</pre>
