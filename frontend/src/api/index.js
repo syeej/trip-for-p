@@ -146,7 +146,7 @@ const getMyReviewListAPI = function(request){
 }
 //[마이페이지]작성한 댓글-자유게시글 목록 조회
 const getMyFreePostCommentListAPI = function(request){
-    return authInstance.get(`/api/free-posts/me`, {
+    return authInstance.get(`/api/free-posts/1/comments/me`, {
         params: {
             size: request.size,
             page: request.page
@@ -155,7 +155,7 @@ const getMyFreePostCommentListAPI = function(request){
 }
 //[마이페이지]작성한 댓글-리뷰게시글 목록 조회
 const getMyReviewCommentListAPI = function(request){
-    return authInstance.get('/api/review-posts/me', {
+    return authInstance.get('/api/review-posts/1/comments/me', {
         params: {
             size: request.size,
             page: request.page
