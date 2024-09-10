@@ -162,6 +162,15 @@ const getMyReviewCommentListAPI = function(request){
         }
     });
 }
+//[마이페이지]좋아요 여행코스 목록 조회
+const getMyLikedPlansAPI = function(request){
+    return authInstance.get('/api/plan-likes/me', {
+        params: {
+            size: request.size,
+            page: request.page
+        }
+    });
+}
 const createFreePostAPI = function (request) {
     return authInstance.post(`/api/free-posts`, request);
 };
@@ -306,5 +315,6 @@ export {
     getMyFreePostListAPI,
     getMyReviewListAPI,
     getMyFreePostCommentListAPI,
-    getMyReviewCommentListAPI
+    getMyReviewCommentListAPI,
+    getMyLikedPlansAPI
 }
