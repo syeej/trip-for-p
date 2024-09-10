@@ -297,6 +297,14 @@ const getMyPlanListAPI = function (request) {
     return authInstance.get(`/api/plans/me?size=${request.size}&page=${request.page}`);
 };
 
+const refreshTokenAPI = function () {
+    return instance.post(`/api/users/reissue`)
+};
+
+const getUserInfoAPI = function () {
+    return authInstance.get(`/api/users/me`);
+};
+
 export {
     getPopularPlanListAPI,
     getPopularPlaceListAPI,
@@ -340,5 +348,7 @@ export {
     updateReviewPostAPI,
     getReviewPostListAPI,
     deleteReviewPostAPI,
-    getMyPlanListAPI
+    getMyPlanListAPI,
+    refreshTokenAPI,
+    getUserInfoAPI
 }
