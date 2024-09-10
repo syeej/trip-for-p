@@ -27,8 +27,8 @@ const searchPlace = async () => {
     try {
         const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/searchKeyword1', {
             params: {
-                serviceKey: 'F/sLTLlpPGmlONOSmj+M4GwQ+U8R74pgGnRGKPC5NaRolK/ubpOQ84pcC6UmTSbEoAeBmK6Ndc+beaNrHs7zLw==',
-                numOfRows: 10,
+                serviceKey: process.env.VUE_APP_DATA_KEY,
+                numOfRows: 20,
                 pageNo: 1,
                 MobileOS: 'ETC',
                 MobileApp: 'AppTest',
@@ -40,7 +40,14 @@ const searchPlace = async () => {
         });
 
         if (response.data.response.header.resultCode === '0000') {
-            searchResults.value = response.data.response.body.items.item.map(item => ({
+            searchResults.value = response.data.response.body.items.item
+            .filter(item =>
+                item.contentid &&
+                item.addr1 &&
+                getCategoryName(item.contenttypeid) &&
+                item.title
+            )
+            .map(item => ({
                 id: item.contentid,
                 address_name: item.addr1,
                 category_name: getCategoryName(item.contenttypeid),

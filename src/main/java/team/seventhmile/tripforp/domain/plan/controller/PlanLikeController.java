@@ -26,11 +26,12 @@ public class PlanLikeController {
   // 좋아요 또는 좋아요 취소를 처리하는 엔드포인트
   @PostMapping
   public ResponseEntity<PlanLikeResponseDto> toggleLikePlan(
-          @AuthenticationPrincipal UserDetails userDetails,
-          @RequestBody PlanLikeRequestDto requestDto) {
+      @AuthenticationPrincipal UserDetails userDetails,
+      @RequestBody PlanLikeRequestDto requestDto) {
 
     // userDetails에서 이메일을 추출하여 서비스에 전달
-    PlanLikeResponseDto responseDto = planLikeService.toggleLikePlan(userDetails.getUsername(), requestDto.getPlanId());
+    PlanLikeResponseDto responseDto = planLikeService.toggleLikePlan(userDetails.getUsername(),
+        requestDto.getPlanId());
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
@@ -38,8 +39,17 @@ public class PlanLikeController {
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/me")
   public ResponseEntity<Page<GetPlanListResponse>> getMyFavPlanList(
-          @AuthenticationPrincipal UserDetails user,
-          Pageable pageable){
+      @AuthenticationPrincipal UserDetails user,
+      Pageable pageable) {
     return ResponseEntity.ok(planLikeService.getMyFavPlanList(user, pageable));
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/check")
+  public ResponseEntity<Boolean> checkPlanLike(
+      @AuthenticationPrincipal UserDetails user,
+      @RequestParam(name = "planId") Long planId
+  ) {
+    return ResponseEntity.ok(planLikeService.checkPlanLike(user.getUsername(), planId));
   }
 }

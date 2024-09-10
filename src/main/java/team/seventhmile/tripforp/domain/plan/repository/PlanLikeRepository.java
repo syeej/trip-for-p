@@ -19,4 +19,6 @@ public interface PlanLikeRepository extends JpaRepository<PlanLike, Long> {
     // [마이페이지]내가 좋아요한 여행코스 게시글 목록 조회
     @Query("SELECT pl.plan FROM PlanLike pl WHERE pl.user.email = :email")
     Page<Plan> findPlansByUserEmail(@Param("email") String email, Pageable pageable);
+
+    Boolean existsPlanLikeByUserIdAndPlanId(Long userId, Long planId);
 }

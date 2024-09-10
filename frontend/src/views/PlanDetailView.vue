@@ -2,8 +2,9 @@
 /* global kakao */
 import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute} from "vue-router";
-import {getPlanAPI} from "@/api";
+import {checkPlanLikeAPI, deletePlanAPI, getPlanAPI, likePlanAPI} from "@/api";
 import router from "@/router";
+import store from "@/store";
 
 const mapContainer = ref(null);
 const currentDateIndex = ref(0);
@@ -14,6 +15,7 @@ const infowindows = ref([]);
 const plan = ref(null);
 const route = useRoute();
 const isMapInitialized = ref(false);
+const isLiked = ref(false);
 
 const loadKakaoMapScript = () => {
     return new Promise((resolve, reject) => {
@@ -91,7 +93,10 @@ const getPlan = async function () {
 
         await loadKakaoMapScript();
         await initMap();
-        updateMap();
+        await updateMap();
+        if (store.getters.isAccessTokenValid) {
+            await checkPlanLike();
+        }
     } catch (error) {
         console.log(error);
     }
@@ -173,71 +178,70 @@ const updateMap = async () => {
     const bounds = new kakao.maps.LatLngBounds();
     const places = currentDatePlans.value.filter(item => hasValidCoordinates(item.place));
 
-    if (places.length < 2) {
-        console.warn('Not enough valid places to draw a route');
+    if (places.length === 0) {
+        console.warn('No valid places to display');
         return;
     }
 
-    const origin = { x: places[0].place.x, y: places[0].place.y };
-    const destination = { x: places[places.length - 1].place.x, y: places[places.length - 1].place.y };
-    const waypoints = places.slice(1, -1).map(item => ({ x: item.place.x, y: item.place.y }));
+    places.forEach((item, index) => {
+        const position = new kakao.maps.LatLng(item.place.y, item.place.x);
+        const marker = new kakao.maps.Marker({
+            position: position,
+            map: map.value
+        });
 
-    try {
-        const routeData = await getRouteData(origin, destination, waypoints);
+        markers.value.push(marker);
+        bounds.extend(position);
 
-        if (!routeData || !routeData.routes || routeData.routes.length === 0) {
-            throw new Error('No route data available');
-        }
+        // 인포윈도우 생성 및 즉시 표시
+        const infowindow = new kakao.maps.InfoWindow({
+            content: `<div style="padding:5px;font-size:12px;width:150px;text-align:center;">
+                    <strong>${index + 1}. ${item.place.placeName}</strong>
+                </div>`,
+            removable: false // 사용자가 닫을 수 없게 설정
+        });
+        infowindow.open(map.value, marker);
+        infowindows.value.push(infowindow);
+    });
 
-        const path = [];
-        routeData.routes[0].sections.forEach(section => {
-            section.roads.forEach(road => {
-                for (let i = 0; i < road.vertexes.length; i += 2) {
-                    path.push(new kakao.maps.LatLng(road.vertexes[i + 1], road.vertexes[i]));
+    // 장소가 두 개 이상일 때만 경로를 그립니다
+    if (places.length >= 2) {
+        const origin = { x: places[0].place.x, y: places[0].place.y };
+        const destination = { x: places[places.length - 1].place.x, y: places[places.length - 1].place.y };
+        const waypoints = places.slice(1, -1).map(item => ({ x: item.place.x, y: item.place.y }));
+
+        try {
+            const routeData = await getRouteData(origin, destination, waypoints);
+
+            if (routeData && routeData.routes && routeData.routes.length > 0) {
+                const path = [];
+                routeData.routes[0].sections.forEach(section => {
+                    section.roads.forEach(road => {
+                        for (let i = 0; i < road.vertexes.length; i += 2) {
+                            path.push(new kakao.maps.LatLng(road.vertexes[i + 1], road.vertexes[i]));
+                        }
+                    });
+                });
+
+                if (path.length > 0) {
+                    polyline.value = new kakao.maps.Polyline({
+                        path: path,
+                        strokeWeight: 5,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 0.7,
+                        strokeStyle: 'solid'
+                    });
+                    polyline.value.setMap(map.value);
                 }
-            });
-        });
-
-        places.forEach((item, index) => {
-            const position = new kakao.maps.LatLng(item.place.y, item.place.x);
-            const marker = new kakao.maps.Marker({
-                position: position,
-                map: map.value
-            });
-
-            markers.value.push(marker);
-            bounds.extend(position);
-
-            // 인포윈도우 생성 및 즉시 표시
-            const infowindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:5px;font-size:12px;width:150px;text-align:center;">
-                        <strong>${index + 1}. ${item.place.placeName}</strong>
-                    </div>`,
-                removable: false // 사용자가 닫을 수 없게 설정
-            });
-            infowindow.open(map.value, marker);
-            infowindows.value.push(infowindow); // 인포윈도우를 배열에 추가
-        });
-
-        if (path.length > 0) {
-            polyline.value = new kakao.maps.Polyline({
-                path: path,
-                strokeWeight: 5,
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.7,
-                strokeStyle: 'solid'
-            });
-            polyline.value.setMap(map.value);
-            const padding = 100;
-            map.value.setBounds(bounds, padding);
-        } else {
-            throw new Error('No path data available');
+            }
+        } catch (error) {
+            console.error('Error updating map:', error);
         }
-    } catch (error) {
-        console.error('Error updating map:', error);
-        map.value.setCenter(new kakao.maps.LatLng(33.450701, 126.570667));
-        map.value.setLevel(3);
     }
+
+    // 지도 범위 설정
+    const padding = 100;
+    map.value.setBounds(bounds, padding);
 };
 const goBackToSelection = () => {
     router.push(`/plan/list/${plan.value.area}`);
@@ -252,6 +256,55 @@ const formatDate = (dateString) => {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}.${month}.${day} ${hours}:${minutes}`;
 };
+
+const likePlan = async function () {
+    if (!store.getters.isAccessTokenValid) {
+        if (window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+            await router.push('/login');
+        }
+    } else {
+        try {
+            const request = {
+                planId: route.params.planId
+            }
+            await likePlanAPI(request);
+            isLiked.value = !isLiked.value; // 좋아요 상태 토글
+            plan.value.likeCount += isLiked.value ? 1 : -1; // 좋아요 수 업데이트
+        } catch (error) {
+            console.log(error);
+        }
+    }
+};
+
+const checkPlanLike = async function () {
+    try {
+        const response = await checkPlanLikeAPI(route.params.planId);
+        isLiked.value = response.data; // API 응답에 따라 isLiked 상태 설정
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const goUpdatePlan = function (id) {
+    router.push(`/plan/${id}/edit`);
+};
+
+const deletePlan = async function (id) {
+    if (window.confirm('여행 코스를 삭제하시겠습니까?')) {
+        try {
+            await deletePlanAPI(id);
+            await router.push('/plan/list')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+};
+
+// 현재 로그인한 사용자의 닉네임을 가져옵니다.
+const currentUserNickname = computed(() => store.getters.getNickname);
+
+// 현재 사용자가 게시글 작성자인지 확인합니다.
+const isPostAuthor = computed(() => currentUserNickname.value === plan.value.writer);
 
 onMounted(() => {
     getPlan();
@@ -280,9 +333,13 @@ watch(currentDate, () => {
         <div class="plan-info">
             <span>{{ plan.writer }}</span>
             <p>
-                <span>좋아요 {{ plan.likeCount }}</span>
                 <span>조회 {{ plan.views }}</span>
             </p>
+        </div>
+
+        <div v-if="isPostAuthor" class="author-actions">
+            <button @click="goUpdatePlan(plan.id)" class="edit-button">수정</button>
+            <button @click="deletePlan(plan.id)" class="delete-button">삭제</button>
         </div>
 
         <div class="date-navigation" v-if="dates.length > 0">
@@ -303,6 +360,12 @@ watch(currentDate, () => {
                     <p v-if="item.memo">메모: {{ item.memo }}</p>
                 </div>
             </div>
+        </div>
+
+        <div class="like-button-container">
+            <button @click="likePlan" class="like-button" :class="{ 'liked': isLiked }">
+                {{ isLiked ? '♥' : '♡' }} 좋아요 {{ plan.likeCount }}
+            </button>
         </div>
     </div>
 </template>
@@ -327,7 +390,7 @@ watch(currentDate, () => {
 }
 .plan-info {
     display: flex;
-    margin-bottom: 50px;
+    margin-bottom: 20px;
     padding: 10px 20px 10px 20px;
     justify-content: space-between;
     border-bottom: 1px solid #eee;
@@ -402,5 +465,74 @@ watch(currentDate, () => {
 .back-button {
     margin-bottom: 1em;
     cursor: pointer;
+}
+.like-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.like-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #ff4081;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.like-button:hover {
+    background-color: #e91e63;
+    transform: scale(1.05);
+}
+
+.like-button.liked {
+    background-color: #e91e63;
+}
+
+.like-button.liked:hover {
+    background-color: #c2185b;
+}
+
+.plan-detail-view {
+    width: 100%;
+    margin-top: 2em;
+}
+.author-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.edit-button, .delete-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+.edit-button {
+    background-color: #4CAF50;
+}
+
+.edit-button:hover {
+    background-color: #45a049;
+}
+
+.delete-button {
+    background-color: #f44336;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
 }
 </style>

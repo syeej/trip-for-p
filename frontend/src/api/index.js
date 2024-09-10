@@ -152,6 +152,23 @@ const getFreePostAPI = function (id) {
 const getFreeCommentListAPI = function (request) {
     return instance.get(`/api/free-posts/${request.postId}/comments?&sort=createdAt,desc&size=${request.size}&page=${request.page}`)
 }
+
+const likePlanAPI = function (request) {
+    return authInstance.post(`/api/plan-likes`, request);
+};
+
+const checkPlanLikeAPI = function (planId) {
+    return authInstance.get(`/api/plan-likes/check?planId=${planId}`);
+};
+
+const updatePlanAPI = function (id, request) {
+    return authInstance.put(`/api/plans/${id}`, request);
+};
+
+const deletePlanAPI = function (id) {
+    return authInstance.delete(`/api/plans/${id}`);
+};
+
 //[비밀번호 재설정]이메일 인증코드 전송
 const sendPasswordResetEmailAPI = async function (request) {
     try {
@@ -203,6 +220,10 @@ export {
     deleteFreeCommentAPI,
     updateFreePostAPI,
     deleteFreePostAPI,
+    likePlanAPI,
+    checkPlanLikeAPI,
+    updatePlanAPI,
+    deletePlanAPI,
     sendPasswordResetEmailAPI,
     resetPasswordAPI
 }

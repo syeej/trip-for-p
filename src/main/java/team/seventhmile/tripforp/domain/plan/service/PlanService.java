@@ -144,6 +144,6 @@ public class PlanService {
     }
 
     public List<GetPopularPlanResponse> getPopularPlanList() {
-        return planRepository.getPopularPlans(PageRequest.of(0, 6));
+        return planRepository.findPopularPlans(PageRequest.of(0, 6));
     }
 }

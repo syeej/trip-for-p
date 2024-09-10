@@ -15,6 +15,7 @@ import store from "@/store";
 import WriteFreePostView from "@/views/WriteFreePostView.vue";
 import FreePostDetailView from "@/views/FreePostDetailView.vue";
 import EditFreePostView from "@/views/EditFreePostView.vue";
+import EditPlanView from "@/views/EditPlanView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
 const routes = [
@@ -62,6 +63,12 @@ const routes = [
         path: '/plan/write',
         name: 'WritePlan',
         component: WritePlanView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/plan/:planId/edit',
+        name: 'EditPlan',
+        component: EditPlanView,
         meta: { requiresAuth: true }
     },
     {

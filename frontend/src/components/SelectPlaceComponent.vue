@@ -3,19 +3,28 @@
 import {computed, defineEmits, defineProps, nextTick, onMounted, ref, watch} from "vue";
 import ItineraryComponent from "@/components/ItineraryComponent.vue";
 import SearchPlaceComponent from "@/components/SearchPlaceComponent.vue";
-import {createPlanAPI} from "@/api";
+import {createPlanAPI, updatePlanAPI} from "@/api";
 import router from "@/router";
+import {useRoute} from "vue-router";
+
+const route = useRoute();
 
 const props = defineProps({
     startDate: String,
     endDate: String,
-    selectedRegion: String
+    selectedRegion: String,
+    planItems: Array,
+    mode: {
+        type: String,
+        default: 'create'
+    },
 });
 
 const title = ref(`${props.selectedRegion} 여행`);
 const selectedPlaces = ref({});
 const maps = ref({});
 const currentDateIndex = ref(0);
+const deletedPlaces = ref([]);
 
 const polylines = ref({});
 const markers = ref({});
@@ -62,8 +71,49 @@ const addPlace = (place, date) => {
     }
 };
 
+const initPlace = (itemId, place, date) => {
+    const dateString = date.toISOString().split('T')[0];
+
+    // 중복 여부 확인
+    const isPlaceAlreadyAdded = selectedPlaces.value[dateString].some(
+        selectedPlace => selectedPlace.place.id === place.id
+    );
+
+    if (!isPlaceAlreadyAdded) {
+        selectedPlaces.value[dateString].push({
+            id: itemId,
+            place: place,
+            memo: '',
+            sequence: selectedPlaces.value[dateString].length + 1
+        });
+        console.log(`Place added for ${dateString}:`, place);
+        updateRoute(dateString);
+    } else {
+        console.log(`Place already added for ${dateString}:`, place);
+    }
+};
+
 
 const deletePlace = (dateString, index) => {
+    const deletedItem = selectedPlaces.value[dateString][index];
+    console.log(deletedItem)
+    if (deletedItem.id) {
+        deletedPlaces.value.push({
+            id: deletedItem.id,
+            action: 'delete',
+            place: {
+                addressName: deletedItem.place.address_name,
+                categoryName: deletedItem.place.category_name,
+                placeName: deletedItem.place.place_name,
+                imageUrl: deletedItem.place.image_url,
+                x: deletedItem.place.x,
+                y: deletedItem.place.y
+            },
+            tripDate: dateString,
+            sequence: deletedItem.sequence,
+            memo: deletedItem.memo
+        });
+    }
     selectedPlaces.value[dateString].splice(index, 1);
     selectedPlaces.value[dateString].forEach((item, i) => {
         item.sequence = i + 1;
@@ -145,103 +195,105 @@ const updateRoute = (dateString) => {
     clearRoute(dateString);
 
     const places = selectedPlaces.value[dateString];
-    if (places.length < 2) {
-        console.log(`Not enough places for ${dateString}`);
+    if (places.length === 0) {
+        console.log(`No places for ${dateString}`);
         resetMapView(dateString);
         return;
     }
 
-    const origin = places[0].place;
-    const destination = places[places.length - 1].place;
-    const waypoints = places.slice(1, -1).map(item => ({
-        x: item.place.x,
-        y: item.place.y
-    }));
+    const bounds = new kakao.maps.LatLngBounds();
 
-    console.log('Fetching route data...');
-    fetch('https://apis-navi.kakaomobility.com/v1/waypoints/directions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `KakaoAK ${process.env.VUE_APP_KAKAO_MAP_API_KEY_REST}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            origin: { x: origin.x, y: origin.y },
-            destination: { x: destination.x, y: destination.y },
-            waypoints: waypoints
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Route data received:', data);
-        if (data.routes && data.routes.length > 0) {
-            const path = [];
-            data.routes[0].sections.forEach(section => {
-                section.roads.forEach(road => {
-                    for (let i = 0; i < road.vertexes.length; i += 2) {
-                        const lat = road.vertexes[i + 1];
-                        const lng = road.vertexes[i];
-                        path.push(new kakao.maps.LatLng(lat, lng));
-                    }
-                });
-            });
+    // 모든 장소에 대해 마커와 인포윈도우 생성
+    places.forEach((item, index) => {
+        const position = new kakao.maps.LatLng(item.place.y, item.place.x);
+        bounds.extend(position);
 
-            const polyline = new kakao.maps.Polyline({
-                path: path,
-                strokeWeight: 5,
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.7,
-                strokeStyle: 'solid'
-            });
+        const marker = new kakao.maps.Marker({
+            position: position,
+            map: map
+        });
 
-            polyline.setMap(map);
-            if (!polylines.value[dateString]) {
-                polylines.value[dateString] = [];
-            }
-            polylines.value[dateString].push(polyline);
+        const infowindow = new kakao.maps.InfoWindow({
+            content: `<div style="padding:5px;font-size:12px;width:150px;text-align:center;">
+                <strong>${index + 1}. ${item.place.place_name}</strong>
+            </div>`,
+            removable: false
+        });
 
-            const bounds = new kakao.maps.LatLngBounds();
+        infowindow.open(map, marker);
 
-            places.forEach((item, index) => {
-                const position = new kakao.maps.LatLng(item.place.y, item.place.x);
-                bounds.extend(position);
-
-                const marker = new kakao.maps.Marker({
-                    position: position,
-                    map: map
-                });
-
-                const infowindow = new kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px;font-size:12px;width:150px;text-align:center;">
-                        <strong>${index + 1}. ${item.place.place_name}</strong>
-                    </div>`,
-                    removable: false
-                });
-
-                infowindow.open(map, marker);
-
-                markers.value[dateString].push(marker);
-                infowindows.value[dateString].push(infowindow);
-            });
-
-            const padding = 100;
-            map.setBounds(bounds, padding);
-
-            // 지도 레벨 조정
-            let currentLevel = map.getLevel();
-            while (currentLevel > 8 && !areAllMarkersVisible(map, markers.value[dateString])) {
-                currentLevel--;
-                map.setLevel(currentLevel);
-            }
-
-            console.log(`Route updated for ${dateString}`);
-        } else {
-            console.log(`No routes found for ${dateString}`);
-        }
-    })
-    .catch(error => {
-        console.error('경로 검색 오류:', error);
+        markers.value[dateString].push(marker);
+        infowindows.value[dateString].push(infowindow);
     });
+
+    // 장소가 2개 이상일 때만 경로 그리기
+    if (places.length >= 2) {
+        const origin = places[0].place;
+        const destination = places[places.length - 1].place;
+        const waypoints = places.slice(1, -1).map(item => ({
+            x: item.place.x,
+            y: item.place.y
+        }));
+
+        console.log('Fetching route data...');
+        fetch('https://apis-navi.kakaomobility.com/v1/waypoints/directions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `KakaoAK ${process.env.VUE_APP_KAKAO_MAP_API_KEY_REST}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                origin: { x: origin.x, y: origin.y },
+                destination: { x: destination.x, y: destination.y },
+                waypoints: waypoints
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Route data received:', data);
+            if (data.routes && data.routes.length > 0) {
+                const path = [];
+                data.routes[0].sections.forEach(section => {
+                    section.roads.forEach(road => {
+                        for (let i = 0; i < road.vertexes.length; i += 2) {
+                            const lat = road.vertexes[i + 1];
+                            const lng = road.vertexes[i];
+                            path.push(new kakao.maps.LatLng(lat, lng));
+                        }
+                    });
+                });
+
+                const polyline = new kakao.maps.Polyline({
+                    path: path,
+                    strokeWeight: 5,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 0.7,
+                    strokeStyle: 'solid'
+                });
+
+                polyline.setMap(map);
+                if (!polylines.value[dateString]) {
+                    polylines.value[dateString] = [];
+                }
+                polylines.value[dateString].push(polyline);
+            }
+        })
+        .catch(error => {
+            console.error('경로 검색 오류:', error);
+        });
+    }
+
+    // 지도 범위 설정 및 레벨 조정
+    const padding = 100;
+    map.setBounds(bounds, padding);
+
+    let currentLevel = map.getLevel();
+    while (currentLevel > 8 && !areAllMarkersVisible(map, markers.value[dateString])) {
+        currentLevel--;
+        map.setLevel(currentLevel);
+    }
+
+    console.log(`Route updated for ${dateString}`);
 };
 
 // 모든 마커가 지도에 보이는지 확인하는 함수
@@ -284,6 +336,12 @@ const goToNextDate = () => {
 };
 
 onMounted(() => {
+    if (props.planItems) {
+        console.log(props.planItems)
+        props.planItems.forEach(item => {
+            initPlace(item.id, item.place, new Date(item.tripDate))
+        })
+    }
     const script = document.createElement('script');
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.VUE_APP_KAKAO_MAP_API_KEY_JAVASCRIPT}&autoload=false&libraries=services`;
     document.head.appendChild(script);
@@ -296,6 +354,8 @@ onMounted(() => {
             });
         });
     };
+
+
 });
 
 // selectedPlaces의 변경을 감지하는 watch 함수 (메모 변경 제외)
@@ -352,6 +412,46 @@ const generatePlan = async () => {
     }
 
 };
+const updatePlan = async () => {
+    try {
+        const planItems = [
+            ...deletedPlaces.value.map(item => JSON.parse(JSON.stringify(item))),
+            ...Object.entries(selectedPlaces.value).flatMap(([date, places]) =>
+                places.map(item => ({
+                    id: item.id || null,
+                    action: item.id ? 'update' : 'create',
+                    place: {
+                        addressName: item.place.address_name,
+                        categoryName: item.place.category_name,
+                        placeName: item.place.place_name,
+                        imageUrl: item.place.image_url,
+                        x: item.place.x,
+                        y: item.place.y
+                    },
+                    tripDate: date,
+                    sequence: item.sequence,
+                    memo: item.memo
+                }))
+            )
+        ];
+
+        const updatePlanRequest = {
+            startDate: props.startDate,
+            endDate: props.endDate,
+            title: title.value,
+            area: props.selectedRegion,
+            planItems: planItems
+        };
+
+        console.log(updatePlanRequest)
+
+        const response = await updatePlanAPI(route.params.planId, updatePlanRequest);
+        const planId = response.data.id;
+        await router.push(`/plan/${planId}`);
+    } catch (error) {
+        console.log(error);
+    }
+};
 const emit = defineEmits(['back-to-day']);
 
 const handleBack = () => {
@@ -387,7 +487,8 @@ const isSaveButtonEnabled = computed(() => {
         </div>
         <div class="button-container">
             <button @click="handleBack" class="back-button">이전</button>
-            <button @click="generatePlan" class="save-plan-button" :disabled="!isSaveButtonEnabled">일정 저장</button>
+            <button v-if="props.mode==='create'" @click="generatePlan" class="save-plan-button" :disabled="!isSaveButtonEnabled">일정 저장</button>
+            <button v-else-if="props.mode==='update'" @click="updatePlan" class="save-plan-button" :disabled="!isSaveButtonEnabled">일정 수정</button>
         </div>
     </div>
 </template>
