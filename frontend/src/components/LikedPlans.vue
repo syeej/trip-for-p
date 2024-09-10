@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import {getMyPlanCourseListAPI} from "@/api";
+import {getMyLikedPlansAPI} from "@/api";
 
 const router = useRouter();
 const courses = ref([]);
@@ -10,10 +10,10 @@ const totalPages = ref(0);
 const pageSize = ref(10);
 const loading = ref(false);
 
-const fetchCourses = async (page) => {
+const getMyLikedPlans = async (page) => {
   loading.value = true;
   try {
-    const response = await getMyPlanCourseListAPI({
+    const response = await getMyLikedPlansAPI({
       page: page,
       size: pageSize.value,
     });
@@ -21,7 +21,7 @@ const fetchCourses = async (page) => {
     currentPage.value = response.data.number;
     totalPages.value = response.data.totalPages;
   } catch (error) {
-    console.error('여행 코스를 불러오는 데 실패했습니다:', error);
+    console.error('좋아요한 여행 코스를 불러오는 데 실패했습니다:', error);
   } finally {
     loading.value = false;
   }
@@ -29,7 +29,7 @@ const fetchCourses = async (page) => {
 
 const goToPage = (page) => {
   if (page >= 0 && page < totalPages.value) {
-    fetchCourses(page);
+    getMyLikedPlans(page);
   }
 };
 
@@ -43,12 +43,12 @@ const goToCourseDetail = (courseId) => {
 };
 
 onMounted(() => {
-  fetchCourses(0);
+  getMyLikedPlans(0);
 });
 </script>
 
 <template>
-  <h2>내가 작성한 여행 코스 목록</h2>
+  <h2>내가 좋아하는 여행 코스 목록</h2>
   <div class="my-courses-container">
     <div v-if="loading" class="loading">로딩 중...</div>
     <div v-else-if="courses.length" class="course-list">

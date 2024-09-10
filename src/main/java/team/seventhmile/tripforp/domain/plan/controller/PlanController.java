@@ -3,6 +3,7 @@ package team.seventhmile.tripforp.domain.plan.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.service.PlanItemService;
 import team.seventhmile.tripforp.domain.plan.service.PlanService;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/plans")
@@ -97,8 +99,7 @@ public class PlanController {
     @GetMapping("/me")
     public ResponseEntity<Page<GetPlanListResponse>> getMyPlanList(
         @AuthenticationPrincipal UserDetails user,
-        Pageable pageable
-    ) {
+        Pageable pageable) {
         return ResponseEntity.ok(planService.getMyPlanList(user, pageable));
     }
 

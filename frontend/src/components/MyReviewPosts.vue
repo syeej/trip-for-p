@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import {getMyReviewListAPI} from "@/api";
+import router from "@/router";
 
 const posts = ref([]);
 const currentPage = ref(0);
@@ -30,6 +31,9 @@ const goToPage = (page) => {
     getMyReviewList(page);
   }
 };
+const goToReviewDetail = (postId) => {
+  router.push(`/review-post/${postId}`);
+};
 
 onMounted(() => {
   getMyReviewList(0);
@@ -41,7 +45,7 @@ onMounted(() => {
   <div class="review-board-container">
     <div v-if="loading" class="loading">로딩 중...</div>
     <div v-else-if="posts.length">
-      <div v-for="post in posts" :key="post.id" class="review">
+      <div v-for="post in posts" :key="post.id" class="review" @click="goToReviewDetail(post.id)">
         <div class="review-header">
           <span class="review-author">{{ post.userId }}</span>
           <span class="review-date">{{ new Date(post.createdAt).toLocaleDateString() }}</span>
