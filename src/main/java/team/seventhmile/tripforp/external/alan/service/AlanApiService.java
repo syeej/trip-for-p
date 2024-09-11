@@ -284,20 +284,34 @@ public class AlanApiService {
         }
 
         contentBuilder.append(
-            "을 [지역명]이라고 했을 때 [지역명]의 빈도들을 분석해서 해당 [지역명]의 유명한 장소들로 여행 코스를 추천해주세요.단, 다음 JSON 형식으로 응답:\n");
+            "을 [지역명]이라고 했을 때 [지역명]의 빈도들을 분석해서 해당 [지역명]의 유명한 장소들로 여행 코스를 추천해주세요.단, 다음 예시의 JSON 형식으로 응답:\n");
         contentBuilder.append("```json\n");
         contentBuilder.append("{\n");
-        contentBuilder.append("  \"[지역명]\": [\n");
+        contentBuilder.append("  \"강원\": [\n");
         contentBuilder.append("    {\n");
         contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
         contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
         contentBuilder.append("    },\n");
-        contentBuilder.append("  \"[지역명]\": [\n");
+        contentBuilder.append("    {\n");
         contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
         contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
         contentBuilder.append("    }\n");
         contentBuilder.append("  ],\n");
-        contentBuilder.append("  \"[다른 지역명]\": [\n");
+        contentBuilder.append("  \"전남\": [\n");
+        contentBuilder.append("    {\n");
+        contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
+        contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
+        contentBuilder.append("    },\n");
+        contentBuilder.append("    {\n");
+        contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
+        contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
+        contentBuilder.append("    }\n");
+        contentBuilder.append("  ],\n");
+        contentBuilder.append("  \"서울\": [\n");
+        contentBuilder.append("    {\n");
+        contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
+        contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
+        contentBuilder.append("    },\n");
         contentBuilder.append("    {\n");
         contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
         contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");

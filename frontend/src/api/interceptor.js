@@ -10,8 +10,6 @@ const setInterceptors = function (instance) {
             if (token) {
                 const decodedToken = jwtDecoder.decode(token);
                 const currentTime = Date.now() / 1000;  // 현재 시간(초 단위)
-
-                // 토큰 만료 시간 확인
                 if (decodedToken.exp < currentTime) {
                     try {
                         const response = await refreshTokenAPI();
@@ -19,7 +17,6 @@ const setInterceptors = function (instance) {
                         store.commit('setAccessToken', newToken);
                         config.headers.access = newToken;
                     } catch (error) {
-                        // 리프레시 토큰도 만료된 경우
                         store.commit('clearData');
                         alert('세션이 만료되었습니다. 다시 로그인해주세요.');
                         await router.push('/login');
@@ -44,8 +41,6 @@ const setInterceptors = function (instance) {
         },
         async (error) => {
             const originalRequest = error.config;
-            console.log(error.response.status)
-            // 액세스 토큰 만료로 인한 401 에러 && 재시도하지 않은 요청
             if (error.response.status === 401) {
 
                 try {
@@ -55,7 +50,6 @@ const setInterceptors = function (instance) {
                     instance.defaults.headers.common['access'] = newToken;
                     return instance(originalRequest);
                 } catch (refreshError) {
-                    // 리프레시 토큰도 만료된 경우
                     store.commit('clearData');
                     alert('인증에 실패했습니다. 다시 로그인해주세요.');
                     await router.push('/login');

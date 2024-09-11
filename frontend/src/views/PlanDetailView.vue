@@ -96,12 +96,10 @@ const hasValidCoordinates = (place) => {
     return isValidCoordinate(place.y) && isValidCoordinate(place.x);
 };
 
-// getPlan 함수 수정
 const getPlan = async function () {
     try {
         const response = await getPlanAPI(route.params.planId);
         plan.value = response.data;
-        console.log(plan.value);
 
         // 좌표 데이터 유효성 검사 및 로그
         if (plan.value && plan.value.planItems) {

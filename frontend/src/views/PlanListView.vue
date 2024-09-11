@@ -84,7 +84,6 @@ const formatRelativeTime = (dateString) => {
     const past = new Date(cleanDateString).toISOString();
     const diffInMilliseconds = new Date(now) - new Date(past);
     const diffInSeconds = Math.floor(diffInMilliseconds / 1000);
-    console.log(diffInSeconds)
 
     if (diffInSeconds < 60) {
         return '방금 전';
