@@ -16,7 +16,6 @@ const setInterceptors = function (instance) {
                     try {
                         const response = await refreshTokenAPI();
                         const newToken = response.headers.access;
-                        console.log(newToken)
                         store.commit('setAccessToken', newToken);
                         config.headers.access = newToken;
                     } catch (error) {

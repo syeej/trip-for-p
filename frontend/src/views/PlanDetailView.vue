@@ -234,7 +234,7 @@ const updateMap = async () => {
         try {
             routeData.value = await getRouteData(origin, destination, waypoints);
 
-            if (routeData.value && routeData.value.routes && routeData.value.routes.length > 0) {
+            if (routeData.value?.routes?.[0]) {
                 const path = [];
                 routeData.value.routes[0].sections.forEach(section => {
                     section.roads.forEach(road => {
@@ -269,10 +269,7 @@ const goBackToSelection = () => {
 };
 
 const totalDuration = computed(() => {
-    if (!routeData.value || !routeData.value.routes || routeData.value.routes.length === 0) {
-        return 0;
-    }
-    return routeData.value.routes[0].summary.duration;
+    return routeData.value?.routes?.[0]?.summary?.duration || 0;
 });
 
 const formatDate = (dateString) => {
@@ -389,7 +386,7 @@ watch(currentDate, () => {
                         <p v-if="item.memo">메모: {{ item.memo }}</p>
                     </div>
                 </div>
-                <div v-if="index < currentDatePlans.length - 1 && routeData && routeData.routes" class="duration-info">
+                <div v-if="index < currentDatePlans.length - 1 && routeData?.routes?.[0]?.sections?.[index]" class="duration-info">
                     <div class="duration-line"></div>
                     <div class="duration-text">
                         {{ formatDuration(routeData.routes[0].sections[index].duration) }}

@@ -346,7 +346,12 @@ const getUserInfoAPI = function () {
 };
 
 const getAIUserAPI = function (clientId) {
-    return authInstance.get(`/api/alan/v2/user?client_id=${clientId}`);
+    return authInstance.get(`/api/alan/user?client_id=${clientId}`);
+}
+
+const getAIInfoAPI = function (request) {
+    return instance.get(
+        `/api/alan/area?client_id=${request.clientId}&area=${request.area}&startDate=${request.startDate}&endDate=${request.endDate}`);
 }
 
 export {
@@ -400,5 +405,6 @@ export {
     withdrawalUserAPI,
     refreshTokenAPI,
     getUserInfoAPI,
-    getAIUserAPI
+    getAIUserAPI,
+    getAIInfoAPI
 }

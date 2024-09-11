@@ -69,7 +69,7 @@ public class AlanApiService {
 
         String content = URLEncoder.encode(
             totalDate +
-                "이 기간동안 날씨와 " +
+                "이 기간 동안 날씨와 " +
                 area + " 지역 안에서 여행기간동안 열리는 체험행사와 축제를 알려주고 여행지를 추천해줘.",
             StandardCharsets.UTF_8);
         System.out.println("content: " + content);
@@ -97,6 +97,59 @@ public class AlanApiService {
             return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.";
         }
 
+    }
+
+    public AlanApiResponse getRecommendationsByAreaV2(String clientId,
+        AreaRecsRequest request) {
+        String area = request.getArea();
+
+        String totalDate =
+            request.getStartDate().toString() + "부터 " + request.getEndDate().toString() + "까지 ";
+
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(totalDate +
+            "날씨, 기온, 강수확률과 " +
+            area + " 지역에서 " + totalDate + " 열리는 체험행사, 축제, 여행지를 추천해주세요.단, 다음 JSON 형식으로 응답:\n");
+        contentBuilder.append("```json\n");
+        contentBuilder.append("{\n");
+        contentBuilder.append("  \"날짜\" {\n");
+        contentBuilder.append("    \"날씨\": \"\",\n");
+        contentBuilder.append("    \"최저기온\": \" 도\",\n");
+        contentBuilder.append("    \"최고기온\": \" 도\",\n");
+        contentBuilder.append("    \"강수확률\": \"\"\n");
+        contentBuilder.append("  },\n");
+        contentBuilder.append("  \"날짜\" {\n");
+        contentBuilder.append("    \"날씨\": \"\",\n");
+        contentBuilder.append("    \"최저기온\": \" 도\",\n");
+        contentBuilder.append("    \"최고기온\": \" 도\",\n");
+        contentBuilder.append("    \"강수확률\": \"\"\n");
+        contentBuilder.append("  },\n");
+        contentBuilder.append("  \"날짜\" {\n");
+        contentBuilder.append("    \"날씨\": \"\",\n");
+        contentBuilder.append("    \"최저기온\": \" 도\",\n");
+        contentBuilder.append("    \"최고기온\": \" 도\",\n");
+        contentBuilder.append("    \"강수확률\": \"\"\n");
+        contentBuilder.append("  },\n");
+        contentBuilder.append(String.format("  \"%s 여행 추천\": {\n", request.getArea()));
+        contentBuilder.append("    \"체험행사\": \"\",\n");
+        contentBuilder.append("    \"축제\": \"\",\n");
+        contentBuilder.append("    \"여행지\": \"\"\n");
+        contentBuilder.append("  }\n");
+        contentBuilder.append("}\n");
+        contentBuilder.append("```\n");
+
+        System.out.println("Generated Content: \n" + contentBuilder.toString());
+        // 최종 content에 대해 URL 인코딩
+        String finalContent = URLEncoder.encode(contentBuilder.toString(), StandardCharsets.UTF_8);
+        // Alan API 호출 URL 생성
+        String url = UriComponentsBuilder.fromHttpUrl(
+                "https://kdt-api-function.azurewebsites.net" + "/api/v1/question")
+            .queryParam("content", finalContent)
+            .queryParam("client_id", clientId)
+            .encode()
+            .toUriString();
+
+        return restTemplate.getForObject(url, AlanApiResponse.class);
     }
 
     // 사용할지 고민해봐야함
@@ -239,7 +292,7 @@ public class AlanApiService {
         contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
         contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
         contentBuilder.append("    },\n");
-        contentBuilder.append("    {\n");
+        contentBuilder.append("  \"[지역명]\": [\n");
         contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
         contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
         contentBuilder.append("    }\n");
