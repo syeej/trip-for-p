@@ -83,7 +83,7 @@ onMounted(() => {
               <span>회원가입</span>
             </div>
             <div class="find-password-button" @click="goResetPassword">
-              <span>비밀번호 재설정</span>
+              <span>비밀번호 찾기</span>
             </div>
           </div>
         </div>

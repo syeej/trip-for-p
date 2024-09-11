@@ -307,30 +307,13 @@ const updateMemo = (date, index, memo) => {
     selectedPlaces.value[date][index].memo = memo;
 };
 
-const reorderPlaces = async (date, oldIndex, newIndex) => {
-    console.log(`Reordering places for date ${date}: ${oldIndex} -> ${newIndex}`);
-
-    if (!selectedPlaces.value[date] || !Array.isArray(selectedPlaces.value[date])) {
-        console.error(`Invalid data for date ${date}`);
-        return;
-    }
-
-    const items = [...selectedPlaces.value[date]];
-    const [reorderedItem] = items.splice(oldIndex, 1);
-    items.splice(newIndex, 0, reorderedItem);
-
-    // 새 배열을 할당하여 반응성 트리거
-    selectedPlaces.value = {
-        ...selectedPlaces.value,
-        [date]: items
-    };
-
+const reorderPlaces = (date) => {
     // sequence 재정렬
     selectedPlaces.value[date].forEach((item, index) => {
         item.sequence = index + 1;
     });
 
-    await nextTick();
+    // 경로 즉시 업데이트
     updateRoute(date);
 };
 
@@ -512,7 +495,7 @@ const isSaveButtonEnabled = computed(() => {
                 :routeInfo="kakaoRouteInfo"
                 :currentDate="currentDate"
                 @update:memo="(index, memo) => updateMemo(currentDate, index, memo)"
-                @reorder="reorderPlaces"
+                @reorder="reorderPlaces(dates[currentDateIndex].toISOString().split('T')[0])"
                 @delete="index => deletePlace(currentDate, index)"
             />
         </div>
