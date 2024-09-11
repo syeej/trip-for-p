@@ -1,26 +1,20 @@
 package team.seventhmile.tripforp.external.alan.controller;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import team.seventhmile.tripforp.domain.user.dto.UserIdResponse;
-import team.seventhmile.tripforp.domain.user.dto.UserInfoResponse;
 import team.seventhmile.tripforp.external.alan.dto.AlanApiResponse;
 import team.seventhmile.tripforp.external.alan.dto.AreaRecsRequest;
 import team.seventhmile.tripforp.external.alan.service.AlanApiService;
-
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/alan")
@@ -54,9 +48,6 @@ public class AlanApiController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(name = "client_id", required = true) String clientId
     ) {
-        if (userDetails == null) {
-            throw new IllegalArgumentException("User is not authenticated.");
-        }
         return alanApiService.userprocessAlanApiRequest(clientId, userDetails);
     }
 
@@ -65,9 +56,6 @@ public class AlanApiController {
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestParam(name = "client_id") String clientId
     ) {
-        if (userDetails == null) {
-            throw new IllegalArgumentException("User is not authenticated.");
-        }
         return alanApiService.userprocessAlanApiRequestV2(clientId, userDetails);
     }
 }
