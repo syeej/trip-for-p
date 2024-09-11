@@ -23,62 +23,65 @@ import team.seventhmile.tripforp.global.jwt.LoginFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	//AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
-	private final AuthenticationConfiguration authenticationConfiguration;
+    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
+    private final AuthenticationConfiguration authenticationConfiguration;
 
-	private final JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-	private final TokenService tokenService;
+    private final TokenService tokenService;
 
-	//AuthenticationManager Bean 등록
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-		throws Exception {
-		return configuration.getAuthenticationManager();
-	}
+    //AuthenticationManager Bean 등록
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+        throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 
-	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		LoginFilter loginFilter = new LoginFilter(
-			authenticationManager(authenticationConfiguration), jwtUtil, tokenService);
-		loginFilter.setFilterProcessesUrl("/api/users/signin");
+        LoginFilter loginFilter = new LoginFilter(
+            authenticationManager(authenticationConfiguration), jwtUtil, tokenService);
+        loginFilter.setFilterProcessesUrl("/api/users/signin");
 
-		http
-			.csrf((auth) -> auth.disable());
+        http
+            .csrf((auth) -> auth.disable());
 
-		http
-			.formLogin((auth) -> auth.disable());
+        http
+            .formLogin((auth) -> auth.disable());
 
-		http
-			.httpBasic((auth) -> auth.disable());
+        http
+            .httpBasic((auth) -> auth.disable());
 
-		http
-			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/", "/api/**").permitAll()
-				.requestMatchers("/api/users/reissue").permitAll()
-				.anyRequest().permitAll());
+        http
+            .authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/", "/api").permitAll()
+                .requestMatchers("/api/users/registration", "/api/users/nickname-verification",
+                    "/api/users/signin", "/api/users/password/renewal", "/api/mails/**").permitAll()
+                .requestMatchers("/api/users/reissue", "/api/users/signout", "/api/users/me/**",
+                    "/api/users/deletion").hasAnyRole("ADMIN", "USER")
+                .anyRequest().authenticated());
 
-		//JWTFilter 등록
-		http
-			.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
+        //JWTFilter 등록
+        http
+            .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
 
-		//필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-		http
-			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+        //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
+        http
+            .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
-		http
-			.sessionManagement((session) -> session
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+            .sessionManagement((session) -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-		http
-			.addFilterBefore(new CustomLogoutFilter(jwtUtil, tokenService), LogoutFilter.class);
+        http
+            .addFilterBefore(new CustomLogoutFilter(jwtUtil, tokenService), LogoutFilter.class);
 
-		return http.build();
-	}
+        return http.build();
+    }
 }
