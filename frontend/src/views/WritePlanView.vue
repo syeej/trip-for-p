@@ -70,7 +70,8 @@ const isWithinOneWeek = computed(() => {
 
 const weatherData = computed(() => {
     if (!parsedInfoData.value || !isWithinOneWeek.value) return null;
-    return Object.entries(parsedInfoData.value).filter(([key]) => key !== recommendationKey.value);
+    const data = parsedInfoData.value['날짜'];
+    return data ? Object.entries(data) : null;
 });
 
 
@@ -237,11 +238,11 @@ onMounted(() => {
                 </div>
                 <div v-else-if="parsedInfoData" class="info-content">
                     <div v-if="isWithinOneWeek && weatherData">
-                        <div v-for="[key, data] in weatherData" :key="key" class="info-item">
-                            <h3>{{ key }}</h3>
-                            <p>{{ weatherIcon(data.날씨) }} 날씨: {{ data.날씨 }}</p>
-                            <p>🌡️ 기온: {{ data.최저기온 }} ~ {{ data.최고기온 }}</p>
-                            <p>💧 강수확률: {{ data.강수확률 }}</p>
+                        <div v-for="[date, dayData] in weatherData" :key="date" class="info-item">
+                            <h3>{{ date }}</h3>
+                            <p>{{ weatherIcon(dayData.날씨) }} 날씨: {{ dayData.날씨 }}</p>
+                            <p>🌡️ 기온: {{ dayData.최저기온 }} ~ {{ dayData.최고기온 }}</p>
+                            <p>💧 강수확률: {{ dayData.강수확률 }}</p>
                         </div>
                     </div>
                     <div v-else-if="!isWithinOneWeek" class="info-message">
