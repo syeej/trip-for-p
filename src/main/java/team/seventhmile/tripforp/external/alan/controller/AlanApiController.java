@@ -39,4 +39,15 @@ public class AlanApiController {
         }
         return alanApiService.userprocessAlanApiRequest(clientId, userDetails);
     }
+
+    @GetMapping("/v2/user")
+    public AlanApiResponse userprocessV2(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam(name = "client_id") String clientId
+    ) {
+        if (userDetails == null) {
+            throw new IllegalArgumentException("User is not authenticated.");
+        }
+        return alanApiService.userprocessAlanApiRequestV2(clientId, userDetails);
+    }
 }

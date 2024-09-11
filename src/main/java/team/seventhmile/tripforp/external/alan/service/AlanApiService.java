@@ -4,20 +4,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import team.seventhmile.tripforp.domain.plan.dto.AranPlanDto;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
+import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
+import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
+import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
+import team.seventhmile.tripforp.domain.plan.entity.PlanItem;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
+import team.seventhmile.tripforp.domain.plan.service.PlanLikeService;
+import team.seventhmile.tripforp.domain.plan.service.PlanService;
 import team.seventhmile.tripforp.domain.user.dto.UserIdResponse;
+import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.external.alan.dto.AlanApiResponse;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
+import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
 
 @Service
 public class AlanApiService {
@@ -26,13 +39,18 @@ public class AlanApiService {
     private final PlanRepository planRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final PlanService planService;
+    private final PlanLikeService planLikeService;
 
     public AlanApiService(RestTemplate restTemplate,
-        ObjectMapper objectMapper,PlanRepository planRepository,UserRepository userRepository) {
+        ObjectMapper objectMapper,PlanRepository planRepository,UserRepository userRepository,
+        PlanService planService, PlanLikeService planLikeService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.planRepository = planRepository;
         this.userRepository = userRepository;
+        this.planService = planService;
+        this.planLikeService = planLikeService;
     }
 
     public AlanApiResponse processAlanApiRequest(String content, String clientId) {
@@ -98,6 +116,78 @@ public class AlanApiService {
                 .queryParam("client_id", clientId)
                 .encode()
                 .toUriString();
+
+        // API 호출 및 응답 처리
+        return restTemplate.getForObject(url, AlanApiResponse.class);
+    }
+
+    //개인맞춤형 ai 여행코스추천서비스
+    public AlanApiResponse userprocessAlanApiRequestV2(String clientId,UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(() -> new ResourceNotFoundException(User.class));
+
+        Set<String> places = new HashSet<>();
+        List<String> areas = new ArrayList<>();
+        // 사용자가 등록한 여행 코스 최신 10개
+        Page<GetPlanListResponse> myPlanList = planService.getMyPlanList(userDetails,
+            PageRequest.of(0, 10));
+        for (GetPlanListResponse plan : myPlanList) {
+            areas.add(plan.getArea());
+//            GetPlanResponse myPlan = planService.getPlanById(plan.getId());
+//            for (PlanGetItemDto planItem : myPlan.getPlanItems()) {
+//                places.add(planItem.getPlace().getPlaceName());
+//            }
+        }
+        // 사용자가 좋아요한 여행 코스 최신 10개
+        Page<GetPlanListResponse> myLikePlanList = planLikeService.getMyFavPlanList(userDetails,
+            PageRequest.of(0, 10));
+        for (GetPlanListResponse plan : myLikePlanList) {
+            areas.add(plan.getArea());
+//            GetPlanResponse myPlan = planService.getPlanById(plan.getId());
+//            for (PlanGetItemDto planItem : myPlan.getPlanItems()) {
+//                places.add(planItem.getPlace().getPlaceName());
+//            }
+        }
+
+        StringBuilder contentBuilder = new StringBuilder();
+        for (String area : areas) {
+            contentBuilder.append(area).append(", ");
+        }
+        if (contentBuilder.isEmpty()) {
+            return new AlanApiResponse(null, "사용자 데이터가 부족합니다.");
+        }
+
+        contentBuilder.append("을 [지역명]이라고 했을 때 [지역명]의 빈도들을 분석해서 해당 [지역명]의 유명한 장소들로 여행 코스를 추천해주세요.단, 다음 JSON 형식으로 응답:\n");
+        contentBuilder.append("```json\n");
+        contentBuilder.append("{\n");
+        contentBuilder.append("  \"[지역명]\": [\n");
+        contentBuilder.append("    {\n");
+        contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
+        contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
+        contentBuilder.append("    },\n");
+        contentBuilder.append("    {\n");
+        contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
+        contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
+        contentBuilder.append("    }\n");
+        contentBuilder.append("  ],\n");
+        contentBuilder.append("  \"[다른 지역명]\": [\n");
+        contentBuilder.append("    {\n");
+        contentBuilder.append("      \"명소\": \"[명소 이름]\",\n");
+        contentBuilder.append("      \"설명\": \"[명소에 대한 간단한 설명]\"\n");
+        contentBuilder.append("    }\n");
+        contentBuilder.append("  ]\n");
+        contentBuilder.append("}\n");
+        contentBuilder.append("```\n");
+
+        System.out.println("Generated Content: \n" + contentBuilder.toString());
+        // 최종 content에 대해 URL 인코딩
+        String finalContent = URLEncoder.encode(contentBuilder.toString(), StandardCharsets.UTF_8);
+        // Alan API 호출 URL 생성
+        String url = UriComponentsBuilder.fromHttpUrl("https://kdt-api-function.azurewebsites.net" + "/api/v1/question")
+            .queryParam("content", finalContent)
+            .queryParam("client_id", clientId)
+            .encode()
+            .toUriString();
 
         // API 호출 및 응답 처리
         return restTemplate.getForObject(url, AlanApiResponse.class);

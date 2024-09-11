@@ -346,7 +346,7 @@ const getUserInfoAPI = function () {
 };
 
 const getAIUserAPI = function (clientId) {
-    return authInstance.get(`/api/alan/user?client_id=${clientId}`);
+    return authInstance.get(`/api/alan/v2/user?client_id=${clientId}`);
 }
 
 export {
