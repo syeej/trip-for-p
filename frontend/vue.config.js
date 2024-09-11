@@ -6,6 +6,7 @@ module.exports = defineConfig({
             '/api/v1': {
                 target: 'https://kdt-api-function.azurewebsites.net',
                 changeOrigin: true,
+                pathRewrite: { '^/api/v1': '' },
             },
             '/api': {
                 target: 'http://localhost:8080',
