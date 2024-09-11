@@ -214,6 +214,10 @@ body, html {
     font-weight: bold;
     color: #333;
     margin-bottom: 10px;
+    width: 60%;
+    white-space: nowrap;      /* 텍스트를 한 줄로 표시 */
+    overflow: hidden;         /* 넘치는 텍스트를 숨김 */
+    text-overflow: ellipsis;  /* 넘친 부분을 ...으로 표시 */
 }
 
 .post-date {

@@ -222,6 +222,10 @@ body, html {
 .post-content {
     color: #555;
     font-size: 16px;
+    white-space: nowrap;      /* 텍스트를 한 줄로 표시 */
+    overflow: hidden;         /* 넘치는 텍스트를 숨김 */
+    text-overflow: ellipsis;  /* 넘친 부분을 ...으로 표시 */
+    width: 60%;
 }
 
 .post-date {

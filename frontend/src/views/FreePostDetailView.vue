@@ -209,7 +209,7 @@ onMounted(() => {
                     </div>
                 </template>
                 <template v-else>
-                    <p class="comment-content">{{ comment.content }}</p>
+                    <pre class="comment-content">{{ comment.content }}</pre>
                     <p class="comment-date">{{ formatRelativeTime(comment.createdAt) }}</p>
                     <div v-if="currentUserNickname === comment.author || isPostAuthor || isAdmin" class="comment-actions">
                         <button @click="startEditComment(comment)" class="edit-btn" v-if="currentUserNickname === comment.author">수정</button>
@@ -265,6 +265,8 @@ h2 {
 }
 
 .post-body {
+    white-space: pre-wrap;
+    word-wrap: break-word;
     line-height: 1.6;
     color: #333;
     margin-bottom: 40px; /* 버튼을 위한 여백 */
@@ -320,6 +322,7 @@ h3 {
 
 .comment-content {
     margin-bottom: 30px; /* 버튼을 위한 여백 */
+    white-space: pre-wrap
 }
 
 .comment-actions {

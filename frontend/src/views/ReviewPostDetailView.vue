@@ -220,7 +220,7 @@ onMounted(() => {
                     </div>
                 </template>
                 <template v-else>
-                    <p class="comment-content">{{ comment.content }}</p>
+                    <pre class="comment-content">{{ comment.content }}</pre>
                     <p class="comment-date">{{ formatRelativeTime(comment.createdAt) }}</p>
                     <div v-if="currentUserNickname === comment.author || isPostAuthor || isAdmin" class="comment-actions">
                         <button @click="startEditComment(comment)" class="edit-btn" v-if="currentUserNickname === comment.author">수정</button>
@@ -249,6 +249,10 @@ onMounted(() => {
     font-weight: bold;
     color: #333;
     margin-bottom: 15px;
+    white-space: nowrap;      /* 텍스트를 한 줄로 표시 */
+    overflow: hidden;         /* 넘치는 텍스트를 숨김 */
+    text-overflow: ellipsis;  /* 넘친 부분을 ...으로 표시 */
+    width: 60%;
 }
 
 .review-content {
@@ -387,6 +391,7 @@ h3 {
 
 .comment-content {
     margin-bottom: 30px; /* 버튼을 위한 여백 */
+    white-space: pre-wrap;
 }
 
 .comment-actions {
