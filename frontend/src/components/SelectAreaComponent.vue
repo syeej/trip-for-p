@@ -99,7 +99,15 @@ const handleRegionClick = (event, d) => {
     setTimeout(() => {
         const button = document.querySelector('.next-button');
         if (button) {
-            button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const buttonRect = button.getBoundingClientRect();
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+            // 버튼이 뷰포트 안에 일정 정도 보이는지 확인
+            const isButtonPartiallyVisible = buttonRect.top < viewportHeight && buttonRect.bottom > 0;
+
+            if (!isButtonPartiallyVisible) {
+                button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     }, 100);
 };

@@ -489,7 +489,9 @@ const isSaveButtonEnabled = computed(() => {
                      :style="{ display: index === currentDateIndex ? 'block' : 'none' }">
                 </div>
             </div>
-            <SearchPlaceComponent @place-selected="place => addPlace(place, dates[currentDateIndex])"/>
+            <div class="search-component-wrapper">
+                <SearchPlaceComponent @place-selected="place => addPlace(place, dates[currentDateIndex])"/>
+            </div>
             <ItineraryComponent
                 :places="selectedPlaces[currentDate]"
                 :routeInfo="kakaoRouteInfo"
@@ -512,6 +514,10 @@ const isSaveButtonEnabled = computed(() => {
     flex-direction: column;
     width: 100%;
     margin: 0 auto;
+}
+.search-component-wrapper {
+    position: relative;
+    z-index: 1000;
 }
 
 .map-search-container {
@@ -587,6 +593,11 @@ const isSaveButtonEnabled = computed(() => {
     display: flex;
     gap: 10px;
     justify-content: center;
+    position: relative;  /* 상대 위치 설정 */
+    z-index: 999;  /* 높은 z-index 값 설정 */
+    background-color: white;  /* 배경색 설정 */
+    padding: 10px;  /* 패딩 추가 */
+    margin-top: 20px;  /* 상단 여백 추가 */
 }
 .save-plan-button, .back-button {
     margin-top: 20px;
@@ -601,6 +612,8 @@ const isSaveButtonEnabled = computed(() => {
     transition: background-color 0.3s ease, transform 0.1s ease;
     align-self: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    position: relative;  /* 상대 위치 설정 */
+    z-index: 1001;  /* 버튼 컨테이너보다 더 높은 z-index 값 */
 }
 
 .save-plan-button:hover, .back-button:hover {
@@ -616,6 +629,7 @@ const isSaveButtonEnabled = computed(() => {
     background-color: #cccccc;
     cursor: not-allowed;
 }
+
 
 @media (max-width: 600px) {
     .date-navigation {
@@ -636,6 +650,14 @@ const isSaveButtonEnabled = computed(() => {
     .save-plan-button {
         width: 100%;
         padding: 15px;
+    }
+    .button-container {
+        flex-direction: column;
+    }
+
+    .save-plan-button, .back-button {
+        width: 100%;
+        margin-top: 10px;
     }
 }
 </style>

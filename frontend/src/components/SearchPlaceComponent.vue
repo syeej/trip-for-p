@@ -1,10 +1,13 @@
 <script setup>
-import {defineEmits, ref} from 'vue';
+import {defineEmits, onMounted, onUnmounted, ref} from 'vue';
 import axios from "axios";
 
+const showResults = ref(false);
 const searchQuery = ref('');
 const searchResults = ref([]);
-const searchInputRef = ref(null);
+const searchInputRef = ref([]);
+const searchComponentRef = ref(null);
+const isSearching = ref(false);
 const emit = defineEmits(['place-selected']);
 
 const getCategoryName = (contentTypeId) => {
@@ -24,11 +27,15 @@ const getCategoryName = (contentTypeId) => {
 const searchPlace = async () => {
     if (!searchQuery.value) return;
 
+    showResults.value = true;
+    isSearching.value = true;
+
+
     try {
         const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/searchKeyword1', {
             params: {
                 serviceKey: process.env.VUE_APP_DATA_KEY,
-                numOfRows: 20,
+                numOfRows: 100,
                 pageNo: 1,
                 MobileOS: 'ETC',
                 MobileApp: 'AppTest',
@@ -41,26 +48,33 @@ const searchPlace = async () => {
 
         if (response.data.response.header.resultCode === '0000') {
             searchResults.value = response.data.response.body.items.item
-            .filter(item =>
-                item.contentid &&
-                item.addr1 &&
-                getCategoryName(item.contenttypeid) &&
-                item.title
-            )
-            .map(item => ({
-                id: item.contentid,
-                address_name: item.addr1,
-                category_name: getCategoryName(item.contenttypeid),
-                place_name: item.title,
-                x: item.mapx,
-                y: item.mapy,
-                image_url: item.firstimage || ''
-            }));
+                ? response.data.response.body.items.item
+                .filter(item =>
+                    item.contentid &&
+                    item.addr1 &&
+                    getCategoryName(item.contenttypeid) &&
+                    item.title
+                )
+                .map(item => ({
+                    id: item.contentid,
+                    address_name: item.addr1,
+                    category_name: getCategoryName(item.contenttypeid),
+                    place_name: item.title,
+                    x: item.mapx,
+                    y: item.mapy,
+                    image_url: item.firstimage || ''
+                }))
+                : [];
         } else {
             console.error('API 오류:', response.data.response.header.resultMsg);
+            searchResults.value = [];
         }
     } catch (error) {
         console.error('검색 중 오류 발생:', error);
+        searchResults.value = [];
+    } finally {
+        isSearching.value = false;
+        console.log('Search completed. Results:', searchResults.value.length);
     }
 };
 
@@ -68,6 +82,7 @@ const selectPlace = (place) => {
     emit('place-selected', place);
     searchQuery.value = '';
     searchResults.value = [];
+    showResults.value = false;
 };
 
 const scrollToInput = () => {
@@ -75,10 +90,24 @@ const scrollToInput = () => {
         searchInputRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 };
+
+const handleClickOutside = (event) => {
+    if (searchComponentRef.value && !searchComponentRef.value.contains(event.target)) {
+        showResults.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
-    <div class="search-place">
+    <div class="search-place" ref="searchComponentRef">
         <div class="search-input-container">
             <input
                 ref="searchInputRef"
@@ -90,12 +119,18 @@ const scrollToInput = () => {
             >
             <button @click="searchPlace" class="search-button">검색</button>
         </div>
-        <ul v-if="searchResults.length > 0" class="search-results">
-            <li v-for="place in searchResults" :key="place.id" @click="selectPlace(place)">
-                <div class="place-name">{{ place.place_name }}</div>
-                <div class="place-address">{{ place.address_name }}</div>
-            </li>
-        </ul>
+        <div v-if="showResults" class="search-results">
+            <div v-if="isSearching" class="searching">검색 중...</div>
+            <ul v-else-if="searchResults.length > 0">
+                <li v-for="place in searchResults" :key="place.id" @click="selectPlace(place)">
+                    <div class="place-name">{{ place.place_name }}</div>
+                    <div class="place-address">{{ place.address_name }}</div>
+                </li>
+            </ul>
+            <div v-else class="no-results">
+                검색 결과가 없습니다.
+            </div>
+        </div>
     </div>
 </template>
 
@@ -140,13 +175,20 @@ const scrollToInput = () => {
 }
 
 .search-results {
-    list-style-type: none;
-    padding: 0;
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.searching, .no-results {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
 }
 
 .search-results li {

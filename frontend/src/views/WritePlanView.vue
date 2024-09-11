@@ -162,6 +162,13 @@ const toggleLeftSidebar = () => {
 const handleAreaSelected = (region) => {
     selectedRegion.value = region;
     currentStep.value = 'day';
+    // 버튼으로 스크롤
+    setTimeout(() => {
+        const button = document.querySelector('.calendar');
+        if (button) {
+            button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
 };
 
 const handleBackToArea = () => {
@@ -175,7 +182,12 @@ const handleDatesSelected = (dates) => {
     endDate.value = dates.end;
     currentStep.value = 'place';
     showLeftSidebar.value = true;
-    showRightSidebar.value = false;
+    setTimeout(() => {
+        const button = document.querySelector('.map-search-container');
+        if (button) {
+            button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
     getAIInfo();
 };
 
