@@ -56,10 +56,10 @@ const logout = function () {
 
 <style scoped>
 header {
-    z-index:2;
+    z-index: 2;
     width: 100%;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .header-container {
@@ -96,23 +96,55 @@ header {
 }
 
 .submenu-nav {
-    background-color: #f8f8f8;
-    border-top: 1px solid #eaeaea;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
 }
 
 .submenu {
-    width: 60%;
+    width: 40%;
     max-width: 1200px;
     min-width: 320px;
     margin: 0 auto;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     list-style-type: none;
-    padding: 10px 0;
+    padding: 0;
 }
+
 .submenu li {
+    position: relative;
     flex: 1;
     text-align: center;
+    white-space: nowrap;
+}
+
+.submenu li a {
+    display: block;
+    padding: 15px 20px;
+    color: #495057;
+    font-weight: 500;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.submenu li a:hover {
+    color: #007bff;
+    background-color: #e9ecef;
+}
+
+.submenu li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background-color: #007bff;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.submenu li a:hover::after {
+    width: 100%;
+    left: 0;
 }
 
 a {
@@ -152,8 +184,10 @@ a {
     }
     .submenu li {
         flex: 0 0 50%;
+    }
+    .submenu li a {
         text-align: center;
-        padding: 5px 0;
+        padding: 10px 0;
     }
 }
 
@@ -171,6 +205,9 @@ a {
     }
     .auth-menu li:nth-child(2) {
         display: none;
+    }
+    .submenu li {
+        flex: 0 0 100%;
     }
 }
 </style>

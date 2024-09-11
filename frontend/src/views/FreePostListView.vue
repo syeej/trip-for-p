@@ -19,7 +19,7 @@ const getFreePostList = async function () {
 
         const response = await getFreePostListAPI(request);
         posts.value = response.data.content;
-        totalPages.value = response.data.totalPages;
+        totalPages.value = response.data.totalPages === 0 ? 1 : response.data.totalPages;
     } catch (error) {
         console.error('Error fetching posts:', error);
     }
