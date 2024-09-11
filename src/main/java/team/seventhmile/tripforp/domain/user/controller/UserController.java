@@ -2,6 +2,7 @@ package team.seventhmile.tripforp.domain.user.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,7 @@ public class UserController {
 
 	// 회원가입
 	@PostMapping("/registration")
-	public ResponseEntity<?> signup(@RequestBody UserDto userDto) {
+	public ResponseEntity<?> signup(@Valid @RequestBody UserDto userDto) {
 
 		userService.register(userDto);
 
@@ -73,7 +74,7 @@ public class UserController {
 	@PatchMapping("/me")
 	public ResponseEntity<UserInfoResponse> updateUser(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestBody UserInfoRequest userInfoReq) {
+		@Valid @RequestBody UserInfoRequest userInfoReq) {
 		log.info("userController : userinfoReq {}", userInfoReq);
 		return ResponseEntity.ok(userService.updateInfo(userDetails, userInfoReq));
 	}
@@ -81,13 +82,13 @@ public class UserController {
 	//비밀번호 변경
 	@PatchMapping("/me/password")
 	public ResponseEntity<?> modifyPassword(HttpServletRequest request,
-		@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
+		@Valid @RequestBody ModifyPasswordRequest modifyPasswordRequest) {
 		return userService.modifyPassword(request, modifyPasswordRequest.getNewPassword());
 	}
 
 	//비밀번호 찾기(비밀번호 재설정)
 	@PostMapping("/password/renewal")
-	public ResponseEntity<?> resetPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
+	public ResponseEntity<?> resetPassword(@Valid @RequestBody FindPasswordRequest findPasswordRequest) {
 		log.info("controller : {}", findPasswordRequest.getNewPassword());
 		return userService.findPassword(findPasswordRequest.getEmail(),
 			findPasswordRequest.getNewPassword());
