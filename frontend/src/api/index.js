@@ -345,6 +345,10 @@ const getUserInfoAPI = function () {
     return authInstance.get(`/api/users/me`);
 };
 
+const getAIUserAPI = function (clientId) {
+    return authInstance.get(`/api/alan/user?client_id=${clientId}`);
+}
+
 export {
     getPopularPlanListAPI,
     getPopularPlaceListAPI,
@@ -395,5 +399,6 @@ export {
     getMyLikedPlansAPI,
     withdrawalUserAPI,
     refreshTokenAPI,
-    getUserInfoAPI
+    getUserInfoAPI,
+    getAIUserAPI
 }
