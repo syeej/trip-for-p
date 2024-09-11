@@ -6,21 +6,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
+import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import team.seventhmile.tripforp.domain.plan.dto.AranPlanDto;
 import team.seventhmile.tripforp.domain.plan.dto.GetPlanListResponse;
-import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
-import team.seventhmile.tripforp.domain.plan.dto.PlanGetItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.PlanItemDto;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
-import team.seventhmile.tripforp.domain.plan.entity.PlanItem;
 import team.seventhmile.tripforp.domain.plan.repository.PlanRepository;
 import team.seventhmile.tripforp.domain.plan.service.PlanLikeService;
 import team.seventhmile.tripforp.domain.plan.service.PlanService;
@@ -28,6 +27,7 @@ import team.seventhmile.tripforp.domain.user.dto.UserIdResponse;
 import team.seventhmile.tripforp.domain.user.entity.User;
 import team.seventhmile.tripforp.domain.user.repository.UserRepository;
 import team.seventhmile.tripforp.external.alan.dto.AlanApiResponse;
+import team.seventhmile.tripforp.external.alan.dto.AreaRecsRequest;
 import team.seventhmile.tripforp.global.exception.AuthCustomException;
 import team.seventhmile.tripforp.global.exception.ErrorCode;
 import team.seventhmile.tripforp.global.exception.ResourceNotFoundException;
@@ -62,6 +62,89 @@ public class AlanApiService {
             .toUriString();
         return restTemplate.getForObject(url, AlanApiResponse.class);
 
+    }
+
+    public String getRecommendationsByArea(String clientId,
+        AreaRecsRequest request) {
+        String area = request.getArea();
+
+        String totalDate = request.getStartDate().toString() + " - " + request.getEndDate().toString();
+
+        String content = URLEncoder.encode(
+                totalDate +
+                "이 기간동안 날씨와 " +
+                area + " 지역 안에서 여행기간동안 열리는 체험행사와 축제를 알려주고 여행지를 추천해줘.",
+            StandardCharsets.UTF_8);
+        System.out.println("content: "+content);
+        String url = UriComponentsBuilder.fromHttpUrl(
+                "https://kdt-api-function.azurewebsites.net" + "/api/v1/question")
+            .queryParam("content", content)
+            .queryParam("client_id", clientId)
+            .encode()
+            .toUriString();
+
+        try {
+            String getContent = Objects.requireNonNull(
+                restTemplate.getForObject(url, AlanApiResponse.class)).getContent();
+
+            return getContent;
+            //return convertToHtml(getContent);
+        } catch (ResourceAccessException e) {
+            // 네트워크 또는 접근 실패 시 처리
+            return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.: 네트워크 오류";
+        } catch (NullPointerException e) {
+            // 응답이 null일 경우 처리
+            return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.: 데이터 없음";
+        } catch (Exception e) {
+            // 그 외 모든 예외 처리
+            return "해당 지역 추천 여행지를 불러오는 데에 실패했습니다.";
+        }
+
+    }
+
+    // 사용할지 고민해봐야함
+    public String convertToHtml(String text) {
+        StringBuilder html = new StringBuilder();
+        html.append("<html><body>\n");
+
+        // 텍스트를 줄 단위로 분할
+        String[] lines = text.split("\n");
+
+        for (String line : lines) {
+            if (line.startsWith("###")) {
+                // ### 헤더를 h3 태그로 변환
+                html.append("<h3>").append(line.substring(4)).append("</h3>\n");
+            } else if (line.startsWith("##")) {
+                // ## 헤더를 h2 태그로 변환
+                html.append("<h2>").append(line.substring(3)).append("</h2>\n");
+            } else if (line.matches("^\\d+\\.\\s.*")) {
+                // 번호 매긴 목록을 <ol> 태그로 변환
+                if (!html.toString().endsWith("</ol>\n")) {
+                    html.append("<ol>\n");
+                }
+                html.append("<li>").append(line.replaceFirst("^\\d+\\.\\s", "")).append("</li>\n");
+            } else if (!line.trim().isEmpty()) {
+                // <ol>이 열려있다면 닫기
+                if (html.toString().endsWith("</li>\n")) {
+                    html.append("</ol>\n");
+                }
+                // 일반 텍스트를 <p> 태그로 변환
+                html.append("<p>").append(line).append("</p>\n");
+            }
+        }
+
+        // <ol>이 아직 열려있다면 닫기
+        if (html.toString().endsWith("</li>\n")) {
+            html.append("</ol>\n");
+        }
+
+        // **굵은 텍스트**를 <strong> 태그로 변환
+        Pattern boldPattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
+        Matcher boldMatcher = boldPattern.matcher(html);
+        html = new StringBuilder(boldMatcher.replaceAll("<strong>$1</strong>"));
+
+        html.append("</body></html>");
+        return html.toString();
     }
 
     //개인맞춤형 ai 여행코스추천서비스
@@ -123,30 +206,18 @@ public class AlanApiService {
 
     //개인맞춤형 ai 여행코스추천서비스
     public AlanApiResponse userprocessAlanApiRequestV2(String clientId,UserDetails userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-            .orElseThrow(() -> new ResourceNotFoundException(User.class));
-
-        Set<String> places = new HashSet<>();
         List<String> areas = new ArrayList<>();
         // 사용자가 등록한 여행 코스 최신 10개
         Page<GetPlanListResponse> myPlanList = planService.getMyPlanList(userDetails,
             PageRequest.of(0, 10));
         for (GetPlanListResponse plan : myPlanList) {
             areas.add(plan.getArea());
-//            GetPlanResponse myPlan = planService.getPlanById(plan.getId());
-//            for (PlanGetItemDto planItem : myPlan.getPlanItems()) {
-//                places.add(planItem.getPlace().getPlaceName());
-//            }
         }
         // 사용자가 좋아요한 여행 코스 최신 10개
         Page<GetPlanListResponse> myLikePlanList = planLikeService.getMyFavPlanList(userDetails,
             PageRequest.of(0, 10));
         for (GetPlanListResponse plan : myLikePlanList) {
             areas.add(plan.getArea());
-//            GetPlanResponse myPlan = planService.getPlanById(plan.getId());
-//            for (PlanGetItemDto planItem : myPlan.getPlanItems()) {
-//                places.add(planItem.getPlace().getPlaceName());
-//            }
         }
 
         StringBuilder contentBuilder = new StringBuilder();
