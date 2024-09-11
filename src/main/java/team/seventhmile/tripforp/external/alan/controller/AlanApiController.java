@@ -18,8 +18,12 @@ public class AlanApiController {
     @GetMapping
     public AlanApiResponse process(
         @RequestParam(name = "content") String content,
-        @RequestParam(name = "client_id") String clientId
+        @RequestParam(name = "client_id") String clientId,
+        @RequestParam(name = "start_date", required = false) String startDate,
+        @RequestParam(name = "end_date", required = false) String endDate,
+        @RequestParam(name = "interests", required = false) String interests,
+        @RequestParam(name = "budget", required = false) String budget
     ) {
-        return alanApiService.processAlanApiRequest(content, clientId);
+        return alanApiService.processAlanApiRequest(content, clientId, startDate, endDate, interests, budget);
     }
 }
