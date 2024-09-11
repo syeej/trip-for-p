@@ -18,7 +18,6 @@ import team.seventhmile.tripforp.domain.plan.dto.GetPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.GetPopularPlanResponse;
 import team.seventhmile.tripforp.domain.plan.dto.PlanGetDto;
 import team.seventhmile.tripforp.domain.plan.dto.PlanListItemDto;
-import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanItemRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanRequest;
 import team.seventhmile.tripforp.domain.plan.dto.UpdatePlanResponse;
 import team.seventhmile.tripforp.domain.plan.entity.Area;
@@ -72,9 +71,7 @@ public class PlanService {
 
         plan.updatePlan(request);
 
-        for (UpdatePlanItemRequest planItemRequest : request.getPlanItems()) {
-            planItemService.updateOrCreatePlanItem(plan, planItemRequest);
-        }
+        planItemService.managePlanItems(plan, request.getPlanItems());
 
         return new UpdatePlanResponse(id);
     }

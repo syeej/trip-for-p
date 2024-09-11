@@ -3,7 +3,6 @@ package team.seventhmile.tripforp.domain.plan.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.seventhmile.tripforp.domain.plan.dto.CreatePlanItemRequest;
@@ -36,28 +35,39 @@ public class PlanItemService {
     }
 
     @Transactional
-    public void updateOrCreatePlanItem(Plan plan, UpdatePlanItemRequest request) {
-        Place place = placeService.findOrCreatePlace(request.getPlace());
+    public void managePlanItems(Plan plan, List<UpdatePlanItemRequest> requests) {
 
-        if (request.getId() != null) {
-            PlanItem planItem = planItemRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(PlanItem.class, request.getId()));
-            if (request.getAction().equals("update")) {
-                planItem.updatePlanItem(place, request);
-            } else if (request.getAction().equals("delete")) {
+        requests.stream()
+            .filter(req -> req.getAction().equals("delete"))
+            .forEach(req -> {
+                PlanItem planItem = planItemRepository.findById(req.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException(PlanItem.class, req.getId()));
                 plan.removePlanItem(planItem);
-                planItemRepository.flush();
-            }
+            });
+        planItemRepository.flush();
 
-        } else if (request.getAction().equals("create")) {
-            PlanItem planItem = PlanItem.builder()
-                .place(place)
-                .sequence(request.getSequence())
-                .tripDate(request.getTripDate())
-                .memo(request.getMemo())
-                .build();
-            plan.addPlanItem(planItem);
-        }
+        requests.stream()
+            .filter(req -> req.getAction().equals("update"))
+            .forEach(req -> {
+                Place place = placeService.findOrCreatePlace(req.getPlace());
+                PlanItem planItem = planItemRepository.findById(req.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException(PlanItem.class, req.getId()));
+                planItem.updatePlanItem(place, req);
+            });
+        planItemRepository.flush();
+
+        requests.stream()
+            .filter(req -> req.getAction().equals("create"))
+            .forEach(req -> {
+                Place place = placeService.findOrCreatePlace(req.getPlace());
+                PlanItem savePlanItem = PlanItem.builder()
+                    .place(place)
+                    .sequence(req.getSequence())
+                    .tripDate(req.getTripDate())
+                    .memo(req.getMemo())
+                    .build();
+                plan.addPlanItem(savePlanItem);
+            });
     }
 
     public List<GetPlaceCountResponse> getPlaceCount() {
