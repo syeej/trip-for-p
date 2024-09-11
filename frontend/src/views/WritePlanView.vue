@@ -78,7 +78,7 @@ const getAIUser = async function () {
     try {
         message.value = '추천 정보를 불러오는 중';
         userErrorMessage.value = null;
-        const response = await getAIUserAPI('22b6f30e-e43a-4b66-a7f1-320e7b724c96');
+        const response = await getAIUserAPI(process.env.VUE_APP_ALAN_KEY_USER);
         userAnswer.value = response.data.content;
         if (userAnswer.value !== '사용자 데이터가 부족합니다.') {
             isLoading.value = false;
@@ -99,7 +99,7 @@ const getAIInfo = async function () {
         infoMessage.value = '지역 정보를 불러오는 중';
         infoErrorMessage.value = null;
         const request = {
-            clientId: '4e37d38c-a72c-4cf8-8fa2-0a945e964b1c',
+            clientId: process.env.VUE_APP_ALAN_KEY_INFO,
             area: selectedRegion.value,
             startDate: startDate.value,
             endDate: endDate.value,
