@@ -42,7 +42,6 @@ public class PlanRepositoryImpl implements PlanRepositoryCustom {
             .from(qPlan)
             .where(equalArea(area))
             .leftJoin(qPlan.user).fetchJoin()
-            .leftJoin(qPlan.planLikes)
             .orderBy(qPlan.createdAt.desc())
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
