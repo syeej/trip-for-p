@@ -3,8 +3,10 @@ package team.seventhmile.tripforp.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +22,7 @@ import team.seventhmile.tripforp.global.jwt.LoginFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -61,10 +64,15 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/", "/api").permitAll()
+                // users
                 .requestMatchers("/api/users/registration", "/api/users/nickname-verification",
                     "/api/users/signin", "/api/users/password/renewal", "/api/mails/**").permitAll()
                 .requestMatchers("/api/users/reissue", "/api/users/signout", "/api/users/me/**",
                     "/api/users/deletion").hasAnyRole("ADMIN", "USER")
+                // plans
+                .requestMatchers(HttpMethod.GET, "/api/plans/me").hasRole("USER")
+                .requestMatchers(HttpMethod.GET,"/api/plans", "/api/plans/popular-plans", "/api/plans/popular-places","/api/plans/*").permitAll()
+
                 .anyRequest().authenticated());
 
         //JWTFilter 등록
