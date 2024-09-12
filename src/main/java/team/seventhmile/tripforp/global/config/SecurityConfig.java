@@ -74,6 +74,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,"/api/plans", "/api/plans/popular-plans", "/api/plans/popular-places","/api/plans/*").permitAll()
                 // plan-likes
                 .requestMatchers("/api/plan-likes/**").hasAnyRole("USER")
+                // magazines
+                .requestMatchers(HttpMethod.GET, "/api/magazines", "/api/magazines/*").permitAll()
 
                 .anyRequest().authenticated());
 
