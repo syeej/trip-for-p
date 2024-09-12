@@ -94,7 +94,7 @@
 <br>
 
 ## 배포 URL 및 테스트 계정
-- 배포 URL: [Trip For P]([https://www.youtube.com/watch?v=5ZE6PsUTqrM](http://54.180.168.123/))
+- 배포 URL: [Trip For P](http://54.180.168.123/))
 - 테스트 계정: ID: testuser PW: qweqwe123
 
 <br>
