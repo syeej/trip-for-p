@@ -79,6 +79,9 @@ public class SecurityConfig {
                 // free-posts
                 .requestMatchers(HttpMethod.GET, "/api/free-posts/me").hasRole("USER")
                 .requestMatchers(HttpMethod.GET, "/api/free-posts", "/api/free-posts/*", "/api/free-posts/*/comments").permitAll()
+                // review-posts
+                .requestMatchers(HttpMethod.GET, "/api/review-posts/me").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/review-posts", "/api/review-posts/*", "/api/review-posts/*/comments").permitAll()
 
                 .anyRequest().authenticated());
 
