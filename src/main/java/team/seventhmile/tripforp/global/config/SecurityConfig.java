@@ -82,7 +82,8 @@ public class SecurityConfig {
                 // review-posts
                 .requestMatchers(HttpMethod.GET, "/api/review-posts/me").hasRole("USER")
                 .requestMatchers(HttpMethod.GET, "/api/review-posts", "/api/review-posts/*", "/api/review-posts/*/comments").permitAll()
-
+                // alan
+                .requestMatchers("/api/alan", "/api/alan/**").hasAnyRole("ADMIN", "USER")
                 .anyRequest().authenticated());
 
         //JWTFilter 등록
