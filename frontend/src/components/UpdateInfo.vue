@@ -24,7 +24,7 @@ const passwordVerificationMessage = ref('');
 const getUserInfo = async () => {
   try {
     const response = await getUserInfoAPI();
-    console.log(response); // 응답을 확인
+    //console.log(response); // 응답을 확인
     return response.data;
   } catch (error) {
     console.error('API 호출 에러:', error); // 에러 내용 확인
@@ -75,7 +75,7 @@ watch(nickname, (newValue, oldValue) => {
 
 // 비밀번호 검증
 const validatePassword = () => {
-  const regex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/;
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
   return regex.test(password.value);
 };
 
@@ -83,7 +83,7 @@ watch([password, passwordCheck], () => {
   if (password.value || passwordCheck.value) {
     if (!validatePassword()) {
       isPasswordValid.value = false;
-      passwordVerificationMessage.value = '영문 대/소문자와 숫자 조합으로 8~16자리로 입력하세요.';
+      passwordVerificationMessage.value = '영문 대/소문자 + 숫자 + 특수문자 조합의 8~16자리로만 가능합니다.';
     } else if (password.value !== passwordCheck.value) {
       isPasswordValid.value = false;
       passwordVerificationMessage.value = '비밀번호가 일치하지 않습니다.';
@@ -95,44 +95,57 @@ watch([password, passwordCheck], () => {
 });
 
 const isFormValid = computed(() => {
-  return (password.value || passwordCheck.value) && passwordCheck.value && nickname.value && isNicknameVerified.value && isPasswordValid.value;
+  const isNicknameValid = nickname.value && isNicknameVerified.value;
+  const isPasswordValid = !password.value || (password.value && passwordCheck.value && password.value === passwordCheck.value);
+  return isNicknameValid || isPasswordValid;
 });
 
 const updateUserInfo = async () => {
   try {
-    if (!nickname.value) {
-      alert('닉네임을 입력하세요.');
-      return;
-    }
-    if (!isNicknameVerified.value) {
-      alert('닉네임 중복 확인이 필요합니다.');
-      return;
-    }
-    if (password.value && !validatePassword()) {
-      alert('영문 대/소문자와 숫자 조합으로 8~16자리로 입력하세요.');
-      return;
-    }
-    if (password.value && password.value !== passwordCheck.value) {
-      alert('비밀번호가 일치하지 않습니다.');
-      return;
+    const updateUserRequest = {};
+
+    if (nickname.value && isNicknameVerified.value && nickname.value !== userInfo.value.nickname) {
+      updateUserRequest.nickname = nickname.value;
     }
 
-    const updateUserRequest = {
-      password: passwordCheck.value,
-      nickname: nickname.value,
-    };
+    if (password.value) {
+      if (!validatePassword()) {
+        alert('영문 대/소문자 + 숫자 + 특수문자 조합의 8~16자리로만 가능합니다.');
+        return;
+      }
+      if (password.value !== passwordCheck.value) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      updateUserRequest.password = password.value;
+    }
 
-    // 사용자 정보 업데이트 API 호출
-    await axios.patch('/api/users/me', updateUserRequest, {
+    if (Object.keys(updateUserRequest).length === 0) {
+      alert('변경할 정보가 없습니다.');
+      return;
+    }
+    const response = await axios.patch('/api/users/me', updateUserRequest, {
       headers: {
         access: `${store.getters.getAccessToken}`,
       },
     });
+
+    console.log('Server response:', response); // 디버깅용
+
     alert('회원 정보가 수정되었습니다.');
+    window.location.reload();
   } catch (error) {
-    alert(error.message || '회원 정보 수정 중 오류가 발생했습니다.');
+    console.error('Error updating user info:', error.response || error); // 디버깅용
+    if (error.response && error.response.data) {
+      if(error.response.data.errors.length > 0){
+        alert(error.response.data.errors[0]);
+      }else {
+        alert(error.response.data.message || '회원 정보 수정 중 오류가 발생했습니다.');
+      }
+    } else {
+      alert('서버와의 통신 중 오류가 발생했습니다.');
+    }
   }
-  window.location.reload();
 };
 </script>
 

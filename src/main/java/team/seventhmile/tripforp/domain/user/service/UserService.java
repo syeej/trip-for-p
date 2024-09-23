@@ -161,11 +161,14 @@ public class UserService {
 			.orElseThrow(() -> new AuthCustomException(ErrorCode.USER_NOT_FOUND));
 		// 닉네임 업데이트 (수정 요청 있는 경우)
 		if (userInfoReq.getNickname() != null && !userInfoReq.getNickname().isEmpty()) {
-			if (userRepository.existsByNickname(userInfoReq.getNickname())) {
-				log.info("MyPage '{}' 사용 중인 Nickname", userInfoReq.getNickname());
-				throw new AuthCustomException(ErrorCode.NICKNAME_ALREADY_IN_USE);
+			// 변경: 현재 닉네임과 새 닉네임이 다른 경우에만 업데이트 진행
+			if (!updatedUser.getNickname().equals(userInfoReq.getNickname())) {
+				if (userRepository.existsByNickname(userInfoReq.getNickname())) {
+					log.info("MyPage '{}' 사용 중인 Nickname", userInfoReq.getNickname());
+					throw new AuthCustomException(ErrorCode.NICKNAME_ALREADY_IN_USE);
+				}
+				updatedUser.updateNickname(userInfoReq.getNickname());
 			}
-			updatedUser.updateNickname(userInfoReq.getNickname());
 		}
 		//비밀번호 변경(수정 요청 있는 경우)
 		if (userInfoReq.getPassword() != null && !userInfoReq.getPassword().isEmpty()) {
